@@ -1,0 +1,38 @@
+{
+    "name": "phug/formatter",
+    "type": "library",
+    "keywords": ["phug", "ast", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
+    "description": "",
+    "license": "MIT",
+    "homepage": "http://phug-lang.com",
+    "authors": [
+        {
+            "name": "KyleKatarn",
+            "email": "jade-php@selfbuild.fr",
+            "homepage": "http://github.com/kylekatarnls"
+        },
+        {
+            "name": "Torben Koehn",
+            "email": "torben@talesoft.codes"
+        }
+    ],
+    "support": {
+        "email": "support@phug-lang.com",
+        "issues": "https://github.com/phug-php/ast/issues",
+        "source": "https://github.com/phug-php/ast",
+        "docs": "http://phug-lang.com/docs"
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.0",
+        "phug/util": "^0.1.0",
+        "phug/parser": "*@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "./src"
+        }
+    },
+    "bin": [],
+    "suggest": {}
+}

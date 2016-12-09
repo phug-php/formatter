@@ -1,0 +1,20 @@
+
+language: php
+
+git:
+    depth: 5
+
+php:
+    - 5.5
+    - 5.6
+    - 7.0
+    - hhvm
+
+install:
+    - php bin/check $TRAVIS_PHP_VERSION install
+
+script:
+    - php bin/check $TRAVIS_PHP_VERSION
+
+notifications:
+    slack: phug:nzXFnxhU14RWK2EQSDL0u08z
