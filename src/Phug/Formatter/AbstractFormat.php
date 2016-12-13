@@ -2,6 +2,10 @@
 
 namespace Phug\Formatter;
 
-abstract class AbstractFormat implements FormatInterface
+use Phug\Util\OptionInterface;
+use Phug\Util\Partial\OptionTrait;
+
+abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
+    use OptionTrait;
 }

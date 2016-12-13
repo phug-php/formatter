@@ -5,20 +5,18 @@ namespace Phug\Formatter\Format;
 use Phug\Formatter\AbstractFormat;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\MarkupElement;
-use Phug\Util\Partial\OptionTrait;
 
 class HtmlFormat extends AbstractFormat
 {
-    use OptionTrait;
-
     public function __construct(array $options = null)
     {
 
-        $this->options = array_replace_recursive([
+        $this->setOptionsRecursive([
             'element_handlers' => [
                 MarkupElement::class => [$this, 'formatMarkupElement'],
             ],
-        ], $options ?: []);
+        ]);
+        $this->setOptionsRecursive($options ?: []);
     }
 
     public function __invoke(ElementInterface $element)
