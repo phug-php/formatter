@@ -12,7 +12,7 @@ $commands = [
 ];
 
 //If not HHVM
-if (!$isHhvm) {
+if (!$isHhvm && version_compare(PHP_VERSION, '5.4.0', '>=')) {
     $commands[] = ['phpcs'];
     $commands[] = ['php', 'bin/check-coverage'];
 }
