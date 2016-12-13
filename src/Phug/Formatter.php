@@ -31,6 +31,7 @@ class Formatter implements OptionInterface
 
     public function format(ElementInterface $element, $format)
     {
+
         if (!is_a($format, FormatInterface::class, true)) {
             throw new \InvalidArgumentException(
                 "Passed format handler needs to implement ".FormatInterface::class
