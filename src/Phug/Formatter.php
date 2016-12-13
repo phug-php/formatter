@@ -10,7 +10,6 @@ use Phug\Formatter\Format\HtmlFormat;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
-
 class Formatter implements OptionInterface
 {
     use OptionTrait;
