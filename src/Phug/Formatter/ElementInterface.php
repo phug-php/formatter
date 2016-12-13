@@ -4,6 +4,6 @@ namespace Phug\Formatter;
 
 use Phug\Ast\NodeInterface;
 
-interface ElementInterface
+interface ElementInterface extends NodeInterface
 {
 }

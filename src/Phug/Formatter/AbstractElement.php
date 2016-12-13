@@ -2,7 +2,9 @@
 
 namespace Phug\Formatter;
 
-abstract class AbstractElement implements ElementInterface
+use Phug\Ast\Node;
+
+abstract class AbstractElement extends Node implements ElementInterface
 {
     
 }

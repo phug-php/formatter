@@ -8,16 +8,6 @@ use Phug\Formatter\Element\MarkupElement;
 
 class HtmlFormat extends AbstractFormat
 {
-    public function __construct(array $options = null)
-    {
-
-        $this->options = array_replace_recursive([
-            'element_handlers' => [
-                MarkupElement::class => [$this, 'formatMarkupElement'],
-            ],
-        ], $options ?: []);
-    }
-
     public function __invoke(ElementInterface $element)
     {
 

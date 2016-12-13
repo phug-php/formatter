@@ -14,6 +14,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testMarkupElement()
     {
+
         $img = new MarkupElement('img', ['src' => '/foo/bar.png']);
 
         $this->assertSame('img', $img->getTagName());
