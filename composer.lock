@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "88aa49a8a5cc06301cddfa2d3ed7f36d",
-    "content-hash": "9ed2a4132e4864641f3ccbc9731cad47",
+    "hash": "8dded9010b869bd2c8e7615a4e179e5e",
+    "content-hash": "0c5da44e1b4ca667e57e9ae362f2ea27",
     "packages": [
         {
             "name": "phug/ast",
@@ -216,16 +216,16 @@
         },
         {
             "name": "phug/util",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/util.git",
-                "reference": "2215734b4b8f31bfbd9f3b5cb7196fbec6386132"
+                "reference": "802ed4fbfc3071a6eb08f320e6d97daa00d72f25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/util/zipball/2215734b4b8f31bfbd9f3b5cb7196fbec6386132",
-                "reference": "2215734b4b8f31bfbd9f3b5cb7196fbec6386132",
+                "url": "https://api.github.com/repos/phug-php/util/zipball/802ed4fbfc3071a6eb08f320e6d97daa00d72f25",
+                "reference": "802ed4fbfc3071a6eb08f320e6d97daa00d72f25",
                 "shasum": ""
             },
             "require": {
@@ -262,11 +262,11 @@
                 "util",
                 "views"
             ],
-            "time": "2016-11-29 17:03:33"
+            "time": "2016-12-13 22:58:45"
         },
         {
             "name": "psr/http-message",
-            "version": "1.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-message.git",
@@ -316,7 +316,7 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.3.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -378,9 +378,10 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "phug/util": 20,
         "phug/parser": 20
     },
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.5.0"

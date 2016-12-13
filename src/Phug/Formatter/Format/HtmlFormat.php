@@ -11,12 +11,11 @@ class HtmlFormat extends AbstractFormat
     public function __construct(array $options = null)
     {
 
-        $this->setOptionsRecursive([
+        $this->options = array_replace_recursive([
             'element_handlers' => [
                 MarkupElement::class => [$this, 'formatMarkupElement'],
             ],
-        ]);
-        $this->setOptionsRecursive($options ?: []);
+        ], $options ?: []);
     }
 
     public function __invoke(ElementInterface $element)

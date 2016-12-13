@@ -6,10 +6,24 @@ use Phug\Formatter;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Element\MarkupElement;
 
+/**
+ * @coversDefaultClass \Phug\Formatter
+ */
 class FormatterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Phug\Formatter
+     * @covers ::__construct
+     */
+    public function testConstructor()
+    {
+
+        $formatter = new Formatter(['foo' => 'bar']);
+
+        $this->assertSame('bar', $formatter->getOption('foo'));
+    }
+
+    /**
+     * @covers ::format
      */
     public function testFormat()
     {
@@ -21,11 +35,12 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $link = new MarkupElement('a');
         $format = new HtmlFormat();
+
         $this->assertSame('<a>', $formatter->format($link, $format));
     }
 
     /**
-     * @covers                   Phug\Formatter::format
+     * @covers                   ::format
      * @expectedException        \InvalidArgumentException
      * @expectedExceptionMessage Passed format handler needs to implement
      */

@@ -23,10 +23,9 @@
         "docs": "http://phug-lang.com/docs"
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": ">=5.5.0",
-        "phug/util": "^0.1.0",
+        "phug/util": "*@dev",
         "phug/parser": "*@dev"
     },
     "autoload": {
