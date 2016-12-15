@@ -80,7 +80,7 @@ class XmlFormat extends AbstractFormat
         $content .= sprintf(static::OPEN_PAIR_TAG, $tagAndAttributes);
         if ($element->hasChildren()) {
             $this->indentLevel++;
-            $content .= array_map([$this, 'format'], $elemen->getChildren());
+            $content .= array_map([$this, 'format'], $element->getChildren());
             $this->indentLevel--;
             $content .= $this->getNewIndentedLine();
         }

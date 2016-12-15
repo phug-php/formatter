@@ -60,16 +60,20 @@ class HtmlFormat extends XmlFormat
 
     public function isSelfClosingTag(MarkupElement $element)
     {
-        return $element->belongsTo($this->getOption('self_closing_tags'));
+        $isSelfClosing = $element->belongsTo($this->getOption('self_closing_tags'));
+
+        if ($isSelfClosing && $element->hasChildren()) {
+            throw new FormatterException
+                ($element->getName().' is a self closing element: '.
+                '<'.$element->getName().'/> but contains nested content.'
+            );
+        }
+
+        return $isSelfClosing;
     }
 
     public function isBlockTag(MarkupElement $element)
     {
-        $isBlockTag = !$element->belongsTo($this->getOption('inline_tags'));
-        if (!$isBlockTag && $element->hasChildren()) {
-            throw new FormatterException($element->getName().' is a self closing element: <'.$element->getName().'/> but contains nested content.');
-        }
-
-        return $isBlockTag;
+        return !$element->belongsTo($this->getOption('inline_tags'));
     }
 }
