@@ -216,16 +216,16 @@
         },
         {
             "name": "phug/util",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/util.git",
-                "reference": "802ed4fbfc3071a6eb08f320e6d97daa00d72f25"
+                "reference": "06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/util/zipball/802ed4fbfc3071a6eb08f320e6d97daa00d72f25",
-                "reference": "802ed4fbfc3071a6eb08f320e6d97daa00d72f25",
+                "url": "https://api.github.com/repos/phug-php/util/zipball/06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11",
+                "reference": "06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "util",
                 "views"
             ],
-            "time": "2016-12-13 22:58:45"
+            "time": "2016-12-14 20:47:06"
         },
         {
             "name": "psr/http-message",

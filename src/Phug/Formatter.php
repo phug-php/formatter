@@ -25,7 +25,7 @@ class Formatter implements OptionInterface
     public function __construct(array $options = null)
     {
 
-        $this->options = array_replace_recursive([], $options ?: []);
+        $this->setOptionsRecursive($options ?: []);
     }
 
     public function format(ElementInterface $element, $format)
@@ -38,7 +38,7 @@ class Formatter implements OptionInterface
         }
 
         if (!($format instanceof FormatInterface)) {
-            $format = new $format();
+            $format = new $format($this->getOptions());
         }
 
         return $format($element);

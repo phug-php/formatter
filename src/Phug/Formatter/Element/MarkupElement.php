@@ -3,32 +3,40 @@
 namespace Phug\Formatter\Element;
 
 use Phug\Formatter\AbstractElement;
+use Phug\Util\Partial\AttributeTrait;
+use Phug\Util\Partial\NameTrait;
+use SplObjectStorage;
 
 class MarkupElement extends AbstractElement
 {
-    /**
-     * @var array
-     */
-    protected $attributes;
+    use AttributeTrait;
+    use NameTrait;
 
-    /**
-     * @var string
-     */
-    protected $tagName;
-
-    public function __construct($tagName, array $attributes = null)
+    public function __construct($name, NodeInterface $parent = null, SplObjectStorage $attributes = null, array $children = null)
     {
-        $this->tagName = $tagName;
-        $this->attributes = $attributes ?: [];
+        parent::__construct($parent, $children);
+
+        $this->setName($name);
+        if ($attributes) {
+            $this->getAttributes()->addAll($attributes);
+        }
     }
 
-    public function getTagName()
+    public function getAttribute($name)
     {
-        return $this->tagName;
+        foreach ($this->getAttributes() as $attribute) {
+            if ($attribute->getKey() === $name) {
+                return $attribute->getItem();
+            }
+        }
     }
 
-    public function getAttributes()
+    public function belongsTo(array $tagList)
     {
-        return $this->attributes;
+        if (is_string($this->getName())) {
+            return in_array(strtolower($this->getName()), $tagList);
+        }
+
+        return false;
     }
 }

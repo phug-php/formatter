@@ -2,32 +2,74 @@
 
 namespace Phug\Formatter\Format;
 
-use Phug\Formatter\AbstractFormat;
-use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\FormatterException;
 
-class HtmlFormat extends AbstractFormat
+class HtmlFormat extends XmlFormat
 {
-    public function __invoke(ElementInterface $element)
+    const DOCTYPE = '<!DOCTYPE html>';
+    const SELF_CLOSING_TAG = '<%s>';
+    const BOOLEAN_ATTRIBUTE_PATTERN = ' %s';
+
+    public function __construct(array $options = null)
     {
 
-        return $this->format($element);
+        $this->setOptions([
+            'inline_tags' => [
+                'a',
+                'abbr',
+                'acronym',
+                'b',
+                'br',
+                'code',
+                'em',
+                'font',
+                'i',
+                'img',
+                'ins',
+                'kbd',
+                'map',
+                'samp',
+                'small',
+                'span',
+                'strong',
+                'sub',
+                'sup',
+            ],
+            'self_closing_tags' => [
+                'area',
+                'base',
+                'br',
+                'col',
+                'command',
+                'embed',
+                'hr',
+                'img',
+                'input',
+                'keygen',
+                'link',
+                'meta',
+                'param',
+                'source',
+                'track',
+                'wbr',
+            ],
+        ]);
+        parent::__construct($options);
     }
 
-    public function format(ElementInterface $element)
+    public function isSelfClosingTag(MarkupElement $element)
     {
+        return $element->belongsTo($this->getOption('self_closing_tags'));
+    }
 
-        foreach ($this->getOption('element_handlers') as $className => $handler) {
-            if (is_a($element, $className)) {
-                return $handler($element);
-            }
+    public function isBlockTag(MarkupElement $element)
+    {
+        $isBlockTag = !$element->belongsTo($this->getOption('inline_tags'));
+        if (!$isBlockTag && $element->hasChildren()) {
+            throw new FormatterException($element->getName().' is a self closing element: <'.$element->getName().'/> but contains nested content.');
         }
 
-        return '';
-    }
-
-    public function formatMarkupElement(MarkupElement $element)
-    {
-        return '<' . $element->getTagName() . '>';
+        return $isBlockTag;
     }
 }

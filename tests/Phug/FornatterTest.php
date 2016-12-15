@@ -4,6 +4,8 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
 
 /**
@@ -28,15 +30,20 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     public function testFormat()
     {
 
-        $img = new MarkupElement('img');
         $formatter = new Formatter();
 
-        $this->assertSame('<img>', $formatter->format($img, HtmlFormat::class));
+        $img = new MarkupElement('img');
+
+        $this->assertSame('<!DOCTYPE html><img>', $formatter->format($img, HtmlFormat::class));
 
         $link = new MarkupElement('a');
         $format = new HtmlFormat();
 
-        $this->assertSame('<a>', $formatter->format($link, $format));
+        $this->assertSame('<!DOCTYPE html><a></a>', $formatter->format($link, $format));
+
+        $link = new MarkupElement(new CodeElement('echo $tagName;'));
+
+        $this->assertSame('<!DOCTYPE html><<?php echo $tagName; ?>></<?php echo $tagName; ?>>', $formatter->format($link, $format));
     }
 
     /**
@@ -50,6 +57,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('img');
         $formatter = new Formatter();
 
-        $this->assertSame('<img>', $formatter->format($img, MarkupElement::class));
+        $this->assertSame('<!DOCTYPE html><img>', $formatter->format($img, MarkupElement::class));
     }
 }
