@@ -17,7 +17,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 
         $attributes = new AttributeElement('foo', '/foo/bar.png');
 
-        $this->assertSame('foo', $attributes->getKey());
-        $this->assertSame('/foo/bar.png', $attributes->getItem());
+        self::assertSame('foo', $attributes->getKey());
+        self::assertSame('/foo/bar.png', $attributes->getItem());
     }
 }

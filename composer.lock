@@ -63,18 +63,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/lexer.git",
-                "reference": "a27599b50dab070414fa23924f47ae1988c2ec51"
+                "reference": "6847d32733c7de22751aa572cddee7f86cb7fcf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/lexer/zipball/a27599b50dab070414fa23924f47ae1988c2ec51",
-                "reference": "a27599b50dab070414fa23924f47ae1988c2ec51",
+                "url": "https://api.github.com/repos/phug-php/lexer/zipball/6847d32733c7de22751aa572cddee7f86cb7fcf6",
+                "reference": "6847d32733c7de22751aa572cddee7f86cb7fcf6",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0",
                 "phug/reader": "^0.1.0",
-                "phug/util": "^0.1.0"
+                "phug/util": "^0.1.4"
             },
             "type": "library",
             "autoload": {
@@ -107,7 +107,7 @@
                 "template",
                 "views"
             ],
-            "time": "2016-12-07 17:56:03"
+            "time": "2016-12-15 16:59:20"
         },
         {
             "name": "phug/parser",
@@ -216,16 +216,16 @@
         },
         {
             "name": "phug/util",
-            "version": "0.1.2",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/util.git",
-                "reference": "06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11"
+                "reference": "c00b5650631b8b929bcae495bf3764abe9057242"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/util/zipball/06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11",
-                "reference": "06bd4cd11d1b3b8cec40c9e9b1eb52253ae31a11",
+                "url": "https://api.github.com/repos/phug-php/util/zipball/c00b5650631b8b929bcae495bf3764abe9057242",
+                "reference": "c00b5650631b8b929bcae495bf3764abe9057242",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "util",
                 "views"
             ],
-            "time": "2016-12-14 20:47:06"
+            "time": "2016-12-15 13:44:42"
         },
         {
             "name": "psr/http-message",

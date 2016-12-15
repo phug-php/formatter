@@ -17,10 +17,10 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
 
-    public function __invoke(ElementInterface $element)
+    public function __invoke(ElementInterface $element, $customDoctype = null)
     {
 
-        return $this->getDoctype().
+        return $this->getDoctype($customDoctype).
             $this->getNewLine().
             $this->format($element);
     }
@@ -80,7 +80,7 @@ class XmlFormat extends AbstractFormat
         $content .= sprintf(static::OPEN_PAIR_TAG, $tagAndAttributes);
         if ($element->hasChildren()) {
             $this->indentLevel++;
-            $content .= array_map([$this, 'format'], $element->getChildren());
+            $content .= implode('', array_map([$this, 'format'], $element->getChildren()));
             $this->indentLevel--;
             $content .= $this->getNewIndentedLine();
         }

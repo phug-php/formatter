@@ -21,7 +21,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $formatter = new Formatter(['foo' => 'bar']);
 
-        $this->assertSame('bar', $formatter->getOption('foo'));
+        self::assertSame('bar', $formatter->getOption('foo'));
     }
 
     /**
@@ -34,16 +34,16 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $img = new MarkupElement('img');
 
-        $this->assertSame('<!DOCTYPE html><img>', $formatter->format($img, HtmlFormat::class));
+        self::assertSame('<!DOCTYPE html><img>', $formatter->format($img, HtmlFormat::class));
 
         $link = new MarkupElement('a');
         $format = new HtmlFormat();
 
-        $this->assertSame('<!DOCTYPE html><a></a>', $formatter->format($link, $format));
+        self::assertSame('<!DOCTYPE html><a></a>', $formatter->format($link, $format));
 
         $link = new MarkupElement(new CodeElement('echo $tagName;'));
 
-        $this->assertSame('<!DOCTYPE html><<?php echo $tagName; ?>></<?php echo $tagName; ?>>', $formatter->format($link, $format));
+        self::assertSame('<!DOCTYPE html><<?php echo $tagName; ?>></<?php echo $tagName; ?>>', $formatter->format($link, $format));
     }
 
     /**
@@ -57,6 +57,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('img');
         $formatter = new Formatter();
 
-        $this->assertSame('<!DOCTYPE html><img>', $formatter->format($img, MarkupElement::class));
+        self::assertSame('<!DOCTYPE html><img>', $formatter->format($img, MarkupElement::class));
     }
 }

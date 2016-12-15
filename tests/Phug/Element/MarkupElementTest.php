@@ -27,12 +27,12 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         $mystery = new AttributeElement($mysteryCode, '42');
         $img->getAttributes()->attach($mystery);
 
-        $this->assertSame('img', $img->getName());
-        $this->assertTrue($img->getAttributes()->contains($source));
-        $this->assertTrue($img->getAttributes()->contains($alt));
-        $this->assertTrue($img->getAttributes()->contains($mystery));
-        $this->assertSame('/foo/bar.png', $img->getAttribute('src'));
-        $this->assertSame($altValue, $img->getAttribute('alt'));
-        $this->assertSame('42', $img->getAttribute($mysteryCode));
+        self::assertSame('img', $img->getName());
+        self::assertTrue($img->getAttributes()->contains($source));
+        self::assertTrue($img->getAttributes()->contains($alt));
+        self::assertTrue($img->getAttributes()->contains($mystery));
+        self::assertSame('/foo/bar.png', $img->getAttribute('src'));
+        self::assertSame($altValue, $img->getAttribute('alt'));
+        self::assertSame('42', $img->getAttribute($mysteryCode));
     }
 }

@@ -22,7 +22,10 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('img');
         $htmlFormat = new HtmlFormat();
 
-        $this->assertSame('<!DOCTYPE html><img>', $htmlFormat($img));
+        self::assertSame(
+            '<!DOCTYPE html><img>',
+            $htmlFormat($img)
+        );
     }
 
     /**
@@ -37,7 +40,10 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
             return strtoupper($element->getName());
         });
 
-        $this->assertSame('<!DOCTYPE html>IMG', $htmlFormat($img));
+        self::assertSame(
+            '<!DOCTYPE html>IMG',
+            $htmlFormat($img)
+        );
     }
 
     /**
@@ -50,7 +56,10 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat();
         $htmlFormat->removeElementHandler(MarkupElement::class);
 
-        $this->assertSame('<!DOCTYPE html>', $htmlFormat($img));
+        self::assertSame(
+            '<!DOCTYPE html>',
+            $htmlFormat($img)
+        );
     }
 
     /**
@@ -63,13 +72,16 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
         $htmlFormat = new HtmlFormat();
 
-        $this->assertSame('<!DOCTYPE html><img src="foo.png">', $htmlFormat($img));
+        self::assertSame(
+            '<!DOCTYPE html><img src="foo.png">',
+            $htmlFormat($img)
+        );
     }
 
     /**
      * @covers ::<public>
      */
-    public function testFormatBooleanAttribute()
+    public function testFormatBooleanTrueAttribute()
     {
 
         $input = new MarkupElement('input');
@@ -77,7 +89,27 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('true')));
         $htmlFormat = new HtmlFormat();
 
-        $this->assertSame('<!DOCTYPE html><input type="checkbox" checked>', $htmlFormat($input));
+        self::assertSame(
+            '<!DOCTYPE html><input type="checkbox" checked>',
+            $htmlFormat($input)
+        );
+    }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testFormatBooleanNullAttribute()
+    {
+
+        $input = new MarkupElement('input');
+        $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
+        $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('null')));
+        $htmlFormat = new HtmlFormat();
+
+        self::assertSame(
+            '<!DOCTYPE html><input type="checkbox">',
+            $htmlFormat($input)
+        );
     }
 
     /**
@@ -85,12 +117,26 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage input is a self closing element: <input/> but contains nested content.
      */
-    public function testChildrenInInlineTag()
+    public function testChildrenInSelfClosingTag()
     {
 
         $input = new MarkupElement('input');
         $input->appendChild(new MarkupElement('i'));
         $htmlFormat = new HtmlFormat();
         $htmlFormat($input);
+    }
+
+    /**
+     * @covers \Phug\Formatter\Format\XmlFormat::getDoctype
+     */
+    public function testCustomDoctype()
+    {
+
+        $input = new MarkupElement('html');
+        $htmlFormat = new HtmlFormat();
+        self::assertSame(
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"><html></html>',
+            $htmlFormat($input, 'html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"')
+        );
     }
 }
