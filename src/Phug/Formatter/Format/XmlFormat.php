@@ -62,6 +62,28 @@ class XmlFormat extends AbstractFormat
         return sprintf(static::ATTRIBUTE_PATTERN, $this->format($key), $this->format($value));
     }
 
+    protected function formatTagChildren(MarkupElement $element)
+    {
+        $this->indentLevel++;
+        $content = implode('', array_map([$this, 'format'], $element->getChildren()));
+        $this->indentLevel--;
+
+        return $content;
+    }
+
+    protected function formatPairTag($pattern, MarkupElement $element)
+    {
+        return sprintf($pattern, $element->hasChildren()
+            ? sprintf(
+                $this->isBlockTag($element)
+                    ? $this->getNewLine().'%s'.$this->getIndent()
+                    : '%s',
+                $this->formatTagChildren($element)
+            )
+            : ''
+        );
+    }
+
     protected function formatMarkupElement(MarkupElement $element)
     {
         $tag = $this->format($element->getName());
@@ -74,26 +96,18 @@ class XmlFormat extends AbstractFormat
             return sprintf(static::SELF_CLOSING_TAG, $tagAndAttributes);
         }
 
-        $content = $this->isBlockTag($element)
-            ? $this->getIndent()
-            : '';
-        $content .= sprintf(static::OPEN_PAIR_TAG, $tagAndAttributes);
-        if ($element->hasChildren()) {
-            $content .= $this->isBlockTag($element)
-                ? $this->getNewLine()
-                : '';
-            $this->indentLevel++;
-            $content .= implode('', array_map([$this, 'format'], $element->getChildren()));
-            $this->indentLevel--;
-            $content .= $this->isBlockTag($element)
-                ? $this->getIndent()
-                : '';
-        }
-        $content .= sprintf(static::CLOSE_PAIR_TAG, $tag);
-        $content .= $this->isBlockTag($element)
-            ? $this->getNewLine()
-            : '';
-
-        return $content;
+        return sprintf(
+            $this->isBlockTag($element)
+                ? $this->getIndent().'%s'.$this->getNewLine()
+                : '%s',
+            $this->formatPairTag(
+                (
+                    sprintf(static::OPEN_PAIR_TAG, $tagAndAttributes).
+                    '%s'.
+                    sprintf(static::CLOSE_PAIR_TAG, $tag)
+                ),
+                $element
+            )
+        );
     }
 }

@@ -72,6 +72,9 @@ class HtmlFormat extends XmlFormat
 
     public function isBlockTag(MarkupElement $element)
     {
-        return !$element->belongsTo($this->getOption('inline_tags'));
+        return (
+            !$element->belongsTo($this->getOption('inline_tags')) &&
+            (!$element->hasParent() || $this->isBlockTag($element->getParent()))
+        );
     }
 }
