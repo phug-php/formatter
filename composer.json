@@ -28,6 +28,9 @@
         "phug/util": "*@dev",
         "phug/parser": "*@dev"
     },
+    "require-dev": {
+       "codeclimate/php-test-reporter": "dev-master"
+    },
     "autoload": {
         "psr-4": {
             "": "./src"

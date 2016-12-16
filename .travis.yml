@@ -12,8 +12,8 @@ php:
     - hhvm
 
 before_script:
-  - travis_retry composer self-update
-  - travis_retry composer install --no-interaction --prefer-source --dev
+    - travis_retry composer self-update
+    - travis_retry composer install --no-interaction --prefer-source --dev
 
 install:
     - php bin/check $TRAVIS_PHP_VERSION install
@@ -23,3 +23,7 @@ script:
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z
+
+addons:
+    code_climate:
+        repo_token: 9c0588d54489bc33e39a491695edf96ee097a0f071be4b89692836dedc70abad
