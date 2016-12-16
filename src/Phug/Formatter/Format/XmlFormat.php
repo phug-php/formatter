@@ -73,15 +73,16 @@ class XmlFormat extends AbstractFormat
 
     protected function formatPairTag($pattern, MarkupElement $element)
     {
-        return sprintf($pattern, $element->hasChildren()
-            ? sprintf(
-                $this->isBlockTag($element)
-                    ? $this->getNewLine().'%s'.$this->getIndent()
-                    : '%s',
-                $this->formatTagChildren($element)
-            )
-            : ''
-        );
+        return sprintf(
+            $pattern, $element->hasChildren()
+                ? sprintf(
+                    $this->isBlockTag($element)
+                        ? $this->getNewLine().'%s'.$this->getIndent()
+                        : '%s',
+                    $this->formatTagChildren($element)
+                )
+                : ''
+            );
     }
 
     protected function formatMarkupElement(MarkupElement $element)
