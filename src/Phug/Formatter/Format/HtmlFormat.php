@@ -63,10 +63,8 @@ class HtmlFormat extends XmlFormat
         $isSelfClosing = $element->belongsTo($this->getOption('self_closing_tags'));
 
         if ($isSelfClosing && $element->hasChildren()) {
-            throw new FormatterException
-                ($element->getName().' is a self closing element: '.
-                '<'.$element->getName().'/> but contains nested content.'
-            );
+            throw new FormatterException($element->getName().' is a self closing element: '.
+                '<'.$element->getName().'/> but contains nested content.');
         }
 
         return $isSelfClosing;

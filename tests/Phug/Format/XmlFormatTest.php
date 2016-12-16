@@ -104,7 +104,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
-     * @covers ::formatCodeElement
      */
     public function testFormatBooleanFalseAttribute()
     {

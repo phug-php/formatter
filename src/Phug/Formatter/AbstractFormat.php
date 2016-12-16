@@ -76,13 +76,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function getIndent()
     {
         $pretty = $this->getOption('pretty');
+        if (!$pretty) {
+            return '';
+        }
 
-        return is_string($pretty) ? $pretty : ($pretty ? '  ' : '');
-    }
-
-    protected function getNewIndentedLine()
-    {
-        return $this->getNewLine().str_repeat($this->getIndent(), $this->indentLevel);
+        return str_repeat(is_string($pretty) ? $pretty : '  ', $this->indentLevel);
     }
 
     protected function formatCodeElement(CodeElement $element)

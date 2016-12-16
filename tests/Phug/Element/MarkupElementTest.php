@@ -5,6 +5,7 @@ namespace Phug\Test\Element;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use SplObjectStorage;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Element\MarkupElement
@@ -12,14 +13,16 @@ use Phug\Formatter\Element\MarkupElement;
 class MarkupElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::<public>
+     * @covers ::__construct
+     * @covers ::getAttribute
      */
     public function testMarkupElement()
     {
 
-        $img = new MarkupElement('img');
+        $attributes = new SplObjectStorage();
         $source = new AttributeElement('src', '/foo/bar.png');
-        $img->getAttributes()->attach($source);
+        $attributes->attach($source);
+        $img = new MarkupElement('img', null, $attributes);
         $altValue = new CodeElement('echo $alt;');
         $alt = new AttributeElement('alt', $altValue);
         $img->getAttributes()->attach($alt);
@@ -34,5 +37,22 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame('/foo/bar.png', $img->getAttribute('src'));
         self::assertSame($altValue, $img->getAttribute('alt'));
         self::assertSame('42', $img->getAttribute($mysteryCode));
+        self::assertSame(null, $img->getAttribute('foo'));
+    }
+
+    /**
+     * @covers ::belongsTo
+     */
+    public function testBelongsTo()
+    {
+
+        $img = new MarkupElement('img');
+
+        self::assertTrue($img->belongsTo(['input', 'img']));
+        self::assertFalse($img->belongsTo(['input', 'link']));
+
+        $img = new MarkupElement(new CodeElement('echo "link";'));
+
+        self::assertFalse($img->belongsTo(['input', 'link']));
     }
 }

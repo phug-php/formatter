@@ -75,16 +75,24 @@ class XmlFormat extends AbstractFormat
         }
 
         $content = $this->isBlockTag($element)
-            ? $this->getNewIndentedLine()
+            ? $this->getIndent()
             : '';
         $content .= sprintf(static::OPEN_PAIR_TAG, $tagAndAttributes);
         if ($element->hasChildren()) {
+            $content .= $this->isBlockTag($element)
+                ? $this->getNewLine()
+                : '';
             $this->indentLevel++;
             $content .= implode('', array_map([$this, 'format'], $element->getChildren()));
             $this->indentLevel--;
-            $content .= $this->getNewIndentedLine();
+            $content .= $this->isBlockTag($element)
+                ? $this->getIndent()
+                : '';
         }
         $content .= sprintf(static::CLOSE_PAIR_TAG, $tag);
+        $content .= $this->isBlockTag($element)
+            ? $this->getNewLine()
+            : '';
 
         return $content;
     }
