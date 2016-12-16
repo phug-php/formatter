@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-$xmlFile = __DIR__.'/../coverage/result.xml';
+$xmlFile = __DIR__.'/../coverage.xml';
 $requiredCoverage = 80;
 
 if (!file_exists($xmlFile)) {
