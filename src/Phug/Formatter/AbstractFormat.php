@@ -18,20 +18,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function __construct(array $options = null)
     {
-
         $this->setOptionsRecursive([
-            'pretty' => false,
+            'pretty'           => false,
             'element_handlers' => [
                 AttributeElement::class => [$this, 'formatAttributeElement'],
-                CodeElement::class => [$this, 'formatCodeElement'],
-                MarkupElement::class => [$this, 'formatMarkupElement'],
+                CodeElement::class      => [$this, 'formatCodeElement'],
+                MarkupElement::class    => [$this, 'formatMarkupElement'],
             ],
         ], $options ?: []);
     }
 
     public function format($element)
     {
-
         if (is_string($element)) {
             return $element;
         }
@@ -47,7 +45,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function removeElementHandler($className)
     {
-
         $elementHandlers = $this->getOption('element_handlers');
         if (array_key_exists($className, $elementHandlers)) {
             unset($elementHandlers[$className]);
@@ -59,7 +56,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function setElementHandler($className, callable $handler)
     {
-
         $elementHandlers = $this->getOption('element_handlers') ?: [];
         $elementHandlers[$className] = $handler;
 

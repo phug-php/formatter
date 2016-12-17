@@ -2,10 +2,10 @@
 
 namespace Phug\Test\Format;
 
-use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\HtmlFormat;
 
 /**
@@ -18,7 +18,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testHtmlFormat()
     {
-
         $img = new MarkupElement('img');
         $htmlFormat = new HtmlFormat();
 
@@ -33,7 +32,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomFormatHandler()
     {
-
         $img = new MarkupElement('img');
         $htmlFormat = new HtmlFormat();
         $htmlFormat->setElementHandler(MarkupElement::class, function (ElementInterface $element) {
@@ -51,7 +49,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingFormatHandler()
     {
-
         $img = new MarkupElement('img');
         $htmlFormat = new HtmlFormat();
         $htmlFormat->removeElementHandler(MarkupElement::class);
@@ -67,7 +64,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatSingleTagWithAttributes()
     {
-
         $img = new MarkupElement('img');
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
         $htmlFormat = new HtmlFormat();
@@ -83,7 +79,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanTrueAttribute()
     {
-
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('true')));
@@ -100,7 +95,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanNullAttribute()
     {
-
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('null')));
@@ -119,7 +113,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testChildrenInSelfClosingTag()
     {
-
         $input = new MarkupElement('input');
         $input->appendChild(new MarkupElement('i'));
         $htmlFormat = new HtmlFormat();
@@ -131,7 +124,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomDoctype()
     {
-
         $input = new MarkupElement('html');
         $htmlFormat = new HtmlFormat();
         self::assertSame(

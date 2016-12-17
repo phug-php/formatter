@@ -3,10 +3,10 @@
 namespace Phug\Formatter\Format;
 
 use Phug\Formatter\AbstractFormat;
-use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\ElementInterface;
 
 class XmlFormat extends AbstractFormat
 {
@@ -19,7 +19,6 @@ class XmlFormat extends AbstractFormat
 
     public function __invoke(ElementInterface $element, $customDoctype = null)
     {
-
         return $this->getDoctype($customDoctype).
             $this->getNewLine().
             $this->format($element);

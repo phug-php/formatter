@@ -2,10 +2,10 @@
 
 namespace Phug\Test\Format;
 
-use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
@@ -19,7 +19,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testXmlFormat()
     {
-
         $img = new MarkupElement('img');
         $xmlFormat = new XmlFormat();
 
@@ -38,7 +37,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomFormatHandler()
     {
-
         $img = new MarkupElement('img');
         $xmlFormat = new XmlFormat();
         $xmlFormat->setElementHandler(MarkupElement::class, function (ElementInterface $element) {
@@ -56,7 +54,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingFormatHandler()
     {
-
         $img = new MarkupElement('img');
         $xmlFormat = new XmlFormat();
         $xmlFormat->removeElementHandler(MarkupElement::class);
@@ -75,7 +72,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatSingleTagWithAttributes()
     {
-
         $img = new MarkupElement('img');
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
         $xmlFormat = new XmlFormat();
@@ -95,7 +91,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanTrueAttribute()
     {
-
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('true')));
@@ -115,7 +110,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanFalseAttribute()
     {
-
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('false')));
@@ -136,7 +130,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testChildrenInATag()
     {
-
         $input = new MarkupElement('input');
         $input->appendChild(new MarkupElement('i'));
         $xmlFormat = new XmlFormat();
