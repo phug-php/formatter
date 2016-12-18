@@ -63,12 +63,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/lexer.git",
-                "reference": "6847d32733c7de22751aa572cddee7f86cb7fcf6"
+                "reference": "f659f989feaecbe21b339cb3a5da080aec698ef9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/lexer/zipball/6847d32733c7de22751aa572cddee7f86cb7fcf6",
-                "reference": "6847d32733c7de22751aa572cddee7f86cb7fcf6",
+                "url": "https://api.github.com/repos/phug-php/lexer/zipball/f659f989feaecbe21b339cb3a5da080aec698ef9",
+                "reference": "f659f989feaecbe21b339cb3a5da080aec698ef9",
                 "shasum": ""
             },
             "require": {
@@ -107,7 +107,7 @@
                 "template",
                 "views"
             ],
-            "time": "2016-12-15 16:59:20"
+            "time": "2016-12-16 17:23:13"
         },
         {
             "name": "phug/parser",
@@ -216,16 +216,16 @@
         },
         {
             "name": "phug/util",
-            "version": "0.1.4",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/util.git",
-                "reference": "c00b5650631b8b929bcae495bf3764abe9057242"
+                "reference": "131a15f30c83b45128825d1a59d36af03b0e61bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/util/zipball/c00b5650631b8b929bcae495bf3764abe9057242",
-                "reference": "c00b5650631b8b929bcae495bf3764abe9057242",
+                "url": "https://api.github.com/repos/phug-php/util/zipball/131a15f30c83b45128825d1a59d36af03b0e61bb",
+                "reference": "131a15f30c83b45128825d1a59d36af03b0e61bb",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "util",
                 "views"
             ],
-            "time": "2016-12-15 13:44:42"
+            "time": "2016-12-17 00:40:24"
         },
         {
             "name": "psr/http-message",
@@ -876,12 +876,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
-                "reference": "342af93b6be3aedfc922c7cf07e4e5d0bc96c6a7"
+                "reference": "e45647910b4b6fcb48d8cfe33e1793dd2d56306f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/debug/zipball/342af93b6be3aedfc922c7cf07e4e5d0bc96c6a7",
-                "reference": "342af93b6be3aedfc922c7cf07e4e5d0bc96c6a7",
+                "url": "https://api.github.com/repos/symfony/debug/zipball/e45647910b4b6fcb48d8cfe33e1793dd2d56306f",
+                "reference": "e45647910b4b6fcb48d8cfe33e1793dd2d56306f",
                 "shasum": ""
             },
             "require": {
@@ -925,7 +925,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-19 20:35:20"
+            "time": "2016-12-16 16:05:39"
         },
         {
             "name": "symfony/event-dispatcher",

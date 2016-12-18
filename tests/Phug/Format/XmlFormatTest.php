@@ -5,6 +5,8 @@ namespace Phug\Test\Format;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DoctypeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Format\XmlFormat;
 
@@ -15,12 +17,14 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::__invoke
-     * @covers ::getDoctype
+     * @covers \Phug\Formatter\AbstractFormat::formatDoctypeElement
      */
     public function testXmlFormat()
     {
 
-        $img = new MarkupElement('img');
+    	$document = new DocumentElement();
+    	$document->appendChild(new DoctypeElement());
+    	$document->appendChild(new MarkupElement('img'));
         $xmlFormat = new XmlFormat();
 
         self::assertSame(

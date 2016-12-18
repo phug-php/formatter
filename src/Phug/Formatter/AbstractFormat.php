@@ -12,7 +12,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
     use OptionTrait;
 
-    const PHP_CODE = '<?php %s ?>';
+    const HTML_ESCAPE = 'htmlspecialchars';
+    const PHP_HANDLE_CODE = '<?php %s ?>';
+    const PHP_DISPLAY_CODE = '<?= %s ?>';
+    const DOCTYPE = '';
+    const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
 
     protected $indentLevel = 0;
 
@@ -24,6 +28,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'element_handlers' => [
                 AttributeElement::class => [$this, 'formatAttributeElement'],
                 CodeElement::class => [$this, 'formatCodeElement'],
+                ExpressionElement::class => [$this, 'formatExpressionElement'],
+                DoctypeElement::class => [$this, 'formatDoctypeElement'],
+                DocumentElement::class => [$this, 'formatDocumentElement'],
                 MarkupElement::class => [$this, 'formatMarkupElement'],
             ],
         ], $options ?: []);
@@ -83,8 +90,53 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return str_repeat(is_string($pretty) ? $pretty : '  ', $this->indentLevel);
     }
 
-    protected function formatCodeElement(CodeElement $element)
+    protected function pattern($patternOption)
     {
-        return sprintf(static::PHP_CODE, $this->format($element->getValue()));
+        $pattern = $this->getOption($patternOption) ?: constant(static::class.'::'.strtoupper($patternOption));
+        $args = func_get_args();
+        $function = 'sprintf';
+        if (is_callable($pattern)) {
+            $function = $pattern;
+            $args = array_slice($args, 1);
+        }
+
+        return call_user_func_array($function, $args);
+    }
+
+    protected function formatCodeElement(CodeElement $code)
+    {
+        return $this->pattern('php_handle_code', $this->format($code->getValue()));
+    }
+
+    protected function formatExpressionElement(ExpressionElement $code)
+    {
+        $value = $code->getValue();
+        if ($code->isEscaped()) {
+            $value = $this->pattern('html_escape', $value);
+        }
+
+        return $this->pattern('php_display_code', $this->format($value));
+    }
+
+    protected function formatDoctypeElement(DoctypeElement $doctype)
+    {
+        $type = $doctype->getValue();
+        $pattern = $type ? 'custom_doctype' : 'doctype';
+
+        return $this->pattern($pattern, $type);
+    }
+
+    protected function formatTagChildren(MarkupElement $element, $indentStep = 1)
+    {
+        $this->indentLevel += $indentStep;
+        $content = implode('', array_map([$this, 'format'], $element->getChildren()));
+        $this->indentLevel -= $indentStep;
+
+        return $content;
+    }
+
+    protected function formatDocumentElement(DocumentElement $document)
+    {
+        return $this->formatTagChildren($document, 0);
     }
 }

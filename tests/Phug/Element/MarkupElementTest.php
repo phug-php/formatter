@@ -23,10 +23,10 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         $source = new AttributeElement('src', '/foo/bar.png');
         $attributes->attach($source);
         $img = new MarkupElement('img', null, $attributes);
-        $altValue = new CodeElement('echo $alt;');
+        $altValue = new CodeElement('$alt');
         $alt = new AttributeElement('alt', $altValue);
         $img->getAttributes()->attach($alt);
-        $mysteryCode = new CodeElement('echo $mystery;');
+        $mysteryCode = new CodeElement('$mystery');
         $mystery = new AttributeElement($mysteryCode, '42');
         $img->getAttributes()->attach($mystery);
 
@@ -51,7 +51,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($img->belongsTo(['input', 'img']));
         self::assertFalse($img->belongsTo(['input', 'link']));
 
-        $img = new MarkupElement(new CodeElement('echo "link";'));
+        $img = new MarkupElement(new CodeElement('"link"'));
 
         self::assertFalse($img->belongsTo(['input', 'link']));
     }

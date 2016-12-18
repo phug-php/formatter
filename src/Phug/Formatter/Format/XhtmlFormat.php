@@ -2,6 +2,6 @@
 
 namespace Phug\Formatter\Format;
 
-abstract class XhmlFormat extends XmlFormat
+abstract class XhtmlFormat extends XmlFormat
 {
 }

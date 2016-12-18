@@ -17,21 +17,10 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
 
-    public function __invoke(ElementInterface $element, $customDoctype = null)
+    public function __invoke(ElementInterface $element)
     {
 
-        return $this->getDoctype($customDoctype).
-            $this->getNewLine().
-            $this->format($element);
-    }
-
-    protected function getDoctype($customDoctype = null)
-    {
-        if ($customDoctype) {
-            return sprintf('<!DOCTYPE %s>', $customDoctype);
-        }
-
-        return static::DOCTYPE;
+        return $this->format($element);
     }
 
     protected function isSelfClosingTag(MarkupElement $element)
@@ -60,15 +49,6 @@ class XmlFormat extends AbstractFormat
         }
 
         return sprintf(static::ATTRIBUTE_PATTERN, $this->format($key), $this->format($value));
-    }
-
-    protected function formatTagChildren(MarkupElement $element)
-    {
-        $this->indentLevel++;
-        $content = implode('', array_map([$this, 'format'], $element->getChildren()));
-        $this->indentLevel--;
-
-        return $content;
     }
 
     protected function formatPairTag($pattern, MarkupElement $element)

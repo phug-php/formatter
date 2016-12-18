@@ -5,6 +5,8 @@ namespace Phug\Test\Format;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DoctypeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Format\HtmlFormat;
 
@@ -113,7 +115,24 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::isBlockTag
+     * @covers ::<public>
+     */
+    public function testFormatCodeAttribute()
+    {
+
+        $input = new MarkupElement('input');
+        $input->getAttributes()->attach(new AttributeElement('type', 'text'));
+        $input->getAttributes()->attach(new AttributeElement('value', new CodeElement('a_function(42)')));
+        $htmlFormat = new HtmlFormat();
+
+        self::assertSame(
+            '<!DOCTYPE html><input type="text" value="<?php echo a_function(42); ?>">',
+            $htmlFormat($input)
+        );
+    }
+
+    /**
+     * @covers                   ::isSelfClosingTag
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage input is a self closing element: <input/> but contains nested content.
      */
@@ -127,16 +146,19 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Phug\Formatter\Format\XmlFormat::getDoctype
+     * @covers ::isBlockTag
+     * @covers \Phug\Formatter\AbstractFormat::formatDoctypeElement
      */
     public function testCustomDoctype()
     {
 
-        $input = new MarkupElement('html');
+    	$document = new DocumentElement();
+    	$document->appendChild(new DoctypeElement('html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"'));
+        $document->appendChild(new MarkupElement('html'));
         $htmlFormat = new HtmlFormat();
         self::assertSame(
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"><html></html>',
-            $htmlFormat($input, 'html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"')
+            $htmlFormat($input)
         );
     }
 }

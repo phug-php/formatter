@@ -20,7 +20,6 @@ class Formatter implements OptionInterface
      * The formatter will turn DocumentNode tree into StringOfPhtml
      *
      * @param array|null $options the options array
-     * @throws ParserException
      */
     public function __construct(array $options = null)
     {
@@ -28,14 +27,24 @@ class Formatter implements OptionInterface
         $this->setOptionsRecursive($options ?: []);
     }
 
-    public function format(ElementInterface $element, $format)
+    /**
+     * 
+     * @param ElementInterface $element the element to format such as a DocumentElement
+     * @param FormatInterface  $format  format instance or format class name to use to format like HtmlFormat
+     *
+     * @return StringOfPhtml
+     *
+     * @throws FormatterException
+     */
+    public function format()
     {
 
-        if (!is_a($format, FormatInterface::class, true)) {
-            throw new \InvalidArgumentException(
-                "Passed format handler needs to implement ".FormatInterface::class
-            );
-        }
+        $arguments = new UnOrderedArguments(func_get_args());
+
+        $element = $arguments->required(ElementInterface::class);
+        $format = $arguments->required(FormatInterface::class);
+
+        $arguments->noMoreArguments();
 
         if (!($format instanceof FormatInterface)) {
             $format = new $format($this->getOptions());

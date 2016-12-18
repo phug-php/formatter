@@ -48,7 +48,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
             $formatter->format($link, $format)
         );
 
-        $link = new MarkupElement(new CodeElement('echo $tagName;'));
+        $link = new MarkupElement(new CodeElement('$tagName'));
 
         self::assertSame(
             '<!DOCTYPE html><<?php echo $tagName; ?>></<?php echo $tagName; ?>>',
