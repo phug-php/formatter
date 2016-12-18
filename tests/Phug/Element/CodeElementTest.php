@@ -14,7 +14,6 @@ class CodeElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testCodeElement()
     {
-
         $foo = new CodeElement('$foo');
 
         self::assertSame('$foo', $foo->getValue());

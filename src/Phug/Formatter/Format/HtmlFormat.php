@@ -13,7 +13,6 @@ class HtmlFormat extends XmlFormat
 
     public function __construct(array $options = null)
     {
-
         $this->setOptions([
             'inline_tags' => [
                 'a',
@@ -72,9 +71,8 @@ class HtmlFormat extends XmlFormat
 
     public function isBlockTag(MarkupElement $element)
     {
-        return (
+        return
             !$element->belongsTo($this->getOption('inline_tags')) &&
-            (!$element->hasParent() || $this->isBlockTag($element->getParent()))
-        );
+            (!$element->hasParent() || $this->isBlockTag($element->getParent()));
     }
 }

@@ -18,7 +18,6 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testMarkupElement()
     {
-
         $attributes = new SplObjectStorage();
         $source = new AttributeElement('src', '/foo/bar.png');
         $attributes->attach($source);
@@ -45,7 +44,6 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testBelongsTo()
     {
-
         $img = new MarkupElement('img');
 
         self::assertTrue($img->belongsTo(['input', 'img']));

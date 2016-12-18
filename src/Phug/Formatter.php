@@ -2,11 +2,8 @@
 
 namespace Phug;
 
-use Phug\Formatter\FormatInterface;
 use Phug\Formatter\ElementInterface;
-use Phug\Formatter\Format\XmlFormat;
-use Phug\Formatter\Format\XhtmlFormat;
-use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\FormatInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
@@ -23,7 +20,6 @@ class Formatter implements OptionInterface
      */
     public function __construct(array $options = null)
     {
-
         $this->setOptionsRecursive($options ?: []);
     }
 
@@ -38,7 +34,6 @@ class Formatter implements OptionInterface
      */
     public function format()
     {
-
         $arguments = new UnOrderedArguments(func_get_args());
 
         $element = $arguments->required(ElementInterface::class);

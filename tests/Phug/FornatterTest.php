@@ -3,22 +3,20 @@
 namespace Phug\Test;
 
 use Phug\Formatter;
-use Phug\Formatter\Format\HtmlFormat;
-use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Format\HtmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter
  */
-class FormatterTest extends \PHPUnit_Framework_TestCase
+class FornatterTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::__construct
      */
     public function testConstructor()
     {
-
         $formatter = new Formatter(['foo' => 'bar']);
 
         self::assertSame('bar', $formatter->getOption('foo'));
@@ -30,7 +28,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormat()
     {
-
         $formatter = new Formatter();
 
         $img = new MarkupElement('img');
@@ -63,7 +60,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatWithWrongArgument()
     {
-
         $img = new MarkupElement('img');
         $formatter = new Formatter();
 
@@ -74,12 +70,11 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-    * @covers \Phug\Formatter\AbstractFormat::getNewLine
-    * @covers \Phug\Formatter\AbstractFormat::getIndent
+     * @covers \Phug\Formatter\AbstractFormat::getNewLine
+     * @covers \Phug\Formatter\AbstractFormat::getIndent
      */
     public function testIndent()
     {
-
         $foo = new MarkupElement('foo');
         $foo->appendChild(new MarkupElement('bar'));
         $foo->appendChild(new MarkupElement('biz'));
