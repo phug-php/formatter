@@ -2,8 +2,6 @@
 
 namespace Phug\Formatter;
 
-use Phug\Formatter\ElementInterface;
-
 /**
  * Mandatory methods for all output formats.
  */
