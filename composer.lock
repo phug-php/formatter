@@ -216,20 +216,23 @@
         },
         {
             "name": "phug/util",
-            "version": "0.1.6",
+            "version": "0.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phug-php/util.git",
-                "reference": "131a15f30c83b45128825d1a59d36af03b0e61bb"
+                "reference": "fc7828a914eadbfa81ad984f59e314584218e343"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phug-php/util/zipball/131a15f30c83b45128825d1a59d36af03b0e61bb",
-                "reference": "131a15f30c83b45128825d1a59d36af03b0e61bb",
+                "url": "https://api.github.com/repos/phug-php/util/zipball/fc7828a914eadbfa81ad984f59e314584218e343",
+                "reference": "fc7828a914eadbfa81ad984f59e314584218e343",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -262,7 +265,7 @@
                 "util",
                 "views"
             ],
-            "time": "2016-12-17 00:40:24"
+            "time": "2016-12-19 20:38:02"
         },
         {
             "name": "psr/http-message",
@@ -757,12 +760,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "c3539b8e8fbfbb44a1c5884473940ea0f1a08d0c"
+                "reference": "57b166b08363eb51afde4bc8fd90953ecfa31ad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/c3539b8e8fbfbb44a1c5884473940ea0f1a08d0c",
-                "reference": "c3539b8e8fbfbb44a1c5884473940ea0f1a08d0c",
+                "url": "https://api.github.com/repos/symfony/config/zipball/57b166b08363eb51afde4bc8fd90953ecfa31ad3",
+                "reference": "57b166b08363eb51afde4bc8fd90953ecfa31ad3",
                 "shasum": ""
             },
             "require": {
@@ -805,7 +808,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2016-12-09 07:45:54"
+            "time": "2016-12-19 16:13:57"
         },
         {
             "name": "symfony/console",
@@ -813,12 +816,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "a7a4ffcafcc52a474dd12e391837365a580d33bf"
+                "reference": "c7a20754419dd6bf34d016b2a5bc103b032f3b11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/a7a4ffcafcc52a474dd12e391837365a580d33bf",
-                "reference": "a7a4ffcafcc52a474dd12e391837365a580d33bf",
+                "url": "https://api.github.com/repos/symfony/console/zipball/c7a20754419dd6bf34d016b2a5bc103b032f3b11",
+                "reference": "c7a20754419dd6bf34d016b2a5bc103b032f3b11",
                 "shasum": ""
             },
             "require": {
@@ -868,7 +871,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-12-13 15:32:21"
+            "time": "2016-12-19 16:13:57"
         },
         {
             "name": "symfony/debug",
@@ -876,12 +879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
-                "reference": "e45647910b4b6fcb48d8cfe33e1793dd2d56306f"
+                "reference": "fa5b1b68e9a368c366dbfbaf33fa0abb1560ad4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/debug/zipball/e45647910b4b6fcb48d8cfe33e1793dd2d56306f",
-                "reference": "e45647910b4b6fcb48d8cfe33e1793dd2d56306f",
+                "url": "https://api.github.com/repos/symfony/debug/zipball/fa5b1b68e9a368c366dbfbaf33fa0abb1560ad4b",
+                "reference": "fa5b1b68e9a368c366dbfbaf33fa0abb1560ad4b",
                 "shasum": ""
             },
             "require": {
@@ -925,7 +928,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2016-12-16 16:05:39"
+            "time": "2016-12-19 16:13:57"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -933,12 +936,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934"
+                "reference": "bbefd025bec36f17cc57df418ba488f43e5e28e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
-                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/bbefd025bec36f17cc57df418ba488f43e5e28e9",
+                "reference": "bbefd025bec36f17cc57df418ba488f43e5e28e9",
                 "shasum": ""
             },
             "require": {
@@ -985,7 +988,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-10-13 01:43:15"
+            "time": "2016-12-19 15:48:05"
         },
         {
             "name": "symfony/filesystem",

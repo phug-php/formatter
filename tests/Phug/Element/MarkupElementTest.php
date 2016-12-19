@@ -4,6 +4,7 @@ namespace Phug\Test\Element;
 
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use SplObjectStorage;
 
@@ -13,6 +14,7 @@ use SplObjectStorage;
 class MarkupElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers \Phug\Formatter\AbstractElement::__construct
      * @covers ::__construct
      * @covers ::getAttribute
      */
@@ -49,7 +51,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         self::assertTrue($img->belongsTo(['input', 'img']));
         self::assertFalse($img->belongsTo(['input', 'link']));
 
-        $img = new MarkupElement(new CodeElement('"link"'));
+        $img = new MarkupElement(new ExpressionElement('"link"'));
 
         self::assertFalse($img->belongsTo(['input', 'link']));
     }

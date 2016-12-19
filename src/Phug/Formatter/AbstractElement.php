@@ -3,16 +3,16 @@
 namespace Phug\Formatter;
 
 use Phug\Ast\Node;
-use Phug\Util\UnOrderedArguments;
+use Phug\Util\UnorderedArguments;
 
 abstract class AbstractElement extends Node implements ElementInterface
 {
     public function __construct()
     {
-        $arguments = new UnOrderedArguments(func_get_args());
+        $arguments = new UnorderedArguments(func_get_args());
 
         $parent = $arguments->optional(NodeInterface ::class);
-        $attributes = $arguments->optional(SplObjectStorage::class);
+        $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
 

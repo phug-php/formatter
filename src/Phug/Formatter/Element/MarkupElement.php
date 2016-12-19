@@ -4,22 +4,25 @@ namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
+use Phug\Formatter\MarkupInterface;
+use Phug\Formatter\Partial\MarkupTrait;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
-use Phug\Util\UnOrderedArguments;
+use Phug\Util\UnorderedArguments;
 use SplObjectStorage;
 
-class MarkupElement extends AbstractElement
+class MarkupElement extends AbstractElement implements MarkupInterface
 {
     use AttributeTrait;
     use NameTrait;
+    use MarkupTrait;
 
     public function __construct()
     {
 
-        $arguments = new UnOrderedArguments(func_get_args());
+        $arguments = new UnorderedArguments(func_get_args());
 
-        $name = $arguments->optional('string');
+        $name = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
         $parent = $arguments->optional(NodeInterface ::class);
         $attributes = $arguments->optional(SplObjectStorage::class);
         $children = $arguments->optional('array');
@@ -42,14 +45,5 @@ class MarkupElement extends AbstractElement
                 return $attribute->getItem();
             }
         }
-    }
-
-    public function belongsTo(array $tagList)
-    {
-        if (is_string($this->getName())) {
-            return in_array(strtolower($this->getName()), $tagList);
-        }
-
-        return false;
     }
 }

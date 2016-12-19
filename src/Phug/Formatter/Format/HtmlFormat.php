@@ -3,6 +3,7 @@
 namespace Phug\Formatter\Format;
 
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\MarkupInterface;
 use Phug\FormatterException;
 
 class HtmlFormat extends XmlFormat
@@ -57,7 +58,7 @@ class HtmlFormat extends XmlFormat
         parent::__construct($options);
     }
 
-    public function isSelfClosingTag(MarkupElement $element)
+    public function isSelfClosingTag(MarkupInterface $element)
     {
         $isSelfClosing = $element->belongsTo($this->getOption('self_closing_tags'));
 
@@ -69,7 +70,7 @@ class HtmlFormat extends XmlFormat
         return $isSelfClosing;
     }
 
-    public function isBlockTag(MarkupElement $element)
+    public function isBlockTag(MarkupInterface $element)
     {
         return
             !$element->belongsTo($this->getOption('inline_tags')) &&

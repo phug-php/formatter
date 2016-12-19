@@ -4,8 +4,10 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\FormatInterface;
 
 /**
  * @coversDefaultClass \Phug\Formatter
@@ -33,7 +35,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('img');
 
         self::assertSame(
-            '<!DOCTYPE html><img>',
+            '<img>',
             $formatter->format($img, HtmlFormat::class)
         );
 
@@ -41,14 +43,14 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $format = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><a></a>',
+            '<a></a>',
             $formatter->format($link, $format)
         );
 
-        $link = new MarkupElement(new CodeElement('$tagName'));
+        $link = new MarkupElement(new ExpressionElement('$tagName'));
 
         self::assertSame(
-            '<!DOCTYPE html><<?php echo $tagName; ?>></<?php echo $tagName; ?>>',
+            '<<?= $tagName ?>></<?= $tagName ?>>',
             $formatter->format($link, $format)
         );
     }
@@ -56,7 +58,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::format
      * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Passed format handler needs to implement
+     * @expectedExceptionMessage Arguments miss one of the Phug\Formatter\FormatInterface type
      */
     public function testFormatWithWrongArgument()
     {
@@ -64,8 +66,52 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter();
 
         self::assertSame(
-            '<!DOCTYPE html><img>',
+            '<img>',
             $formatter->format($img, MarkupElement::class)
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::pattern
+     * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
+     */
+    public function testFormatCodeElement()
+    {
+        $answer = new CodeElement('42');
+        $formatter = new Formatter([
+            'php_handle_code' => '%s * 2',
+        ]);
+
+        self::assertSame(
+            '42 * 2',
+            $formatter->format($answer, HtmlFormat::class)
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::pattern
+     * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
+     */
+    public function testExpressionElement()
+    {
+        $answer = new ExpressionElement('42');
+        $formatter = new Formatter([
+            'php_display_code' => function ($string) {
+                return strval(intval($string) * 2);
+            },
+        ]);
+
+        self::assertSame(
+            '84',
+            $formatter->format($answer, HtmlFormat::class)
+        );
+
+        $answer = new ExpressionElement('42');
+        $answer->escape();
+
+        self::assertSame(
+            'htmlspecialchars(84)',
+            $formatter->format($answer, HtmlFormat::class)
         );
     }
 
@@ -84,7 +130,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter();
 
         self::assertSame(
-            '<!DOCTYPE html><foo><bar></bar><biz></biz><license><mit></mit></license></foo>',
+            '<foo><bar></bar><biz></biz><license><mit></mit></license></foo>',
             $formatter->format($foo, HtmlFormat::class)
         );
 
@@ -93,7 +139,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            "<!DOCTYPE html>\n<foo>\n  <bar></bar>\n  <biz></biz>\n  <license>\n    <mit></mit>\n  </license>\n</foo>\n",
+            "<foo>\n  <bar></bar>\n  <biz></biz>\n  <license>\n    <mit></mit>\n  </license>\n</foo>\n",
             $formatter->format($foo, HtmlFormat::class)
         );
 
@@ -102,7 +148,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            "<!DOCTYPE html>\n<foo>\n\t<bar></bar>\n\t<biz></biz>\n\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n",
+            "<foo>\n\t<bar></bar>\n\t<biz></biz>\n\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n",
             $formatter->format($foo, HtmlFormat::class)
         );
     }

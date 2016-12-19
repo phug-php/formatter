@@ -3,7 +3,7 @@
 namespace Phug\Test\Format;
 
 use Phug\Formatter\Element\AttributeElement;
-use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\MarkupElement;
@@ -16,6 +16,8 @@ use Phug\Formatter\Format\XmlFormat;
 class XmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
+     * @covers \Phug\Formatter\AbstractFormat::__construct
      * @covers ::__invoke
      * @covers \Phug\Formatter\AbstractFormat::formatDoctypeElement
      */
@@ -28,7 +30,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img />',
-            $xmlFormat($img)
+            $xmlFormat($document)
         );
     }
 
@@ -48,7 +50,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         });
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?>IMG',
+            'IMG',
             $xmlFormat($img)
         );
     }
@@ -63,7 +65,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $xmlFormat->removeElementHandler(MarkupElement::class);
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?>',
+            '',
             $xmlFormat($img)
         );
     }
@@ -81,7 +83,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $xmlFormat = new XmlFormat();
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?><img src="foo.png" />',
+            '<img src="foo.png" />',
             $xmlFormat($img)
         );
     }
@@ -89,7 +91,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
-     * @covers ::formatCodeElement
+     * @covers ::formatExpressionElement
      * @covers ::formatTagChildren
      * @covers ::formatPairTag
      */
@@ -97,11 +99,11 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('true')));
+        $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('true')));
         $xmlFormat = new XmlFormat();
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?><input type="checkbox" checked="checked" />',
+            '<input type="checkbox" checked="checked" />',
             $xmlFormat($input)
         );
     }
@@ -116,11 +118,11 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('false')));
+        $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('false')));
         $xmlFormat = new XmlFormat();
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?><input type="checkbox" />',
+            '<input type="checkbox" />',
             $xmlFormat($input)
         );
     }
@@ -139,7 +141,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $xmlFormat = new XmlFormat();
 
         self::assertSame(
-            '<?xml version="1.0" encoding="utf-8" ?><input><i /></input>',
+            '<input><i /></input>',
             $xmlFormat($input)
         );
     }

@@ -3,7 +3,7 @@
 namespace Phug\Test\Format;
 
 use Phug\Formatter\Element\AttributeElement;
-use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\MarkupElement;
@@ -24,7 +24,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><img>',
+            '<img>',
             $htmlFormat($img)
         );
     }
@@ -41,7 +41,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         });
 
         self::assertSame(
-            '<!DOCTYPE html>IMG',
+            'IMG',
             $htmlFormat($img)
         );
     }
@@ -56,7 +56,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat->removeElementHandler(MarkupElement::class);
 
         self::assertSame(
-            '<!DOCTYPE html>',
+            '',
             $htmlFormat($img)
         );
     }
@@ -71,7 +71,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><img src="foo.png">',
+            '<img src="foo.png">',
             $htmlFormat($img)
         );
     }
@@ -83,11 +83,11 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('true')));
+        $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('true')));
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><input type="checkbox" checked>',
+            '<input type="checkbox" checked>',
             $htmlFormat($input)
         );
     }
@@ -99,11 +99,11 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement('checked', new CodeElement('null')));
+        $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('null')));
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><input type="checkbox">',
+            '<input type="checkbox">',
             $htmlFormat($input)
         );
     }
@@ -116,11 +116,11 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
-        $input->getAttributes()->attach(new AttributeElement('value', new CodeElement('a_function(42)')));
+        $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('a_function(42)')));
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<!DOCTYPE html><input type="text" value="<?php echo a_function(42); ?>">',
+            '<input type="text" value="<?= a_function(42) ?>">',
             $htmlFormat($input)
         );
     }
@@ -151,7 +151,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"><html></html>',
-            $htmlFormat($input)
+            $htmlFormat($document)
         );
     }
 }

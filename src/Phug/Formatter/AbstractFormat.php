@@ -4,7 +4,11 @@ namespace Phug\Formatter;
 
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DoctypeElement;
+use Phug\Formatter\Element\DocumentElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\ElementInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
@@ -23,6 +27,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     public function __construct(array $options = null)
     {
         $this->setOptionsRecursive([
+            'html_escape'      => static::HTML_ESCAPE,
+            'php_handle_code'  => static::PHP_HANDLE_CODE,
+            'php_display_code' => static::PHP_DISPLAY_CODE,
+            'doctype'          => static::DOCTYPE,
+            'custom_doctype'   => static::CUSTOM_DOCTYPE,
             'pretty'           => false,
             'element_handlers' => [
                 AttributeElement::class  => [$this, 'formatAttributeElement'],
@@ -30,8 +39,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 ExpressionElement::class => [$this, 'formatExpressionElement'],
                 DoctypeElement::class    => [$this, 'formatDoctypeElement'],
                 DocumentElement::class   => [$this, 'formatDocumentElement'],
-                MarkupElement::class     => [$this, 'formatMarkupElement'],
-                CodeElement::class       => [$this, 'formatCodeElement'],
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
             ],
         ], $options ?: []);
@@ -90,8 +97,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function pattern($patternOption)
     {
-        $pattern = $this->getOption($patternOption) ?: constant(static::class.'::'.strtoupper($patternOption));
+        $pattern = $this->getOption($patternOption);
         $args = func_get_args();
+        $args[0] = $pattern;
         $function = 'sprintf';
         if (is_callable($pattern)) {
             $function = $pattern;
@@ -124,7 +132,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->pattern($pattern, $type);
     }
 
-    protected function formatTagChildren(MarkupElement $element, $indentStep = 1)
+    protected function formatTagChildren(ElementInterface $element, $indentStep = 1)
     {
         $this->indentLevel += $indentStep;
         $content = implode('', array_map([$this, 'format'], $element->getChildren()));

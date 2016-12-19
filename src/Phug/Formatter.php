@@ -6,6 +6,7 @@ use Phug\Formatter\ElementInterface;
 use Phug\Formatter\FormatInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
+use Phug\Util\UnorderedArguments;
 
 class Formatter implements OptionInterface
 {
@@ -34,7 +35,7 @@ class Formatter implements OptionInterface
      */
     public function format()
     {
-        $arguments = new UnOrderedArguments(func_get_args());
+        $arguments = new UnorderedArguments(func_get_args());
 
         $element = $arguments->required(ElementInterface::class);
         $format = $arguments->required(FormatInterface::class);
