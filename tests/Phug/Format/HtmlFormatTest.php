@@ -141,6 +141,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::isBlockTag
      * @covers \Phug\Formatter\AbstractFormat::formatDoctypeElement
+     * @covers \Phug\Formatter\AbstractFormat::formatDocumentElement
      */
     public function testCustomDoctype()
     {

@@ -89,6 +89,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group exp
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      */
@@ -108,9 +109,10 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         $answer = new ExpressionElement('42');
         $answer->escape();
+        $formatter = new Formatter();
 
         self::assertSame(
-            'htmlspecialchars(84)',
+            '<?= htmlspecialchars(42) ?>',
             $formatter->format($answer, HtmlFormat::class)
         );
     }

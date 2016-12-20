@@ -16,7 +16,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
     use OptionTrait;
 
-    const HTML_ESCAPE = 'htmlspecialchars';
+    const HTML_ESCAPE = 'htmlspecialchars(%s)';
     const PHP_HANDLE_CODE = '<?php %s ?>';
     const PHP_DISPLAY_CODE = '<?= %s ?>';
     const DOCTYPE = '';
