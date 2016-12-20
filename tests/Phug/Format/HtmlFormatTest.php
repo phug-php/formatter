@@ -3,9 +3,9 @@
 namespace Phug\Test\Format;
 
 use Phug\Formatter\Element\AttributeElement;
-use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\HtmlFormat;
@@ -113,7 +113,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatCodeAttribute()
     {
-
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
         $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('a_function(42)')));

@@ -2,7 +2,6 @@
 
 namespace Phug\Formatter\Format;
 
-use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\MarkupInterface;
 use Phug\FormatterException;
 

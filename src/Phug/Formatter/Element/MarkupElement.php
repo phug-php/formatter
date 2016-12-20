@@ -19,7 +19,6 @@ class MarkupElement extends AbstractElement implements MarkupInterface
 
     public function __construct()
     {
-
         $arguments = new UnorderedArguments(func_get_args());
 
         $name = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
@@ -30,7 +29,6 @@ class MarkupElement extends AbstractElement implements MarkupInterface
         $arguments->noMoreDefinedArguments();
 
         parent::__construct($parent, $children);
-
 
         $this->setName($name);
         if ($attributes) {

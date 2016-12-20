@@ -7,7 +7,6 @@ use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Format\HtmlFormat;
-use Phug\Formatter\FormatInterface;
 
 /**
  * @coversDefaultClass \Phug\Formatter

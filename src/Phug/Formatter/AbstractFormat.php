@@ -8,7 +8,6 @@ use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
-use Phug\Formatter\ElementInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 

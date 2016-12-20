@@ -25,13 +25,15 @@ class Formatter implements OptionInterface
     }
 
     /**
+     * Entry point of the Formatter, typically waiting for a DocumentElement and
+     * a format, to return a string with HTML and PHP nested.
      *
      * @param ElementInterface $element the element to format such as a DocumentElement
      * @param FormatInterface  $format  format instance or format class name to use to format like HtmlFormat
      *
-     * @return StringOfPhtml
-     *
      * @throws FormatterException
+     *
+     * @return StringOfPhtml
      */
     public function format()
     {
