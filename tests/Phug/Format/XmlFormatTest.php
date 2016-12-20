@@ -23,9 +23,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testXmlFormat()
     {
-    	$document = new DocumentElement();
-    	$document->appendChild(new DoctypeElement());
-    	$document->appendChild(new MarkupElement('img'));
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement());
+        $document->appendChild(new MarkupElement('img'));
         $xmlFormat = new XmlFormat();
 
         self::assertSame(

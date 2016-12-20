@@ -8,10 +8,10 @@ use Phug\Formatter\Partial\MarkupTrait;
 
 class DocumentElement extends AbstractElement implements MarkupInterface
 {
-	use MarkupTrait;
+    use MarkupTrait;
 
-	public function getName()
-	{
-		return 'document';
-	}
+    public function getName()
+    {
+        return 'document';
+    }
 }

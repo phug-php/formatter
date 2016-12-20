@@ -25,7 +25,7 @@ class Formatter implements OptionInterface
     }
 
     /**
-     * 
+     *
      * @param ElementInterface $element the element to format such as a DocumentElement
      * @param FormatInterface  $format  format instance or format class name to use to format like HtmlFormat
      *

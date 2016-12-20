@@ -145,8 +145,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomDoctype()
     {
-    	$document = new DocumentElement();
-    	$document->appendChild(new DoctypeElement('html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"'));
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement('html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"'));
         $document->appendChild(new MarkupElement('html'));
         $htmlFormat = new HtmlFormat();
 
