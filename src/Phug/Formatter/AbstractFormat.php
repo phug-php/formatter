@@ -41,9 +41,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
             ],
             'php_token_handlers' => [
-                T_VARIABLE => function ($variable) {
-                    return 'isset('.$variable.') ? '.$variable." : ''";
-                },
+                T_VARIABLE => [$this, 'handleVariable'],
             ],
         ], $options ?: []);
     }
@@ -83,6 +81,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
     }
 
+    protected function handleVariable($variable, $index, &$tokens)
+    {
+        return '(isset('.$variable.') ? '.$variable." : '')";
+    }
+
     protected function getNewLine()
     {
         $pretty = $this->getOption('pretty');
@@ -114,25 +117,35 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return call_user_func_array($function, $args);
     }
 
-    protected function formatCode($code)
+    protected function handleTokens($code)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
+        $tokens = array_slice(token_get_all('<?php '.$code), 1);
 
-        return implode('', array_map(function ($token) use (&$phpTokenHandler) {
+        foreach ($tokens as $index => $token) {
             $id = $token;
             $text = $token;
             if (!is_string($id)) {
                 list($id, $text) = $token;
             }
             if (!isset($phpTokenHandler[$id])) {
-                return $text;
+                yield $text;
+
+                continue;
             }
             if (is_string($phpTokenHandler[$id])) {
-                return sprintf($phpTokenHandler[$id], $text);
+                yield sprintf($phpTokenHandler[$id], $text);
+
+                continue;
             }
 
-            return $phpTokenHandler[$id]($text);
-        }, array_slice(token_get_all('<?php '.$code), 1)));
+            yield $phpTokenHandler[$id]($text, $index, $tokens);
+        }
+    }
+
+    protected function formatCode($code)
+    {
+        return implode('', array_map($this->handleTokens($code)));
     }
 
     protected function formatCodeElement(CodeElement $code)
