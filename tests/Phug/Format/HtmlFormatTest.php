@@ -125,6 +125,22 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::formatCode
+     */
+    public function testFormatVariable()
+    {
+        $input = new MarkupElement('input');
+        $input->getAttributes()->attach(new AttributeElement('type', 'text'));
+        $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('$foo')));
+        $htmlFormat = new HtmlFormat();
+
+        self::assertSame(
+            '<input type="text" value="<?= isset($foo) ? $foo : \'\' ?>">',
+            $htmlFormat($input)
+        );
+    }
+
+    /**
      * @covers                   ::isSelfClosingTag
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage input is a self closing element: <input/> but contains nested content.

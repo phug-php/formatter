@@ -40,6 +40,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 DocumentElement::class   => [$this, 'formatDocumentElement'],
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
             ],
+            'php_token_handlers' => [
+                T_VARIABLE => function ($variable) {
+                    return 'isset('.$variable.') ? '.$variable." : ''";
+                },
+            ],
         ], $options ?: []);
     }
 
@@ -60,21 +65,22 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function removeElementHandler($className)
     {
-        $elementHandlers = $this->getOption('element_handlers');
-        if (array_key_exists($className, $elementHandlers)) {
-            unset($elementHandlers[$className]);
-            $this->setOption('element_handlers', $elementHandlers);
-        }
-
-        return $this;
+        return $this->unsetOption(['element_handlers', $className]);
     }
 
     public function setElementHandler($className, callable $handler)
     {
-        $elementHandlers = $this->getOption('element_handlers') ?: [];
-        $elementHandlers[$className] = $handler;
+        return $this->setOption(['element_handlers', $className], $handler);
+    }
 
-        return $this->setOption('element_handlers', $elementHandlers);
+    public function removePhpTokenHandler($phpTokenId)
+    {
+        return $this->unsetOption(['php_token_handlers', $phpTokenId]);
+    }
+
+    public function setPhpTokenHandler($phpTokenId, $handler)
+    {
+        return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
     }
 
     protected function getNewLine()
@@ -108,9 +114,30 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return call_user_func_array($function, $args);
     }
 
+    protected function formatCode($code)
+    {
+        $phpTokenHandler = $this->getOption('php_token_handlers');
+
+        return implode('', array_map(function ($token) use (&$phpTokenHandler) {
+            $id = $token;
+            $text = $token;
+            if (!is_string($id)) {
+                list($id, $text) = $token;
+            }
+            if (!isset($phpTokenHandler[$id])) {
+                return $text;
+            }
+            if (is_string($phpTokenHandler[$id])) {
+                return sprintf($phpTokenHandler[$id], $text);
+            }
+
+            return $phpTokenHandler[$id]($text);
+        }, array_slice(token_get_all('<?php '.$code), 1)));
+    }
+
     protected function formatCodeElement(CodeElement $code)
     {
-        return $this->pattern('php_handle_code', $this->format($code->getValue()));
+        return $this->pattern('php_handle_code', $this->formatCode($code->getValue()));
     }
 
     protected function formatExpressionElement(ExpressionElement $code)
@@ -120,7 +147,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_escape', $value);
         }
 
-        return $this->pattern('php_display_code', $this->format($value));
+        return $this->pattern('php_display_code', $this->formatCode($value));
     }
 
     protected function formatDoctypeElement(DoctypeElement $doctype)

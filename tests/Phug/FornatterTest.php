@@ -49,7 +49,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $link = new MarkupElement(new ExpressionElement('$tagName'));
 
         self::assertSame(
-            '<<?= $tagName ?>></<?= $tagName ?>>',
+            '<<?= isset($tagName) ? $tagName : \'\' ?>></<?= isset($tagName) ? $tagName : \'\' ?>>',
             $formatter->format($link, $format)
         );
     }
@@ -151,6 +151,40 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             "<foo>\n\t<bar></bar>\n\t<biz></biz>\n\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n",
             $formatter->format($foo, HtmlFormat::class)
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::formatCode
+     * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
+     * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
+     */
+    public function testFormatCode()
+    {
+        $foo = new ExpressionElement('$foo');
+        $formatter = new Formatter();
+        $format = new HtmlFormat();
+        $format->removePhpTokenHandler(T_VARIABLE);
+
+        self::assertSame(
+            '<?= $foo ?>',
+            $formatter->format($foo, $format)
+        );
+
+        $format->setPhpTokenHandler(T_VARIABLE, 'handle_variable(%s)');
+
+        self::assertSame(
+            '<?= handle_variable($foo) ?>',
+            $formatter->format($foo, $format)
+        );
+
+        $foo = new ExpressionElement('foo(4 + (5 * 2))');
+        $format->setPhpTokenHandler('(', '(handle_parenthesis(');
+        $format->setPhpTokenHandler(')', '))');
+
+        self::assertSame(
+            '<?= foo(handle_parenthesis(4 + (handle_parenthesis(5 * 2)))) ?>',
+            $formatter->format($foo, $format)
         );
     }
 }
