@@ -60,7 +60,7 @@ class XmlFormat extends AbstractFormat
                 $formattedValue = null;
                 if ($key instanceof ExpressionElement) {
                     $bufferVariable = $this->pattern('buffer_variable');
-                    $key = new ExpressionElement($this->pattern('save_value', $bufferVariable, $key->getValue()));
+                    $key = $this->pattern('php_display_code', $this->pattern('save_value', $bufferVariable, $this->formatCode($key->getValue())));
                     $value = new ExpressionElement($bufferVariable);
                     $formattedValue = $this->format($value);
                 }

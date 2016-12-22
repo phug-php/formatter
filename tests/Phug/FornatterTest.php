@@ -25,6 +25,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::format
+     * @covers \Phug\Formatter\AbstractFormat::__construct
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      */
     public function testFormat()
