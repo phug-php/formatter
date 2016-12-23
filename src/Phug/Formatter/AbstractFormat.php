@@ -114,7 +114,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 T_OBJECT_OPERATOR,
                 T_OR_EQUAL,
                 T_PLUS_EQUAL,
-                T_POW_EQUAL,
+                defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
                 T_SL_EQUAL,
                 T_SR_EQUAL,
                 T_XOR_EQUAL,
