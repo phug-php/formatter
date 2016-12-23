@@ -8,6 +8,7 @@ use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
@@ -15,7 +16,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
     use OptionTrait;
 
-    const HTML_ESCAPE = 'htmlspecialchars(%s)';
+    const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
+    const HTML_TEXT_ESCAPE = 'htmlspecialchars';
     const PHP_HANDLE_CODE = '<?php %s ?>';
     const PHP_BLOCK_CODE = ' {%s}';
     const PHP_NESTED_HTML = ' ?>%s<?php ';
@@ -28,21 +30,23 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     public function __construct(array $options = null)
     {
         $this->setOptionsRecursive([
-            'html_escape'      => static::HTML_ESCAPE,
-            'php_handle_code'  => static::PHP_HANDLE_CODE,
-            'php_display_code' => static::PHP_DISPLAY_CODE,
-            'php_block_code'   => static::PHP_BLOCK_CODE,
-            'php_nested_html'  => static::PHP_NESTED_HTML,
-            'doctype'          => static::DOCTYPE,
-            'custom_doctype'   => static::CUSTOM_DOCTYPE,
-            'pretty'           => false,
-            'element_handlers' => [
+            'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
+            'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+            'php_handle_code'        => static::PHP_HANDLE_CODE,
+            'php_display_code'       => static::PHP_DISPLAY_CODE,
+            'php_block_code'         => static::PHP_BLOCK_CODE,
+            'php_nested_html'        => static::PHP_NESTED_HTML,
+            'doctype'                => static::DOCTYPE,
+            'custom_doctype'         => static::CUSTOM_DOCTYPE,
+            'pretty'                 => false,
+            'element_handlers'       => [
                 AttributeElement::class  => [$this, 'formatAttributeElement'],
                 CodeElement::class       => [$this, 'formatCodeElement'],
                 ExpressionElement::class => [$this, 'formatExpressionElement'],
                 DoctypeElement::class    => [$this, 'formatDoctypeElement'],
                 DocumentElement::class   => [$this, 'formatDocumentElement'],
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
+                TextElement::class       => [$this, 'formatTextElement'],
             ],
             'php_token_handlers' => [
                 T_VARIABLE => [$this, 'handleVariable'],
@@ -225,10 +229,23 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $value = $code->getValue();
         if ($code->isEscaped()) {
-            $value = $this->pattern('html_escape', $value);
+            $value = $this->pattern('html_expression_escape', $value);
         }
 
         return $this->pattern('php_display_code', $this->formatCode($value));
+    }
+
+    protected function formatTextElement(TextElement $text)
+    {
+        $value = $text->getValue();
+        if ($text->isEscaped()) {
+            $value = $this->pattern('html_text_escape', $value);
+        }
+        if ($text->getPreviousSibling() instanceof TextElement) {
+            $value = ' '.$value;
+        }
+
+        return $this->format($value);
     }
 
     protected function formatDoctypeElement(DoctypeElement $doctype)

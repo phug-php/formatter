@@ -4,8 +4,10 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\HtmlFormat;
 
 /**
@@ -159,6 +161,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter\AbstractFormat::formatCode
+     * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::handleVariable
@@ -225,6 +228,41 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             '<?php if (5 == 5) { ?><div></div><?php } ?>',
             $formatter->format($if, $format)
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::formatTextElement
+     */
+    public function testFormatTextElement()
+    {
+        $text = new TextElement('Hello <b>World</b>!');
+        $formatter = new Formatter();
+        $format = new HtmlFormat();
+
+        self::assertSame(
+            'Hello <b>World</b>!',
+            $formatter->format($text, $format)
+        );
+
+        $text->escape();
+        $formatter = new Formatter();
+        $format = new HtmlFormat();
+
+        self::assertSame(
+            'Hello &lt;b&gt;World&lt;/b&gt;!',
+            $formatter->format($text, $format)
+        );
+
+        $document = new DocumentElement();
+        $paragraph = new MarkupElement('p');
+        $paragraph->appendChild(new TextElement('Foo'));
+        $paragraph->appendChild(new TextElement('bar'));
+        $document->appendChild($paragraph);
+
+        self::assertSame(
+            '<p>Foo bar</p>',
+            $formatter->format($document, $format)
         );
     }
 }
