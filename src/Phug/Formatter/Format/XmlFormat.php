@@ -86,7 +86,7 @@ class XmlFormat extends AbstractFormat
                     $this->isBlockTag($element)
                         ? $this->getNewLine().'%s'.$this->getIndent()
                         : '%s',
-                    $this->formatTagChildren($element)
+                    $this->formatElementChildren($element)
                 )
                 : ''
         );

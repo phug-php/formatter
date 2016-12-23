@@ -17,6 +17,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     const HTML_ESCAPE = 'htmlspecialchars(%s)';
     const PHP_HANDLE_CODE = '<?php %s ?>';
+    const PHP_BLOCK_CODE = ' {%s}';
+    const PHP_NESTED_HTML = ' ?>%s<?php ';
     const PHP_DISPLAY_CODE = '<?= %s ?>';
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
@@ -29,6 +31,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'html_escape'      => static::HTML_ESCAPE,
             'php_handle_code'  => static::PHP_HANDLE_CODE,
             'php_display_code' => static::PHP_DISPLAY_CODE,
+            'php_block_code'   => static::PHP_BLOCK_CODE,
+            'php_nested_html'  => static::PHP_NESTED_HTML,
             'doctype'          => static::DOCTYPE,
             'custom_doctype'   => static::CUSTOM_DOCTYPE,
             'pretty'           => false,
@@ -209,7 +213,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatCodeElement(CodeElement $code)
     {
-        return $this->pattern('php_handle_code', $this->formatCode($code->getValue()));
+        $php = $this->formatCode($code->getValue());
+        if ($code->hasChildren()) {
+            $php .= $this->pattern('php_block_code', $this->pattern('php_nested_html', $this->formatElementChildren($code)));
+        }
+
+        return $this->pattern('php_handle_code', $php);
     }
 
     protected function formatExpressionElement(ExpressionElement $code)
@@ -230,7 +239,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->pattern($pattern, $type);
     }
 
-    protected function formatTagChildren(ElementInterface $element, $indentStep = 1)
+    protected function formatElementChildren(ElementInterface $element, $indentStep = 1)
     {
         $this->indentLevel += $indentStep;
         $content = implode('', array_map([$this, 'format'], $element->getChildren()));
@@ -241,6 +250,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatDocumentElement(DocumentElement $document)
     {
-        return $this->formatTagChildren($document, 0);
+        return $this->formatElementChildren($document, 0);
     }
 }

@@ -38,7 +38,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      * @covers ::isSelfClosingTag
      * @covers ::isBlockTag
      * @covers ::formatMarkupElement
-     * @covers ::formatTagChildren
+     * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
     public function testCustomFormatHandler()
@@ -73,7 +73,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
-     * @covers ::formatTagChildren
+     * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
     public function testFormatSingleTagWithAttributes()
@@ -92,7 +92,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
      * @covers ::formatExpressionElement
-     * @covers ::formatTagChildren
+     * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
     public function testFormatBooleanTrueAttribute()
@@ -138,7 +138,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
-     * @covers ::formatTagChildren
+     * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
     public function testFormatBooleanFalseAttribute()
@@ -157,7 +157,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::isSelfClosingTag
      * @covers ::isBlockTag
-     * @covers ::formatTagChildren
+     * @covers ::formatElementChildren
      * @covers ::formatPairTag
      * @covers ::formatMarkupElement
      */

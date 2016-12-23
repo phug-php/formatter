@@ -217,5 +217,14 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
             '<?= foo(handle_parenthesis(4 + (handle_parenthesis(5 * 2)))) ?>',
             $formatter->format($foo, $format)
         );
+
+        $if = new CodeElement('if (5 == 5)');
+        $if->appendChild(new MarkupElement('div'));
+        $format = new HtmlFormat();
+
+        self::assertSame(
+            '<?php if (5 == 5) { ?><div></div><?php } ?>',
+            $formatter->format($if, $format)
+        );
     }
 }
