@@ -41,9 +41,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
             ],
             'php_token_handlers' => [
-                T_VARIABLE => function ($variable) {
-                    return 'isset('.$variable.') ? '.$variable." : ''";
-                },
+                T_VARIABLE => [$this, 'handleVariable'],
             ],
         ], $options ?: []);
     }
@@ -83,6 +81,70 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
     }
 
+    protected function handleVariable($variable, $index, &$tokens)
+    {
+        foreach ([
+            // Exclude tokens before the variables
+            -1 => [
+                T_AS,
+                T_EMPTY,
+                T_GLOBAL,
+                T_ISSET,
+                T_OBJECT_OPERATOR,
+                T_UNSET,
+                T_UNSET_CAST,
+                T_VAR,
+                T_STATIC,
+                T_PRIVATE,
+                T_PROTECTED,
+                T_PUBLIC,
+            ],
+            // Exclude tokens after the variables
+            1 => [
+                '[',
+                T_AND_EQUAL,
+                T_CONCAT_EQUAL,
+                T_CURLY_OPEN,
+                T_DIV_EQUAL,
+                T_DOUBLE_ARROW,
+                T_INC,
+                T_MINUS_EQUAL,
+                T_MOD_EQUAL,
+                T_MUL_EQUAL,
+                T_OBJECT_OPERATOR,
+                T_OR_EQUAL,
+                T_PLUS_EQUAL,
+                defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
+                T_SL_EQUAL,
+                T_SR_EQUAL,
+                T_XOR_EQUAL,
+            ],
+        ] as $direction => $exclusions) {
+            $id = null;
+            for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
+                $id = $tokens[$index + $direction * $i];
+                if (is_array($id)) {
+                    $id = $id[0];
+                }
+                // Ignore the following tokens
+                if (in_array($id, [
+                    T_COMMENT,
+                    T_DOC_COMMENT,
+                    T_WHITESPACE,
+                ])) {
+                    continue;
+                }
+                break;
+            }
+
+            if (in_array($id, $exclusions)) {
+                return $variable;
+            }
+        }
+
+        return '(isset('.$variable.') ? '.$variable." : '')";
+    }
+
     protected function getNewLine()
     {
         $pretty = $this->getOption('pretty');
@@ -114,25 +176,35 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return call_user_func_array($function, $args);
     }
 
-    protected function formatCode($code)
+    protected function handleTokens($code)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
+        $tokens = array_slice(token_get_all('<?php '.$code), 1);
 
-        return implode('', array_map(function ($token) use (&$phpTokenHandler) {
+        foreach ($tokens as $index => $token) {
             $id = $token;
             $text = $token;
             if (!is_string($id)) {
                 list($id, $text) = $token;
             }
             if (!isset($phpTokenHandler[$id])) {
-                return $text;
+                yield $text;
+
+                continue;
             }
             if (is_string($phpTokenHandler[$id])) {
-                return sprintf($phpTokenHandler[$id], $text);
+                yield sprintf($phpTokenHandler[$id], $text);
+
+                continue;
             }
 
-            return $phpTokenHandler[$id]($text);
-        }, array_slice(token_get_all('<?php '.$code), 1)));
+            yield $phpTokenHandler[$id]($text, $index, $tokens);
+        }
+    }
+
+    protected function formatCode($code)
+    {
+        return implode('', iterator_to_array($this->handleTokens($code)));
     }
 
     protected function formatCodeElement(CodeElement $code)

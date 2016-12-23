@@ -135,7 +135,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat();
 
         self::assertSame(
-            '<input type="text" value="<?= isset($foo) ? $foo : \'\' ?>">',
+            '<input type="text" value="<?= (isset($foo) ? $foo : \'\') ?>">',
             $htmlFormat($input)
         );
     }

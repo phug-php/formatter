@@ -26,6 +26,8 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::format
      * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter\AbstractFormat::handleVariable
+     * @covers \Phug\Formatter\AbstractFormat::handleTokens
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      */
     public function testFormat()
@@ -50,7 +52,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $link = new MarkupElement(new ExpressionElement('$tagName'));
 
         self::assertSame(
-            '<<?= isset($tagName) ? $tagName : \'\' ?>></<?= isset($tagName) ? $tagName : \'\' ?>>',
+            '<<?= (isset($tagName) ? $tagName : \'\') ?>></<?= (isset($tagName) ? $tagName : \'\') ?>>',
             $formatter->format($link, $format)
         );
     }
@@ -159,12 +161,40 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
+     * @covers \Phug\Formatter\AbstractFormat::handleVariable
+     * @covers \Phug\Formatter\AbstractFormat::handleTokens
      */
     public function testFormatCode()
     {
         $foo = new ExpressionElement('$foo');
+        $bar = new ExpressionElement('$bar["x"]');
         $formatter = new Formatter();
         $format = new HtmlFormat();
+
+        self::assertSame(
+            '<?= $bar["x"] ?>',
+            $formatter->format($bar, $format)
+        );
+
+        $bar = new ExpressionElement('$bar->x');
+
+        self::assertSame(
+            '<?= $bar->x ?>',
+            $formatter->format($bar, $format)
+        );
+
+        $bar = new ExpressionElement("\$bar\n// comment\n->x");
+
+        self::assertSame(
+            "<?= \$bar\n// comment\n->x ?>",
+            $formatter->format($bar, $format)
+        );
+
+        self::assertSame(
+            '<?= (isset($foo) ? $foo : \'\') ?>',
+            $formatter->format($foo, $format)
+        );
+
         $format->removePhpTokenHandler(T_VARIABLE);
 
         self::assertSame(
