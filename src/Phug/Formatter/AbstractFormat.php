@@ -83,6 +83,65 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function handleVariable($variable, $index, &$tokens)
     {
+        foreach ([
+            // Exclude tokens before the variables
+            -1 => [
+                T_AS,
+                T_EMPTY,
+                T_GLOBAL,
+                T_ISSET,
+                T_OBJECT_OPERATOR,
+                T_UNSET,
+                T_UNSET_CAST,
+                T_VAR,
+                T_STATIC,
+                T_PRIVATE,
+                T_PROTECTED,
+                T_PUBLIC,
+            ],
+            // Exclude tokens after the variables
+            1 => [
+                '[',
+                T_AND_EQUAL,
+                T_CONCAT_EQUAL,
+                T_CURLY_OPEN,
+                T_DIV_EQUAL,
+                T_DOUBLE_ARROW,
+                T_INC,
+                T_MINUS_EQUAL,
+                T_MOD_EQUAL,
+                T_MUL_EQUAL,
+                T_OBJECT_OPERATOR,
+                T_OR_EQUAL,
+                T_PLUS_EQUAL,
+                T_POW_EQUAL,
+                T_SL_EQUAL,
+                T_SR_EQUAL,
+                T_XOR_EQUAL,
+            ],
+        ] as $direction => $exclusions) {
+            $id = null;
+            for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
+                $id = $tokens[$index + $direction * $i];
+                if (is_array($id)) {
+                    $id = $id[0];
+                }
+                // Ignore the following tokens
+                if (in_array($id, [
+                    T_COMMENT,
+                    T_DOC_COMMENT,
+                    T_WHITESPACE,
+                ])) {
+                    continue;
+                }
+                break;
+            }
+
+            if (in_array($id, $exclusions)) {
+                return $variable;
+            }
+        }
+
         return '(isset('.$variable.') ? '.$variable." : '')";
     }
 
@@ -145,7 +204,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatCode($code)
     {
-        return implode('', array_map($this->handleTokens($code)));
+        return implode('', iterator_to_array($this->handleTokens($code)));
     }
 
     protected function formatCodeElement(CodeElement $code)
