@@ -22,14 +22,14 @@
         "source": "https://github.com/phug-php/ast",
         "docs": "http://phug-lang.com/docs"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=5.5.0",
-        "phug/util": "*@dev",
-        "phug/parser": "*@dev"
+        "phug/util": "^0.1.0",
+        "phug/parser": "^0.1.0"
     },
     "require-dev": {
-       "codeclimate/php-test-reporter": "dev-master"
+        "phug/dev-tool": "^0.1.0"
     },
     "autoload": {
         "psr-4": {

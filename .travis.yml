@@ -11,18 +11,12 @@ php:
     - 7.1
     - hhvm
 
-before_script:
-    - travis_retry composer self-update
-    - travis_retry composer install --no-interaction --prefer-source --dev
-
-after_script:
-    - vendor/bin/test-reporter --coverage-report coverage.xml
-
 install:
-    - php bin/check $TRAVIS_PHP_VERSION install
+    - composer self-update
+    - composer install
 
 script:
-    - php bin/check $TRAVIS_PHP_VERSION
+    - vendor/bin/phug-dev check --report
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z
