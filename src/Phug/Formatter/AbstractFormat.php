@@ -219,7 +219,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $php = $this->formatCode($code->getValue());
         if ($code->hasChildren()) {
-            $php .= $this->pattern('php_block_code', $this->pattern('php_nested_html', $this->formatElementChildren($code)));
+            $php .= $this->pattern(
+                'php_block_code',
+                $this->pattern('php_nested_html', $this->formatElementChildren($code))
+            );
         }
 
         return $this->pattern('php_handle_code', $php);

@@ -118,7 +118,10 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('$foo'), new ExpressionElement('$bar')));
+        $input->getAttributes()->attach(new AttributeElement(
+            new ExpressionElement('$foo'),
+            new ExpressionElement('$bar')
+        ));
 
         self::assertSame(
             '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="<?= (isset($bar) ? $bar : \'\') ?>" />',
@@ -127,10 +130,15 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
-        $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('$foo'), new ExpressionElement('true')));
+        $input->getAttributes()->attach(new AttributeElement(
+            new ExpressionElement('$foo'),
+            new ExpressionElement('true')
+        ));
 
         self::assertSame(
-            '<input type="checkbox" <?= $__value=(isset($foo) ? $foo : \'\') ?>="<?= (isset($__value) ? $__value : \'\') ?>" />',
+            '<input type="checkbox" '.
+            '<?= $__value=(isset($foo) ? $foo : \'\') ?>='.
+            '"<?= (isset($__value) ? $__value : \'\') ?>" />',
             $xmlFormat($input)
         );
     }

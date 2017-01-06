@@ -60,21 +60,36 @@ class XmlFormat extends AbstractFormat
                 $formattedValue = null;
                 if ($key instanceof ExpressionElement) {
                     $bufferVariable = $this->pattern('buffer_variable');
-                    $key = $this->pattern('php_display_code', $this->pattern('save_value', $bufferVariable, $this->formatCode($key->getValue())));
+                    $key = $this->pattern(
+                        'php_display_code',
+                        $this->pattern(
+                            'save_value',
+                            $bufferVariable,
+                            $this->formatCode($key->getValue())
+                        )
+                    );
                     $value = new ExpressionElement($bufferVariable);
                     $formattedValue = $this->format($value);
                 }
                 $formattedKey = $this->format($key);
                 $formattedValue = $formattedValue ?: $formattedKey;
 
-                return $this->pattern('boolean_attribute_pattern', $formattedKey, $formattedValue);
+                return $this->pattern(
+                    'boolean_attribute_pattern',
+                    $formattedKey,
+                    $formattedValue
+                );
             }
             if (in_array(strtolower($value->getValue()), ['false', 'null', 'undefined'])) {
                 return '';
             }
         }
 
-        return $this->pattern('attribute_pattern', $this->format($key), $this->format($value));
+        return $this->pattern(
+            'attribute_pattern',
+            $this->format($key),
+            $this->format($value)
+        );
     }
 
     protected function formatPairTag($pattern, MarkupElement $element)
