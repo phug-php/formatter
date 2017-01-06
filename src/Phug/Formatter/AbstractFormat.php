@@ -2,12 +2,15 @@
 
 namespace Phug\Formatter;
 
+use Phug\FormatterException;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\MixinCallElement;
+use Phug\Formatter\Element\MixinDeclarationElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
@@ -25,7 +28,15 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
 
+    /**
+     * @var int
+     */
     protected $indentLevel = 0;
+
+    /**
+     * @var array<MixinDeclarationElement>
+     */
+    protected $mixins = [];
 
     public function __construct(array $options = null)
     {
@@ -40,13 +51,15 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
             'pretty'                 => false,
             'element_handlers'       => [
-                AttributeElement::class  => [$this, 'formatAttributeElement'],
-                CodeElement::class       => [$this, 'formatCodeElement'],
-                ExpressionElement::class => [$this, 'formatExpressionElement'],
-                DoctypeElement::class    => [$this, 'formatDoctypeElement'],
-                DocumentElement::class   => [$this, 'formatDocumentElement'],
-                MarkupElement::class     => [$this, 'formatMarkupElement'],
-                TextElement::class       => [$this, 'formatTextElement'],
+                AttributeElement::class        => [$this, 'formatAttributeElement'],
+                CodeElement::class             => [$this, 'formatCodeElement'],
+                ExpressionElement::class       => [$this, 'formatExpressionElement'],
+                DoctypeElement::class          => [$this, 'formatDoctypeElement'],
+                DocumentElement::class         => [$this, 'formatDocumentElement'],
+                MarkupElement::class           => [$this, 'formatMarkupElement'],
+                MixinCallElement::class        => [$this, 'formatMixinCallElement'],
+                MixinDeclarationElement::class => [$this, 'formatMixinDeclarationElement'],
+                TextElement::class             => [$this, 'formatTextElement'],
             ],
             'php_token_handlers' => [
                 T_VARIABLE => [$this, 'handleVariable'],
@@ -228,14 +241,19 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->pattern('php_handle_code', $php);
     }
 
-    protected function formatExpressionElement(ExpressionElement $code)
+    protected function getExpressionValue(ExpressionElement $code)
     {
         $value = $code->getValue();
         if ($code->isEscaped()) {
             $value = $this->pattern('html_expression_escape', $value);
         }
 
-        return $this->pattern('php_display_code', $this->formatCode($value));
+        return $this->formatCode($value);
+    }
+
+    protected function formatExpressionElement(ExpressionElement $code)
+    {
+        return $this->pattern('php_display_code', $this->getExpressionValue($code));
     }
 
     protected function formatTextElement(TextElement $text)
@@ -271,5 +289,68 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatDocumentElement(DocumentElement $document)
     {
         return $this->formatElementChildren($document, 0);
+    }
+
+    protected function formatMixinDeclarationElement(MixinDeclarationElement $declaration)
+    {
+        $name = $declaration->getName();
+        $this->mixins[$name] = $declaration;
+
+        return '';
+    }
+
+    protected function formatMixinCallElement(MixinCallElement $call)
+    {
+        $mixinName = $call->getName();
+        if (!isset($this->mixins[$mixinName])) {
+            throw new FormatterException('Mixin '.$mixinName.' not declared.');
+        }
+        $declaration = $this->mixins[$mixinName];
+        $reservedNames = $declaration->getArguments();
+        $reservedNames[] = 'attributes';
+        if ($variadic = $declaration->getVariadic()) {
+            $reservedNames[] = $variadic;
+        }
+        foreach ($reservedNames as &$name) {
+            if (substr($name, 0, 1) === '$') {
+                $name = substr($name, 1);
+            }
+        }
+        $attributes = new stdClass();
+        foreach ($call->getAttributes() as $attribute) {
+            $key = $attribute->getKey();
+            if ($key instanceof ExpressionElement) {
+                throw new FormatterException('Dynamic key is not allowed through mixin calls.');
+            }
+            $value = $attribute->getItem();
+            $attributes->$key = $value instanceof ExpressionElement
+                ? getExpressionValue($value)
+                : var_export(strval($value), true);
+        }
+        $storageName = '__mixin_vars_'.spl_object_hash($call);
+        $start = $this->pattern(
+            'php_handle_code',
+            '$'.$storageName.' = compact('.var_export($reservedNames, true).');'
+        );
+        $start .= $this->pattern(
+            'php_handle_code',
+            '$attributes = '.var_export($attributes, true).';'
+        );
+        $start .= $this->pattern(
+            'php_handle_code',
+            '$attributes = [];'
+        );
+        $end = $this->pattern(
+            'php_handle_code',
+            'unset($'.implode(', $', $reservedNames).');'
+        );
+        $end .= $this->pattern(
+            'php_handle_code',
+            'extract($'.$storageName.');'
+        );
+
+        return $start.
+            $this->formatElementChildren($declaration->getChildren()).
+            $end;
     }
 }
