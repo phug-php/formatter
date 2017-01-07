@@ -347,7 +347,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
             $value = $attribute->getItem();
             $attributes[$key] = $value instanceof ExpressionElement
-                ? getExpressionValue($value)
+                ? $this->getExpressionValue($value)
                 : strval($value);
         }
         $storageName = '__mixin_vars_'.spl_object_hash($call);

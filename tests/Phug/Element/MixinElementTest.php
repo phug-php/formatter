@@ -13,12 +13,20 @@ use Phug\Formatter\Format\HtmlFormat;
 use SplObjectStorage;
 
 /**
- * @coversDefaultClass \Phug\Formatter\Element\MixinDeclarationElement
+ * @coversDefaultClass \Phug\Formatter\AbstractFormat
  */
 class MixinElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::<public>
+     * @covers \Phug\Formatter\Element\MixinCallElement::<public>
+     * @covers \Phug\Formatter\Element\MixinDeclarationElement::<public>
+     * @covers ::handleCode
+     * @covers ::expressionsExport
+     * @covers ::getExpressionValue
+     * @covers ::formatMixinCallElement
+     * @covers ::formatMixinDeclarationElement
+     * @covers ::getExpressionValue
+     * @covers ::arrayExport
      */
     public function testMixinElement()
     {
@@ -38,6 +46,7 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
 
         $attributes = new SplObjectStorage();
         $attributes->attach(new AttributeElement('class', 'btn'));
+        $attributes->attach(new AttributeElement('title', new ExpressionElement('"title"')));
         $button = new MixinCallElement('link', $attributes);
         $button->addArgument(new ExpressionElement('"/foo"'));
         $button->addArgument(new ExpressionElement('"foo"'));
@@ -61,7 +70,8 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::<public>
+     * @covers                   ::formatMixinCallElement
+     * @covers                   ::formatMixinDeclarationElement
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage Mixin "link" not declared.
      */
@@ -72,7 +82,8 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::<public>
+     * @covers                   ::formatMixinCallElement
+     * @covers                   ::formatMixinDeclarationElement
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage Dynamic key is not allowed through mixin calls.
      */

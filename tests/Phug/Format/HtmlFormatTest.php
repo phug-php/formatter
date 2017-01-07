@@ -125,6 +125,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::handleCode
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      */
     public function testFormatVariable()
