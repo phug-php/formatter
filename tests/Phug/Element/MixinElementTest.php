@@ -3,6 +3,7 @@
 namespace Phug\Test\Element;
 
 use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinDeclarationElement;
@@ -18,11 +19,11 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
-     * @expectedException        \Phug\FormatterException
-     * @expectedExceptionMessage Mixin nolink not declared.
      */
     public function testMixinElement()
     {
+        $formatter = new Formatter();
+
         $link = new MixinDeclarationElement('link');
         $link->addArgument('href');
         $link->addArgument('name');
@@ -35,19 +36,56 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         $aLink->appendChild(new ExpressionElement('$name'));
         $link->appendChild($aLink);
 
-        $formatter = new Formatter();
-
         $attributes = new SplObjectStorage();
         $attributes->attach(new AttributeElement('class', 'btn'));
-        $button = new MixinCallElement('nolink', $attributes);
-        $button->addArgument('/foo');
-        $button->addArgument('foo');
-        $button->addArgument('button');
-        $button->addArgument('link');
+        $button = new MixinCallElement('link', $attributes);
+        $button->addArgument(new ExpressionElement('"/foo"'));
+        $button->addArgument(new ExpressionElement('"foo"'));
+        $button->addArgument(new ExpressionElement('"button"'));
+        $button->addArgument(new ExpressionElement('"link"'));
+        $button->addArgument(new ExpressionElement('...["foo", "bar"]'));
+
+        $document = new DocumentElement();
+        $document->appendChild($link);
+        $document->appendChild($button);
+
+        ob_start();
+        eval('?>'.$formatter->format($document, HtmlFormat::class));
+        $buffer = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            '<a class="btn" href="/foo" icons="button-link">foo</a>',
-            $formatter->format($button, HtmlFormat::class)
+            '<a class="btn" href="/foo" icons="button-link-foo-bar">foo</a>',
+            $buffer
         );
+    }
+
+    /**
+     * @covers ::<public>
+     * @expectedException        \Phug\FormatterException
+     * @expectedExceptionMessage Mixin "link" not declared.
+     */
+    public function testBadMixinElement()
+    {
+        $formatter = new Formatter();
+        $formatter->format(new MixinCallElement('link'), HtmlFormat::class);
+    }
+
+    /**
+     * @covers ::<public>
+     * @expectedException        \Phug\FormatterException
+     * @expectedExceptionMessage Dynamic key is not allowed through mixin calls.
+     */
+    public function testDynamicKeyNotAllowed()
+    {
+        $formatter = new Formatter();
+        $link = new MixinDeclarationElement('link');
+        $attributes = new SplObjectStorage();
+        $attributes->attach(new AttributeElement(new ExpressionElement('$href'), '/user'));
+        $button = new MixinCallElement('link', $attributes);
+        $document = new DocumentElement();
+        $document->appendChild($link);
+        $document->appendChild($button);
+        $formatter->format($document, HtmlFormat::class);
     }
 }

@@ -228,6 +228,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return implode('', iterator_to_array($this->handleTokens($code)));
     }
 
+    protected function handleCode($code)
+    {
+        return $this->pattern('php_handle_code', $code);
+    }
+
     protected function formatCodeElement(CodeElement $code)
     {
         $php = $this->formatCode($code->getValue());
@@ -238,7 +243,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             );
         }
 
-        return $this->pattern('php_handle_code', $php);
+        return $this->handleCode($php);
     }
 
     protected function getExpressionValue(ExpressionElement $code)
@@ -299,11 +304,29 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return '';
     }
 
+    protected function arrayExport(array $array)
+    {
+        // Optimized var_export for non-associative arrays
+        return '['.implode(', ', array_map(function ($item) {
+            return var_export($item, true);
+        }, $array)).']';
+    }
+
+    protected function expressionsExport(array $array)
+    {
+        // Optimized var_export for non-associative arrays
+        return 'array_merge('.implode(', ', array_map(function (array $array) {
+            list($packed, $value) = $array;
+
+            return sprintf($packed ? '%s' : '[%s]', $value->getValue());
+        }, $array)).')';
+    }
+
     protected function formatMixinCallElement(MixinCallElement $call)
     {
         $mixinName = $call->getName();
         if (!isset($this->mixins[$mixinName])) {
-            throw new FormatterException('Mixin '.$mixinName.' not declared.');
+            throw new FormatterException('Mixin "'.$mixinName.'" not declared.');
         }
         $declaration = $this->mixins[$mixinName];
         $reservedNames = $declaration->getArguments();
@@ -316,41 +339,57 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $name = substr($name, 1);
             }
         }
-        $attributes = new stdClass();
+        $attributes = [];
         foreach ($call->getAttributes() as $attribute) {
             $key = $attribute->getKey();
             if ($key instanceof ExpressionElement) {
                 throw new FormatterException('Dynamic key is not allowed through mixin calls.');
             }
             $value = $attribute->getItem();
-            $attributes->$key = $value instanceof ExpressionElement
+            $attributes[$key] = $value instanceof ExpressionElement
                 ? getExpressionValue($value)
-                : var_export(strval($value), true);
+                : strval($value);
         }
         $storageName = '__mixin_vars_'.spl_object_hash($call);
-        $start = $this->pattern(
-            'php_handle_code',
-            '$'.$storageName.' = compact('.var_export($reservedNames, true).');'
+        $start = $this->handleCode(
+            '$'.$storageName.' = compact('.$this->arrayExport($reservedNames).');'
         );
-        $start .= $this->pattern(
-            'php_handle_code',
-            '$attributes = '.var_export($attributes, true).';'
+        $start .= $this->handleCode(
+            '$__mixin_keys = '.$this->arrayExport($declaration->getArguments()).';'.
+            '$__mixin_values = '.$this->expressionsExport($call->getArguments()).';'
         );
-        $start .= $this->pattern(
-            'php_handle_code',
-            '$attributes = [];'
+        $start .= $this->handleCode(
+            'while (count($__mixin_keys) && $__mixin_value = array_shift($__mixin_values)) {
+                $__mixin_key = array_shift($__mixin_keys);
+                $$__mixin_key = $__mixin_value;
+            }'
         );
-        $end = $this->pattern(
-            'php_handle_code',
+        if ($variadic) {
+            $start .= $this->handleCode(
+                '$'.$variadic.' = $__mixin_values;'
+            );
+        }
+        $start .= $this->handleCode(
+            '$attributes = (object) '.var_export($attributes, true).';'
+        );
+        $reservedNames = array_merge($reservedNames, [
+            '__mixin_keys',
+            '__mixin_key',
+            '__mixin_values',
+            '__mixin_value',
+            '__mixin_packed',
+            '__mixin_array',
+        ]);
+        $end = $this->handleCode(
             'unset($'.implode(', $', $reservedNames).');'
         );
-        $end .= $this->pattern(
-            'php_handle_code',
-            'extract($'.$storageName.');'
+        $end .= $this->handleCode(
+            'extract($'.$storageName.');'.
+            'unset($'.$storageName.');'
         );
 
         return $start.
-            $this->formatElementChildren($declaration->getChildren()).
+            $this->formatElementChildren($declaration).
             $end;
     }
 }
