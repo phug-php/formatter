@@ -2,13 +2,13 @@
 
 namespace Phug\Test\Element;
 
+use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
-use Phug\Formatter\Element\MixinDeclarationElement;
 use Phug\Formatter\Element\MixinCallElement;
-use Phug\Formatter;
+use Phug\Formatter\Element\MixinDeclarationElement;
 use Phug\Formatter\Format\HtmlFormat;
 use SplObjectStorage;
 
