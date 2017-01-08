@@ -2,7 +2,6 @@
 
 namespace Phug\Formatter;
 
-use Phug\FormatterException;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
@@ -12,6 +11,7 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\MixinDeclarationElement;
 use Phug\Formatter\Element\TextElement;
+use Phug\FormatterException;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
