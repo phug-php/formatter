@@ -23,7 +23,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         $attributes = new SplObjectStorage();
         $source = new AttributeElement('src', '/foo/bar.png');
         $attributes->attach($source);
-        $img = new MarkupElement('img', null, $attributes);
+        $img = new MarkupElement('img', $attributes);
         $altValue = new CodeElement('$alt');
         $alt = new AttributeElement('alt', $altValue);
         $img->getAttributes()->attach($alt);

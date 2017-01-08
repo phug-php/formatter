@@ -95,6 +95,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @group exp
      * @covers \Phug\Formatter\AbstractFormat::pattern
+     * @covers \Phug\Formatter\AbstractFormat::getExpressionValue
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      */
     public function testExpressionElement()
