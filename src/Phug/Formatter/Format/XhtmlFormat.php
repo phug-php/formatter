@@ -2,10 +2,11 @@
 
 namespace Phug\Formatter\Format;
 
-abstract class XhtmlFormat extends XmlFormat
+abstract class XhtmlFormat extends HtmlFormat
 {
     const DOCTYPE = '<!DOCTYPE %s PUBLIC "%s" "%s">';
     const DOCTYPE_LANGUAGE = 'html';
+    const SELF_CLOSING_TAG = '<%s />';
 
     public function __construct(array $options = null)
     {

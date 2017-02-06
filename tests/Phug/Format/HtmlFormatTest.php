@@ -154,7 +154,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::isBlockTag
      * @covers \Phug\Formatter\AbstractFormat::formatDoctypeElement
      * @covers \Phug\Formatter\AbstractFormat::formatDocumentElement
      */
@@ -168,6 +167,29 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"><html></html>',
             $htmlFormat($document)
+        );
+    }
+
+    /**
+     * @covers ::isBlockTag
+     */
+    public function testIsBlockTag()
+    {
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement('html'));
+        $p = new MarkupElement('p');
+        $document->appendChild($p);
+        $span = new MarkupElement('span');
+        $p->appendChild($span);
+        $div = new MarkupElement('div');
+        $span->appendChild($div);
+        $htmlFormat = new HtmlFormat([
+            'pretty' => '  ',
+        ]);
+
+        self::assertSame(
+            "<!DOCTYPE html><p>\n<span><div></div></span></p>",
+            trim($htmlFormat($document))
         );
     }
 }
