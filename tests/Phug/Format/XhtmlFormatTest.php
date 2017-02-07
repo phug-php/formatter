@@ -16,7 +16,7 @@ use Phug\Formatter\Format\TransitionalFormat;
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XhtmlFormat
  */
-class XhmlFormatTest extends \PHPUnit_Framework_TestCase
+class XhtmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::__construct
