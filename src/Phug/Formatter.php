@@ -137,21 +137,23 @@ class Formatter implements OptionInterface
         $arguments = new UnorderedArguments(func_get_args());
 
         $element = $arguments->required(ElementInterface::class);
-        $format = $arguments->optional(FormatInterface::class) ?: $this->format;
+        $format = $arguments->optional(FormatInterface::class);
 
         $arguments->noMoreArguments();
 
-        if (!($format instanceof FormatInterface)) {
-            $format = new $format($this);
-        }
-
         if ($element instanceof DoctypeElement) {
             $formats = $this->getOption('formats');
-            $format = $element->getValue();
-            $this->setFormat($format);
-            if (isset($formats[$format])) {
+            $doctype = $element->getValue();
+            $this->setFormat($doctype);
+            if (isset($formats[$doctype])) {
                 $element->setValue(null);
             }
+        }
+
+        $format = $format ?: $this->format;
+
+        if (!($format instanceof FormatInterface)) {
+            $format = new $format($this);
         }
 
         return $format($element);
