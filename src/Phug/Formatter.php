@@ -4,6 +4,7 @@ namespace Phug;
 
 // Elements
 use Phug\Formatter\ElementInterface;
+use Phug\Element\DoctypeElement;
 // Formats
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
@@ -94,6 +95,16 @@ class Formatter implements OptionInterface
     }
 
     /**
+     * Return current format.
+     *
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
      * Set a format name as the current or fallback to default if not available.
      *
      * @param string doctype format identifier
@@ -132,6 +143,15 @@ class Formatter implements OptionInterface
 
         if (!($format instanceof FormatInterface)) {
             $format = new $format($this);
+        }
+
+        if ($element instanceof DoctypeElement) {
+            $formats = $this->getOption('formats');
+            $format = $element->getValue();
+            $this->setFormat($format);
+            if (isset($formats[$format])) {
+                $element->setValue(null);
+            }
         }
 
         return $format($element);

@@ -184,13 +184,13 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $p->appendChild($span);
         $div = new MarkupElement('div');
         $span->appendChild($div);
-        $htmlFormat = new HtmlFormat(new Formatter([
+        $formatter = new Formatter([
             'pretty' => '  ',
-        ]));
+        ]);
 
         self::assertSame(
             "<!DOCTYPE html><p>\n<span><div></div></span></p>",
-            trim($htmlFormat($document))
+            trim($formatter->format($document))
         );
     }
 }
