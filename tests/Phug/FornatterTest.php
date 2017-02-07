@@ -4,13 +4,11 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
-use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\HtmlFormat;
-use Phug\Formatter\Format\XmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter
