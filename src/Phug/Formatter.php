@@ -58,10 +58,15 @@ class Formatter implements OptionInterface
         $formatClassName = $this->getOption('default_format');
 
         if (!is_a($formatClassName, FormatInterface::class, true)) {
-            throw new CompilerException(
+            throw new RuntimeException(
                 "Passed default format class $formatClassName must ".
                 'implement '.FormatInterface::class
             );
+        }
+
+        // Throw exception if a format is wrong.
+        foreach ($this->getOption('formats') as $doctype => $format) {
+            $this->setFormatHandler($doctype, $format);
         }
 
         $this->format = $formatClassName;
@@ -121,7 +126,7 @@ class Formatter implements OptionInterface
         $arguments = new UnorderedArguments(func_get_args());
 
         $element = $arguments->required(ElementInterface::class);
-        $format = $arguments->optional(FormatInterface::class) ?: $this->getOption('default_format');
+        $format = $arguments->optional(FormatInterface::class) ?: $this->format;
 
         $arguments->noMoreArguments();
 

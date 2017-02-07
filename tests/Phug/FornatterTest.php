@@ -4,11 +4,13 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\Format\XmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter
@@ -23,6 +25,72 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter(['foo' => 'bar']);
 
         self::assertSame('bar', $formatter->getOption('foo'));
+    }
+
+    /**
+     * @covers                   ::__construct
+     * @expectedException        \InvalidArgumentException
+     * @expectedExceptionMessage Passed default format class
+     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
+     * @expectedExceptionMessage must implement
+     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     */
+    public function testConstructorException()
+    {
+        $formatter = new Formatter([
+            'formats' => [
+                'html' => CodeElement::class,
+            ],
+        ]);
+    }
+
+    /**
+     * @covers ::setFormatHandler
+     */
+    public function testSetFormatHandler()
+    {
+        $formatter = new Formatter();
+        $formatter->setFormatHandler('foo', HtmlFormat::class);
+
+        self::assertSame(HtmlFormat::class, $formatter->getOption(['formats', 'foo']));
+    }
+
+    /**
+     * @covers                   ::setFormatHandler
+     * @expectedException        \InvalidArgumentException
+     * @expectedExceptionMessage Passed default format class
+     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
+     * @expectedExceptionMessage must implement
+     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     */
+    public function testSetFormatHandlerException()
+    {
+        $formatter = new Formatter();
+        $formatter->setFormatHandler('foo', CodeElement::class);
+    }
+
+    /**
+     * @group i
+     * @covers ::setFormat
+     */
+    public function testSetFormat()
+    {
+        $formatter = new Formatter();
+        $img = new MarkupElement('img');
+
+        $formatter->setFormat('html');
+
+        self::assertSame(
+            '<img>',
+            $formatter->format($img)
+        );
+
+        $formatter->setFormat('xml');
+
+        self::assertSame(
+            '<img />',
+            $formatter->format($img)
+        );
     }
 
     /**
@@ -88,7 +156,6 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group exp
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      */
@@ -117,7 +184,6 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers \Phug\Formatter\AbstractFormat::getNewLine
      * @covers \Phug\Formatter\AbstractFormat::getIndent
      */
