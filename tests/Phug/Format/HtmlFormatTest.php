@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
@@ -21,7 +22,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     public function testHtmlFormat()
     {
         $img = new MarkupElement('img');
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<img>',
@@ -35,7 +36,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     public function testCustomFormatHandler()
     {
         $img = new MarkupElement('img');
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
         $htmlFormat->setElementHandler(MarkupElement::class, function (ElementInterface $element) {
             return strtoupper($element->getName());
         });
@@ -52,7 +53,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     public function testMissingFormatHandler()
     {
         $img = new MarkupElement('img');
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
         $htmlFormat->removeElementHandler(MarkupElement::class);
 
         self::assertSame(
@@ -68,7 +69,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $img = new MarkupElement('img');
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<img src="foo.png">',
@@ -84,7 +85,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('true')));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<input type="checkbox" checked>',
@@ -100,7 +101,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('null')));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<input type="checkbox">',
@@ -116,7 +117,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
         $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('a_function(42)')));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<input type="text" value="<?= a_function(42) ?>">',
@@ -132,7 +133,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
         $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('$foo')));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<input type="text" value="<?= (isset($foo) ? $foo : \'\') ?>">',
@@ -149,7 +150,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->appendChild(new MarkupElement('i'));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
         $htmlFormat($input);
     }
 
@@ -162,7 +163,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement('html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"'));
         $document->appendChild(new MarkupElement('html'));
-        $htmlFormat = new HtmlFormat();
+        $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"><html></html>',
@@ -183,9 +184,9 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $p->appendChild($span);
         $div = new MarkupElement('div');
         $span->appendChild($div);
-        $htmlFormat = new HtmlFormat([
+        $htmlFormat = new HtmlFormat(new Formatter([
             'pretty' => '  ',
-        ]);
+        ]));
 
         self::assertSame(
             "<!DOCTYPE html><p>\n<span><div></div></span></p>",

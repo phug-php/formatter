@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter\Format;
 
+use Phug\Formatter;
 use Phug\Formatter\MarkupInterface;
 use Phug\FormatterException;
 
@@ -11,7 +12,7 @@ class HtmlFormat extends XmlFormat
     const SELF_CLOSING_TAG = '<%s>';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s';
 
-    public function __construct(array $options = null)
+    public function __construct(Formatter $formatter)
     {
         $this->setOptions([
             'inline_tags' => [
@@ -54,7 +55,7 @@ class HtmlFormat extends XmlFormat
                 'wbr',
             ],
         ]);
-        parent::__construct($options);
+        parent::__construct($formatter);
     }
 
     public function isSelfClosingTag(MarkupInterface $element)

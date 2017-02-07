@@ -44,7 +44,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         );
 
         $link = new MarkupElement('a');
-        $format = new HtmlFormat();
+        $format = new HtmlFormat($formatter);
 
         self::assertSame(
             '<a></a>',
@@ -62,17 +62,12 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::format
      * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Arguments miss one of the Phug\Formatter\FormatInterface type
+     * @expectedExceptionMessage Arguments miss one of the Phug\Formatter\ElementInterface type
      */
     public function testFormatWithWrongArgument()
     {
-        $img = new MarkupElement('img');
         $formatter = new Formatter();
-
-        self::assertSame(
-            '<img>',
-            $formatter->format($img, MarkupElement::class)
-        );
+        $formatter->format(HtmlFormat::class, HtmlFormat::class);
     }
 
     /**
@@ -122,6 +117,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group i
      * @covers \Phug\Formatter\AbstractFormat::getNewLine
      * @covers \Phug\Formatter\AbstractFormat::getIndent
      */
@@ -172,7 +168,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         $foo = new ExpressionElement('$foo');
         $bar = new ExpressionElement('$bar["x"]');
         $formatter = new Formatter();
-        $format = new HtmlFormat();
+        $format = new HtmlFormat($formatter);
 
         self::assertSame(
             '<?= $bar["x"] ?>',
@@ -223,7 +219,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         $if = new CodeElement('if (5 == 5)');
         $if->appendChild(new MarkupElement('div'));
-        $format = new HtmlFormat();
+        $format = new HtmlFormat($formatter);
 
         self::assertSame(
             '<?php if (5 == 5) { ?><div></div><?php } ?>',
@@ -238,7 +234,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     {
         $text = new TextElement('Hello <b>World</b>!');
         $formatter = new Formatter();
-        $format = new HtmlFormat();
+        $format = new HtmlFormat($formatter);
 
         self::assertSame(
             'Hello <b>World</b>!',
@@ -247,7 +243,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         $text->escape();
         $formatter = new Formatter();
-        $format = new HtmlFormat();
+        $format = new HtmlFormat($formatter);
 
         self::assertSame(
             'Hello &lt;b&gt;World&lt;/b&gt;!',

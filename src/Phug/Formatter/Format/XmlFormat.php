@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter\Format;
 
+use Phug\Formatter;
 use Phug\Formatter\AbstractFormat;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -21,7 +22,7 @@ class XmlFormat extends AbstractFormat
     const SAVE_VALUE = '%s=%s';
     const TEST_VALUE = 'isset(%s)';
 
-    public function __construct(array $options = null)
+    public function __construct(Formatter $formatter)
     {
         $this->setOptions([
             'open_pair_tag'             => static::OPEN_PAIR_TAG,
@@ -33,7 +34,7 @@ class XmlFormat extends AbstractFormat
             'test_value'                => static::TEST_VALUE,
             'buffer_variable'           => static::BUFFER_VARIABLE,
         ]);
-        parent::__construct($options);
+        parent::__construct($formatter);
     }
 
     public function __invoke(ElementInterface $element)

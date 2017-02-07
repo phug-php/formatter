@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter;
 
+use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
@@ -25,10 +26,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
 
-    protected $indentLevel = 0;
+    /**
+     * @var Formatter
+     */
+    protected $formatter;
 
-    public function __construct(array $options = null)
+    public function __construct(Formatter $formatter)
     {
+        $this->formatter = $formatter;
         $this->setOptionsRecursive([
             'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
@@ -51,7 +56,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'php_token_handlers' => [
                 T_VARIABLE => [$this, 'handleVariable'],
             ],
-        ], $options ?: []);
+        ], $formatter->getOptions() ?: []);
     }
 
     public function format($element)
@@ -167,7 +172,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return '';
         }
 
-        return str_repeat(is_string($pretty) ? $pretty : '  ', $this->indentLevel);
+        return str_repeat(is_string($pretty) ? $pretty : '  ', $this->formatter->getLevel());
     }
 
     protected function pattern($patternOption)
@@ -261,9 +266,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatElementChildren(ElementInterface $element, $indentStep = 1)
     {
-        $this->indentLevel += $indentStep;
-        $content = implode('', array_map([$this, 'format'], $element->getChildren()));
-        $this->indentLevel -= $indentStep;
+        $indentLevel = $this->formatter->getLevel();
+        $this->formatter->setLevel($indentLevel + $indentStep);
+        $content = implode('', array_map([$this->formatter, 'format'], $element->getChildren()));
+        $this->formatter->setLevel($indentLevel);
 
         return $content;
     }

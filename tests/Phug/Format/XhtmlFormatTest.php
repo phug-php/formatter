@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use Phug\Formatter;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Format\BasicFormat;
@@ -24,7 +25,7 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new BasicFormat();
+        $xmlFormat = new BasicFormat(new Formatter());
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
@@ -41,7 +42,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new FramesetFormat();
+        $xmlFormat = new FramesetFormat(new Formatter([
+            'default_format' => FramesetFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
@@ -58,7 +61,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new MobileFormat();
+        $xmlFormat = new MobileFormat(new Formatter([
+            'default_format' => MobileFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
@@ -75,7 +80,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new OneDotOneFormat();
+        $xmlFormat = new OneDotOneFormat(new Formatter([
+            'default_format' => OneDotOneFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
@@ -92,7 +99,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new PlistFormat();
+        $xmlFormat = new PlistFormat(new Formatter([
+            'default_format' => PlistFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE plist PUBLIC '.
@@ -109,7 +118,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new StrictFormat();
+        $xmlFormat = new StrictFormat(new Formatter([
+            'default_format' => StrictFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
@@ -126,7 +137,9 @@ class XhmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $xmlFormat = new TransitionalFormat();
+        $xmlFormat = new TransitionalFormat(new Formatter([
+            'default_format' => TransitionalFormat::class,
+        ]));
 
         self::assertSame(
             '<!DOCTYPE html PUBLIC '.
