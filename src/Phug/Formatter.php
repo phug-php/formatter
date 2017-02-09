@@ -3,7 +3,7 @@
 namespace Phug;
 
 // Elements
-use Phug\Element\DoctypeElement;
+use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\ElementInterface;
 // Formats
 use Phug\Formatter\Format\BasicFormat;
