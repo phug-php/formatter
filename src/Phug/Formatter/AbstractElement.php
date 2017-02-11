@@ -11,7 +11,7 @@ abstract class AbstractElement extends Node implements ElementInterface
     {
         $arguments = new UnorderedArguments(func_get_args());
 
-        $parent = $arguments->optional(NodeInterface ::class);
+        $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
