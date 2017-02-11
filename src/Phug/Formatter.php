@@ -3,8 +3,8 @@
 namespace Phug;
 
 // Elements
+use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\ElementInterface;
-use Phug\Element\DoctypeElement;
 // Formats
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
