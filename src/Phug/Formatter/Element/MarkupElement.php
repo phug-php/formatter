@@ -22,7 +22,7 @@ class MarkupElement extends AbstractElement implements MarkupInterface
         $arguments = new UnorderedArguments(func_get_args());
 
         $name = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
-        $parent = $arguments->optional(NodeInterface ::class);
+        $parent = $arguments->optional(NodeInterface::class);
         $attributes = $arguments->optional(SplObjectStorage::class);
         $children = $arguments->optional('array');
 
@@ -39,8 +39,8 @@ class MarkupElement extends AbstractElement implements MarkupInterface
     public function getAttribute($name)
     {
         foreach ($this->getAttributes() as $attribute) {
-            if ($attribute->getKey() === $name) {
-                return $attribute->getItem();
+            if ($attribute->getName() === $name) {
+                return $attribute->getValue();
             }
         }
     }

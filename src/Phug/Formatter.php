@@ -59,7 +59,7 @@ class Formatter implements OptionInterface
         $formatClassName = $this->getOption('default_format');
 
         if (!is_a($formatClassName, FormatInterface::class, true)) {
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 "Passed default format class $formatClassName must ".
                 'implement '.FormatInterface::class
             );
@@ -85,7 +85,7 @@ class Formatter implements OptionInterface
     {
         if (!is_a($format, FormatInterface::class, true)) {
             throw new \InvalidArgumentException(
-                "Passed default format class $format must ".
+                "Passed format class $format must ".
                 'implement '.FormatInterface::class
             );
         }

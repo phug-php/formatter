@@ -94,8 +94,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
     }
 
-    protected function handleVariable($variable, $index, &$tokens)
+    protected function handleVariable($variable, $index, &$tokens, $checked)
     {
+        if (!$checked) {
+            return $variable;
+        }
+
         foreach ([
             // Exclude tokens before the variables
             -1 => [
@@ -189,7 +193,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return call_user_func_array($function, $args);
     }
 
-    protected function handleTokens($code)
+    protected function handleTokens($code, $checked)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
         $tokens = array_slice(token_get_all('<?php '.$code), 1);
@@ -211,18 +215,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 continue;
             }
 
-            yield $phpTokenHandler[$id]($text, $index, $tokens);
+            yield $phpTokenHandler[$id]($text, $index, $tokens, $checked);
         }
     }
 
-    protected function formatCode($code)
+    protected function formatCode($code, $checked)
     {
-        return implode('', iterator_to_array($this->handleTokens($code)));
+        return implode('', iterator_to_array($this->handleTokens($code, $checked)));
     }
 
     protected function formatCodeElement(CodeElement $code)
     {
-        $php = $this->formatCode($code->getValue());
+        $php = $this->formatCode($code->getValue(), false);
         if ($code->hasChildren()) {
             $php .= $this->pattern(
                 'php_block_code',
@@ -240,7 +244,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_expression_escape', $value);
         }
 
-        return $this->pattern('php_display_code', $this->formatCode($value));
+        return $this->pattern('php_display_code', $this->formatCode($value, $code->isChecked()));
     }
 
     protected function formatTextElement(TextElement $text)

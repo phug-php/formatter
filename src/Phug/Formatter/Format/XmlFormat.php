@@ -54,30 +54,30 @@ class XmlFormat extends AbstractFormat
 
     protected function formatAttributeElement(AttributeElement $element)
     {
-        $value = $element->getItem();
-        $key = $element->getKey();
+        $value = $element->getValue();
+        $name = $element->getName();
         if ($value instanceof ExpressionElement) {
             if (strtolower($value->getValue()) === 'true') {
                 $formattedValue = null;
-                if ($key instanceof ExpressionElement) {
+                if ($name instanceof ExpressionElement) {
                     $bufferVariable = $this->pattern('buffer_variable');
-                    $key = $this->pattern(
+                    $name = $this->pattern(
                         'php_display_code',
                         $this->pattern(
                             'save_value',
                             $bufferVariable,
-                            $this->formatCode($key->getValue())
+                            $this->formatCode($name->getValue(), $name->isChecked())
                         )
                     );
                     $value = new ExpressionElement($bufferVariable);
                     $formattedValue = $this->format($value);
                 }
-                $formattedKey = $this->format($key);
-                $formattedValue = $formattedValue ?: $formattedKey;
+                $formattedName = $this->format($name);
+                $formattedValue = $formattedValue ?: $formattedName;
 
                 return $this->pattern(
                     'boolean_attribute_pattern',
-                    $formattedKey,
+                    $formattedName,
                     $formattedValue
                 );
             }
@@ -88,7 +88,7 @@ class XmlFormat extends AbstractFormat
 
         return $this->pattern(
             'attribute_pattern',
-            $this->format($key),
+            $this->format($name),
             $this->format($value)
         );
     }

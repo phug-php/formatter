@@ -4,11 +4,14 @@ namespace Phug\Test;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
+use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\Format\XmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter
@@ -28,7 +31,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::__construct
      * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Passed default format class
+     * @expectedExceptionMessage Passed format class
      * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
      * @expectedExceptionMessage must implement
      * @expectedExceptionMessage Phug\Formatter\FormaterInterface
@@ -56,7 +59,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::setFormatHandler
      * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Passed default format class
+     * @expectedExceptionMessage Passed format class
      * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
      * @expectedExceptionMessage must implement
      * @expectedExceptionMessage Phug\Formatter\FormaterInterface
@@ -68,8 +71,24 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
+     * @covers                   ::__construct
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Passed default format class
+     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
+     * @expectedExceptionMessage must implement
+     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     */
+    public function testDefaultFormatException()
+    {
+        new Formatter([
+            'default_format' => CodeElement::class,
+        ]);
+    }
+
+    /**
+     * @covers ::format
      * @covers ::setFormat
+     * @covers ::getFormat
      */
     public function testSetFormat()
     {
@@ -78,6 +97,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         $formatter->setFormat('html');
 
+        self::assertSame(HtmlFormat::class, $formatter->getFormat());
         self::assertSame(
             '<img>',
             $formatter->format($img)
@@ -85,10 +105,27 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         $formatter->setFormat('xml');
 
+        self::assertSame(XmlFormat::class, $formatter->getFormat());
         self::assertSame(
             '<img />',
             $formatter->format($img)
         );
+
+        $formatter->setFormat('doesnotexists');
+
+        self::assertSame(BasicFormat::class, $formatter->getFormat());
+        self::assertSame(
+            '<img />',
+            $formatter->format($img)
+        );
+
+        self::assertSame('<?xml version="1.0" encoding="utf-8" ?>', $formatter->format(new DoctypeElement('xml')));
+
+        self::assertSame(XmlFormat::class, $formatter->getFormat());
+
+        self::assertSame('<!DOCTYPE doesnotexists>', $formatter->format(new DoctypeElement('doesnotexists')));
+
+        self::assertSame(BasicFormat::class, $formatter->getFormat());
     }
 
     /**
@@ -121,6 +158,15 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<<?= (isset($tagName) ? $tagName : \'\') ?>></<?= (isset($tagName) ? $tagName : \'\') ?>>',
+            $formatter->format($link, $format)
+        );
+
+        $expression = new ExpressionElement('$tagName');
+        $expression->uncheck();
+        $link = new MarkupElement($expression);
+
+        self::assertSame(
+            '<<?= $tagName ?>></<?= $tagName ?>>',
             $formatter->format($link, $format)
         );
     }
