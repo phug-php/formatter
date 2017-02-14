@@ -107,7 +107,7 @@ class Formatter implements OptionInterface
     /**
      * Set a format name as the current or fallback to default if not available.
      *
-     * @param string doctype format identifier
+     * @param string $doctype format identifier
      *
      * @return $this
      */

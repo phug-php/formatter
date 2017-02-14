@@ -10,6 +10,8 @@ use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
+use Phug\FormatterException;
+use SplObjectStorage;
 
 class XmlFormat extends AbstractFormat
 {
@@ -51,11 +53,6 @@ class XmlFormat extends AbstractFormat
     protected function isBlockTag(MarkupInterface $element)
     {
         return true;
-    }
-
-    protected function formatAssignmentElement(AssignmentElement $element)
-    {
-        # code...
     }
 
     protected function formatAttributeElement(AttributeElement $element)
@@ -114,16 +111,81 @@ class XmlFormat extends AbstractFormat
         );
     }
 
+    protected function formatAssignmentValue($value)
+    {
+        if ($value instanceof ExpressionElement) {
+            return $value->getValue();
+        }
+
+        return var_export(strval($value));
+    }
+
+    protected function formatAttributeAsArrayItem(AttributeElement $attribute)
+    {
+        return $this->formatAssignmentValue($attribute->getName()).
+            ' => '.
+            $this->formatAssignmentValue($attribute->getValue());
+    }
+
+    protected function formatAssignmentElement(AssignmentElement $element)
+    {
+        $markup = $element->getMarkup();
+        $attributesAssignments = $markup->getAssignmentsByName('attributes');
+
+        $arguments = [];
+        foreach ($attributesAssignments as $attributesAssignment) {
+            /**
+             * @var AssignmentElement $attributesAssignment
+             */
+            foreach ($attributesAssignment->getAttributes() as $attribute) {
+                $arguments[] = $attribute->getValue();
+            }
+            $markup->removedAssignment($attributesAssignment);
+        }
+
+        $attributes = $markup->getAttributes();
+
+        if ($attributes->count()) {
+            $arguments[] = '['.implode(
+                ', ',
+                array_map(
+                    [$this, 'formatAttributeAsArrayItem'],
+                    iterator_to_array($attributes)
+                )
+            ).']';
+            $attributes->removeAll($attributes);
+        }
+
+        $assignments = $markup->getAssignments();
+        foreach ($assignments as $assignment) {
+            throw new FormatterException(
+                'Unable to handle '.$assignment->getName().' assignment'
+            );
+        }
+    }
+    
+    protected function formatAttributes(MarkupElement $element)
+    {
+        $code = '';
+        $assignments = $element->getAssignments();
+        foreach ($assignments as $assignment) {
+            return $this->format($assignment);
+        }
+
+        foreach ($element->getAttributes() as $attribute) {
+            $code .= $this->format($attribute);
+        }
+        
+        return $code;
+    }
+
     protected function formatMarkupElement(MarkupElement $element)
     {
         $tag = $this->format($element->getName());
-        $tagAndAttributes = $tag;
-        foreach ($element->getAttributes() as $attribute) {
-            $tagAndAttributes .= $this->format($attribute);
-        }
+        $attributes = $this->formatAttributes($element);
 
         if ($this->isSelfClosingTag($element)) {
-            return $this->pattern('self_closing_tag', $tagAndAttributes);
+            return $this->pattern('self_closing_tag', $tag.$attributes);
         }
 
         return sprintf(
@@ -132,7 +194,7 @@ class XmlFormat extends AbstractFormat
                 : '%s',
             $this->formatPairTag(
                 (
-                    $this->pattern('open_pair_tag', $tagAndAttributes).
+                    $this->pattern('open_pair_tag', $tag.$attributes).
                     '%s'.
                     $this->pattern('close_pair_tag', $tag)
                 ),

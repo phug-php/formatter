@@ -3,6 +3,7 @@
 namespace Phug\Formatter;
 
 use Phug\Formatter;
+use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;

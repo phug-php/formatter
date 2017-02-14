@@ -2,7 +2,9 @@
 
 namespace Phug\Formatter;
 
-interface MarkupInterface
+use Phug\Formatter\Element\AssignmentElement;
+
+interface MarkupInterface extends ElementInterface
 {
     public function belongsTo(array $tagList);
 
@@ -10,5 +12,9 @@ interface MarkupInterface
 
     public function addAssignment(AssignmentElement $element);
 
+    public function removedAssignment(AssignmentElement $element);
+
     public function getAssignments();
+
+    public function getAssignmentsByName($name);
 }

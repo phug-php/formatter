@@ -3,6 +3,7 @@
 namespace Phug\Formatter;
 
 use Phug\Ast\Node;
+use Phug\Ast\NodeInterface;
 use Phug\Util\UnorderedArguments;
 
 abstract class AbstractElement extends Node implements ElementInterface
