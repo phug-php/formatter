@@ -4,6 +4,7 @@ namespace Phug\Formatter\Format;
 
 use Phug\Formatter;
 use Phug\Formatter\AbstractFormat;
+use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
@@ -50,6 +51,11 @@ class XmlFormat extends AbstractFormat
     protected function isBlockTag(MarkupInterface $element)
     {
         return true;
+    }
+
+    protected function formatAssignmentElement(AssignmentElement $element)
+    {
+        # code...
     }
 
     protected function formatAttributeElement(AttributeElement $element)

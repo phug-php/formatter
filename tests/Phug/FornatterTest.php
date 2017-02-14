@@ -205,24 +205,48 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
      */
     public function testExpressionElement()
     {
-        $answer = new ExpressionElement('42');
+        $answer = new ExpressionElement('call_me()');
         $formatter = new Formatter([
             'php_display_code' => function ($string) {
-                return strval(intval($string) * 2);
+                return str_replace('call_me()', '42', $string);
             },
         ]);
 
         self::assertSame(
-            '84',
+            '42',
             $formatter->format($answer, HtmlFormat::class)
         );
 
-        $answer = new ExpressionElement('42');
+        $answer = new ExpressionElement('"<".$tag.">"');
         $answer->escape();
         $formatter = new Formatter();
 
         self::assertSame(
-            '<?= htmlspecialchars(42) ?>',
+            '<?= htmlspecialchars("<".(isset($tag) ? $tag : \'\').">") ?>',
+            $formatter->format($answer, HtmlFormat::class)
+        );
+
+        $answer->uncheck();
+        $formatter = new Formatter();
+
+        self::assertSame(
+            '<?= htmlspecialchars("<".$tag.">") ?>',
+            $formatter->format($answer, HtmlFormat::class)
+        );
+
+        $answer = new ExpressionElement('"<div>"');
+        $formatter = new Formatter();
+
+        self::assertSame(
+            '<div>',
+            $formatter->format($answer, HtmlFormat::class)
+        );
+
+        $answer->escape();
+        $formatter = new Formatter();
+
+        self::assertSame(
+            '&lt;div&gt;',
             $formatter->format($answer, HtmlFormat::class)
         );
     }

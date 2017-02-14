@@ -45,6 +45,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
             'pretty'                 => false,
             'element_handlers'       => [
+                AssignmentElement::class => [$this, 'formatAssignmentElement'],
                 AttributeElement::class  => [$this, 'formatAttributeElement'],
                 CodeElement::class       => [$this, 'formatCodeElement'],
                 ExpressionElement::class => [$this, 'formatExpressionElement'],
@@ -240,6 +241,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatExpressionElement(ExpressionElement $code)
     {
         $value = $code->getValue();
+
+        if ($code->hasStaticValue()) {
+            $value = strval(eval('return '.$value.';'));
+            if ($code->isEscaped()) {
+                $value = $this->pattern('html_text_escape', $value);
+            }
+
+            return $value;
+        }
+
         if ($code->isEscaped()) {
             $value = $this->pattern('html_expression_escape', $value);
         }
