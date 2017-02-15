@@ -163,7 +163,7 @@ class XmlFormat extends AbstractFormat
             );
         }
     }
-    
+
     protected function formatAttributes(MarkupElement $element)
     {
         $code = '';
@@ -175,7 +175,7 @@ class XmlFormat extends AbstractFormat
         foreach ($element->getAttributes() as $attribute) {
             $code .= $this->format($attribute);
         }
-        
+
         return $code;
     }
 
