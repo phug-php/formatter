@@ -117,7 +117,7 @@ class XmlFormat extends AbstractFormat
             return $value->getValue();
         }
 
-        return var_export(strval($value));
+        return var_export(strval($value), true);
     }
 
     protected function formatAttributeAsArrayItem(AttributeElement $attribute)
