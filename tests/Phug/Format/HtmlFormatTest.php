@@ -189,7 +189,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            "<!DOCTYPE html><p>\n<span><div></div></span></p>",
+            '<!DOCTYPE html><p>'.PHP_EOL.'<span><div></div></span></p>',
             trim($formatter->format($document))
         );
     }

@@ -1,6 +1,6 @@
 <?php
 
-$moduleExports = function (&$attributes, $name, $value) {
+$pugModule['CompileAttribute'] = function (&$attributes, $name, $value) {
     switch ($name) {
         case 'class':
             $classes = isset($attributes['class']) ? array_filter(explode(' ', $attributes['class'])) : [];
@@ -14,7 +14,7 @@ $moduleExports = function (&$attributes, $name, $value) {
             $value = implode(' ', $classes);
             break;
         case 'style':
-            $styles = isset($attributes['class']) ? array_filter(explode(' ', $attributes['class'])) : [];
+            $styles = isset($attributes['style']) ? array_filter(explode(' ', $attributes['style'])) : [];
             foreach ((array) $value as $propertyName => $propertyValue) {
                 if (!is_int($propertyName)) {
                     $propertyValue = $propertyName.':'.$propertyValue;

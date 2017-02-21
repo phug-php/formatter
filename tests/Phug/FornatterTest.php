@@ -275,7 +275,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            "<foo>\n  <bar></bar>\n  <biz></biz>\n  <license>\n    <mit></mit>\n  </license>\n</foo>\n",
+            str_replace("\n", PHP_EOL, "<foo>\n  <bar></bar>\n  <biz></biz>\n  <license>\n    <mit></mit>\n  </license>\n</foo>\n"),
             $formatter->format($foo, HtmlFormat::class)
         );
 
@@ -284,7 +284,7 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            "<foo>\n\t<bar></bar>\n\t<biz></biz>\n\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n",
+            str_replace("\n", PHP_EOL, "<foo>\n\t<bar></bar>\n\t<biz></biz>\n\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n"),
             $formatter->format($foo, HtmlFormat::class)
         );
     }

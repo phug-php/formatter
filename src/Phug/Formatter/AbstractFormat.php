@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter;
 
+use Closure;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
@@ -13,6 +14,7 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
+use ReflectionFunction;
 
 abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
@@ -55,7 +57,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
                 TextElement::class       => [$this, 'formatTextElement'],
             ],
-            'php_token_handlers' => [
+            'php_token_handlers'     => [
                 T_VARIABLE => [$this, 'handleVariable'],
             ],
         ], $formatter->getOptions() ?: []);
@@ -103,41 +105,41 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
 
         foreach ([
-            // Exclude tokens before the variables
-            -1 => [
-                T_AS,
-                T_EMPTY,
-                T_GLOBAL,
-                T_ISSET,
-                T_OBJECT_OPERATOR,
-                T_UNSET,
-                T_UNSET_CAST,
-                T_VAR,
-                T_STATIC,
-                T_PRIVATE,
-                T_PROTECTED,
-                T_PUBLIC,
-            ],
-            // Exclude tokens after the variables
-            1 => [
-                '[',
-                T_AND_EQUAL,
-                T_CONCAT_EQUAL,
-                T_CURLY_OPEN,
-                T_DIV_EQUAL,
-                T_DOUBLE_ARROW,
-                T_INC,
-                T_MINUS_EQUAL,
-                T_MOD_EQUAL,
-                T_MUL_EQUAL,
-                T_OBJECT_OPERATOR,
-                T_OR_EQUAL,
-                T_PLUS_EQUAL,
-                defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
-                T_SL_EQUAL,
-                T_SR_EQUAL,
-                T_XOR_EQUAL,
-            ],
+             // Exclude tokens before the variables
+             -1 => [
+                 T_AS,
+                 T_EMPTY,
+                 T_GLOBAL,
+                 T_ISSET,
+                 T_OBJECT_OPERATOR,
+                 T_UNSET,
+                 T_UNSET_CAST,
+                 T_VAR,
+                 T_STATIC,
+                 T_PRIVATE,
+                 T_PROTECTED,
+                 T_PUBLIC,
+             ],
+             // Exclude tokens after the variables
+             1  => [
+                 '[',
+                 T_AND_EQUAL,
+                 T_CONCAT_EQUAL,
+                 T_CURLY_OPEN,
+                 T_DIV_EQUAL,
+                 T_DOUBLE_ARROW,
+                 T_INC,
+                 T_MINUS_EQUAL,
+                 T_MOD_EQUAL,
+                 T_MUL_EQUAL,
+                 T_OBJECT_OPERATOR,
+                 T_OR_EQUAL,
+                 T_PLUS_EQUAL,
+                 defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
+                 T_SL_EQUAL,
+                 T_SR_EQUAL,
+                 T_XOR_EQUAL,
+             ],
         ] as $direction => $exclusions) {
             $id = null;
             for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
@@ -161,14 +163,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
         }
 
-        return '(isset('.$variable.') ? '.$variable." : '')";
+        return '(isset(' . $variable . ') ? ' . $variable . " : '')";
     }
 
     protected function getNewLine()
     {
         $pretty = $this->getOption('pretty');
 
-        return $pretty || $pretty === '' ? "\n" : '';
+        return $pretty || $pretty === '' ? PHP_EOL : '';
     }
 
     protected function getIndent()
@@ -198,7 +200,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function handleTokens($code, $checked)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
-        $tokens = array_slice(token_get_all('<?php '.$code), 1);
+        $tokens = array_slice(token_get_all('<?php ' . $code), 1);
 
         foreach ($tokens as $index => $token) {
             $id = $token;
@@ -244,7 +246,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $value = $code->getValue();
 
         if ($code->hasStaticValue()) {
-            $value = strval(eval('return '.$value.';'));
+            $value = strval(eval('return ' . $value . ';'));
             if ($code->isEscaped()) {
                 $value = $this->pattern('html_text_escape', $value);
             }
@@ -266,7 +268,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_text_escape', $value);
         }
         if ($text->getPreviousSibling() instanceof TextElement) {
-            $value = ' '.$value;
+            $value = ' ' . $value;
         }
 
         return $this->format($value);
