@@ -26,8 +26,15 @@
     "require": {
         "php": ">=5.5.0",
         "phug/util": "^0.1.0",
-        "phug/parser": "^0.1.0"
+        "phug/parser": "^0.1.0",
+        "phug/dependency-injection": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/phug-php/dependency-injection"
+        }
+    ],
     "require-dev": {
         "phug/dev-tool": "^0.1.0"
     },

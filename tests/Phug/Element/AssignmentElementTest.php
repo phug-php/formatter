@@ -29,7 +29,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $img->getAssignments()->attach($assignment);
         $img->getAttributes()->attach($attributes);
         $formatter = new Formatter([
-            'default_class_name' => XmlFormat::class
+            'default_class_name' => XmlFormat::class,
         ]);
 
         self::assertSame('<img src="/foo/bar.png" alt="Foo" />', $formatter->format($img));

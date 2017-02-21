@@ -6,7 +6,6 @@ use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
-use Phug\Util\Partial\SubjectTrait;
 use Phug\Util\UnorderedArguments;
 use SplObjectStorage;
 

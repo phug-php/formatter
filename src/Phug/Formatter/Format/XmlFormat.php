@@ -11,7 +11,6 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
 use Phug\FormatterException;
-use SplObjectStorage;
 
 class XmlFormat extends AbstractFormat
 {
