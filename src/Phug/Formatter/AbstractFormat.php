@@ -34,47 +34,47 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function __construct(Formatter $formatter = null)
     {
-        $this->setFormatter($formatter ?: new Formatter());
-        $this->setOptionsRecursive([
-            'pattern'             => function ($pattern) {
-                $args = func_get_args();
-                $args[0] = $pattern;
-                $function = 'sprintf';
-                if (is_callable($pattern)) {
-                    $function = $pattern;
-                    $args = array_slice($args, 1);
-                }
+        $this
+            ->setFormatter($formatter ?: new Formatter())
+            ->setOptionsRecursive([
+                'pattern'             => function ($pattern) {
+                    $args = func_get_args();
+                    $args[0] = $pattern;
+                    $function = 'sprintf';
+                    if (is_callable($pattern)) {
+                        $function = $pattern;
+                        $args = array_slice($args, 1);
+                    }
 
-                return call_user_func_array($function, $args);
-            },
-            'patterns'           => [
-                'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
-                'html_text_escape'       => static::HTML_TEXT_ESCAPE,
-                'php_handle_code'        => static::PHP_HANDLE_CODE,
-                'php_display_code'       => static::PHP_DISPLAY_CODE,
-                'php_block_code'         => static::PHP_BLOCK_CODE,
-                'php_nested_html'        => static::PHP_NESTED_HTML,
-                'doctype'                => static::DOCTYPE,
-                'custom_doctype'         => static::CUSTOM_DOCTYPE,
-            ],
-            'pretty'             => false,
-            'element_handlers'   => [
-                AssignmentElement::class => [$this, 'formatAssignmentElement'],
-                AttributeElement::class  => [$this, 'formatAttributeElement'],
-                CodeElement::class       => [$this, 'formatCodeElement'],
-                ExpressionElement::class => [$this, 'formatExpressionElement'],
-                DoctypeElement::class    => [$this, 'formatDoctypeElement'],
-                DocumentElement::class   => [$this, 'formatDocumentElement'],
-                MarkupElement::class     => [$this, 'formatMarkupElement'],
-                TextElement::class       => [$this, 'formatTextElement'],
-            ],
-            'php_token_handlers' => [
-                T_VARIABLE => [$this, 'handleVariable'],
-            ],
-        ], $formatter->getOptions() ?: []);
-
-        $this->registerHelper('pattern', $this->getOption('pattern'));
-        $this->addPatterns($this->getOption('patterns'));
+                    return call_user_func_array($function, $args);
+                },
+                'patterns'           => [
+                    'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
+                    'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+                    'php_handle_code'        => static::PHP_HANDLE_CODE,
+                    'php_display_code'       => static::PHP_DISPLAY_CODE,
+                    'php_block_code'         => static::PHP_BLOCK_CODE,
+                    'php_nested_html'        => static::PHP_NESTED_HTML,
+                    'doctype'                => static::DOCTYPE,
+                    'custom_doctype'         => static::CUSTOM_DOCTYPE,
+                ],
+                'pretty'             => false,
+                'element_handlers'   => [
+                    AssignmentElement::class => [$this, 'formatAssignmentElement'],
+                    AttributeElement::class  => [$this, 'formatAttributeElement'],
+                    CodeElement::class       => [$this, 'formatCodeElement'],
+                    ExpressionElement::class => [$this, 'formatExpressionElement'],
+                    DoctypeElement::class    => [$this, 'formatDoctypeElement'],
+                    DocumentElement::class   => [$this, 'formatDocumentElement'],
+                    MarkupElement::class     => [$this, 'formatMarkupElement'],
+                    TextElement::class       => [$this, 'formatTextElement'],
+                ],
+                'php_token_handlers' => [
+                    T_VARIABLE => [$this, 'handleVariable'],
+                ],
+            ], $formatter->getOptions() ?: [])
+            ->registerHelper('pattern', $this->getOption('pattern'))
+            ->addPatterns($this->getOption('patterns'));
     }
 
     protected function helperName($name)
@@ -219,9 +219,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
      */
     public function exportHelper($name)
     {
-        $this->formatter->getDependencies()->setAsRequired(
-            $this->helperName($name)
-        );
+        $this->requireHelper($name);
 
         return $this->formatter->getDependencyStorage(
             $this->helperName($name)
@@ -237,7 +235,24 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $this->formatter = $formatter;
 
-        return $this;
+        return $this->registerHelper(
+            'dependencies_storage',
+            $formatter->getOption('dependencies_storage')
+        )->registerHelper(
+            'helper_prefix',
+            static::class.'::'
+        )->provideHelper(
+            'get_helper',
+            [
+                'dependencies_storage',
+                'helper_prefix',
+                function ($dependenciesStorage, $prefix) {
+                    return function ($name) use ($dependenciesStorage, $prefix) {
+                        return $$dependenciesStorage[$prefix.$name];
+                    };
+                },
+            ]
+        );
     }
 
     /**

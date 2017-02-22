@@ -47,14 +47,16 @@ class XmlFormat extends AbstractFormat
             ])
             ->provideHelper('attribute_assignments', [
                 'available_attribute_assignments',
-                function ($availableAssignments) {
-                    return function (&$attributes, $name, $value) use ($availableAssignments) {
-                        /**
-                         * @var array $pugModule
-                         */
-                        return in_array($name, $availableAssignments)
-                            ? $pugModule[$name.'_attribute_assignment']($attributes, $value)
-                            : $value;
+                'get_helper',
+                function ($availableAssignments, $getHelper) {
+                    return function (&$attributes, $name, $value) use ($availableAssignments, $getHelper) {
+                        if (!in_array($name, $availableAssignments)) {
+                            return $value;
+                        }
+
+                        $helper = $getHelper($name.'_attribute_assignment');
+
+                        return $helper($attributes, $value);
                     };
                 },
             ])
@@ -107,7 +109,7 @@ class XmlFormat extends AbstractFormat
                 return implode(' ', $classes);
             })
             ->addAttributeAssignment('style', function (&$attributes, $value) {
-                $styles = isset($attributes['style']) ? array_filter(explode(' ', $attributes['style'])) : [];
+                $styles = isset($attributes['style']) ? array_filter(explode(';', $attributes['style'])) : [];
                 foreach ((array) $value as $propertyName => $propertyValue) {
                     if (!is_int($propertyName)) {
                         $propertyValue = $propertyName.':'.$propertyValue;
@@ -127,12 +129,30 @@ class XmlFormat extends AbstractFormat
     protected function addAttributeAssignment($name, $handler)
     {
         $availableAssignments = $this->getHelper('available_attribute_assignments');
-        $this->addPattern($name.'_attribute_assignment', function () use ($handler) {
-            return $handler;
-        });
+        $this->registerHelper($name.'_attribute_assignment', $handler);
         $availableAssignments[] = $name;
 
         return $this->registerHelper('available_attribute_assignments', $availableAssignments);
+    }
+
+    public function requireHelper($name)
+    {
+        $provider = $this->formatter
+            ->getDependencies()
+            ->getProvider(
+                $this->helperName('available_attribute_assignments')
+            );
+        $required = $provider->isRequired();
+
+        parent::requireHelper($name);
+
+        if (!$required && $provider->isRequired()) {
+            foreach ($this->getHelper('available_attribute_assignments') as $assignment) {
+                $this->requireHelper($assignment.'_attribute_assignment');
+            }
+        }
+
+        return $this;
     }
 
     public function __invoke(ElementInterface $element)

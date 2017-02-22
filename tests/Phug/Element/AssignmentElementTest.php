@@ -52,5 +52,27 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             ' alt="Foo" src="/foo/bar.png"',
             $attributes
         );
+
+        $img = new MarkupElement('img');
+        $attributes = new AttributeElement('src', '/foo/bar.png');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('["alt" => "Foo"]'));
+        $assignment = new AssignmentElement('attributes', $data, $img);
+        $img->getAssignments()->attach($assignment);
+        $img->getAttributes()->attach($attributes);
+        $formatter->initDependencies()->format($img);
+
+        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return $pugModule['.
+            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+            '(["class" => "foo bar", "style" => "height: 100px; z-index: 9;"], '.
+            '[\'style\' => '.
+            '[\'width\' => \'200px\', \'display\' => \'block\'],'.
+            '\'class\' => [\'baz\', \'foo\', \'foobar\']]'.
+            ');');
+
+        self::assertSame(
+            ' class="foo bar baz foobar" style="height: 100px; z-index: 9;width:200px;display:block"',
+            $attributes
+        );
     }
 }

@@ -132,10 +132,14 @@ class Formatter implements OptionInterface
 
     /**
      * Create/reset the dependency injector.
+     *
+     * @return $this
      */
     public function initDependencies()
     {
         $this->dependencies = new DependencyInjection();
+
+        return $this;
     }
 
     /**
