@@ -248,7 +248,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'helper_prefix',
                 function ($dependenciesStorage, $prefix) {
                     return function ($name) use ($dependenciesStorage, $prefix) {
-                        return $$dependenciesStorage[$prefix.$name];
+                        $storage = $$dependenciesStorage;
+
+                        return $storage[$prefix.$name];
                     };
                 },
             ]
