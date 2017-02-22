@@ -34,20 +34,33 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
      */
     protected $formatter;
 
-    public function __construct(Formatter $formatter)
+    public function __construct(Formatter $formatter = null)
     {
-        $this->formatter = $formatter;
+        $this->setFormatter($formatter ?: new Formatter());
         $this->setOptionsRecursive([
-            'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
-            'html_text_escape'       => static::HTML_TEXT_ESCAPE,
-            'php_handle_code'        => static::PHP_HANDLE_CODE,
-            'php_display_code'       => static::PHP_DISPLAY_CODE,
-            'php_block_code'         => static::PHP_BLOCK_CODE,
-            'php_nested_html'        => static::PHP_NESTED_HTML,
-            'doctype'                => static::DOCTYPE,
-            'custom_doctype'         => static::CUSTOM_DOCTYPE,
-            'pretty'                 => false,
-            'element_handlers'       => [
+            'pattern'             => function ($pattern) {
+                $args = func_get_args();
+                $args[0] = $pattern;
+                $function = 'sprintf';
+                if (is_callable($pattern)) {
+                    $function = $pattern;
+                    $args = array_slice($args, 1);
+                }
+
+                return call_user_func_array($function, $args);
+            },
+            'patterns'           => [
+                'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
+                'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+                'php_handle_code'        => static::PHP_HANDLE_CODE,
+                'php_display_code'       => static::PHP_DISPLAY_CODE,
+                'php_block_code'         => static::PHP_BLOCK_CODE,
+                'php_nested_html'        => static::PHP_NESTED_HTML,
+                'doctype'                => static::DOCTYPE,
+                'custom_doctype'         => static::CUSTOM_DOCTYPE,
+            ],
+            'pretty'             => false,
+            'element_handlers'   => [
                 AssignmentElement::class => [$this, 'formatAssignmentElement'],
                 AttributeElement::class  => [$this, 'formatAttributeElement'],
                 CodeElement::class       => [$this, 'formatCodeElement'],
@@ -57,10 +70,106 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 MarkupElement::class     => [$this, 'formatMarkupElement'],
                 TextElement::class       => [$this, 'formatTextElement'],
             ],
-            'php_token_handlers'     => [
+            'php_token_handlers' => [
                 T_VARIABLE => [$this, 'handleVariable'],
             ],
         ], $formatter->getOptions() ?: []);
+
+        $this->registerHelper('pattern', $this->getOption('pattern'));
+        $this->addPatterns($this->getOption('patterns'));
+    }
+
+    protected function helperName($name)
+    {
+        return static::class.'::'.$name;
+    }
+
+    public function provideHelper($name, $provider)
+    {
+        if (is_array($provider)) {
+            $callback = array_pop($provider);
+            $provider = array_map([$this, 'helperName'], $provider);
+            $provider[] = $callback;
+        }
+
+        $this->formatter->getDependencies()->provider(
+            $this->helperName($name),
+            $provider
+        );
+    }
+
+    public function registerHelper($name, $provider)
+    {
+        $this->formatter->getDependencies()->register(
+            $this->helperName($name),
+            $provider
+        );
+    }
+
+    public function helperMethod($name, $method, $args)
+    {
+        $args[0] = $this->helperName($name);
+        $dependencies = $this->formatter->getDependencies();
+
+        return call_user_func_array([$dependencies, $method], $args);
+    }
+
+    public function getHelper($name)
+    {
+        return $this->helperMethod($name, 'get', func_get_args());
+    }
+
+    public function callHelper($name)
+    {
+        return $this->helperMethod($name, 'call', func_get_args());
+    }
+
+    public function requireHelper($name)
+    {
+        $this->formatter->getDependencies()->setAsRequired(
+            $this->helperName($name)
+        );
+    }
+
+    protected function patternName($name)
+    {
+        return $this->helperName('pattern.'.$name);
+    }
+
+    public function addPattern($name, $pattern)
+    {
+        $this->registerHelper('patterns.'.$name, $pattern);
+        $this->provideHelper($this->patternName($name), ['pattern', 'patterns.'.$name, function ($proceed, $pattern) {
+            return function () use ($proceed, $pattern) {
+                $args = func_get_args();
+                array_unshift($args, $pattern);
+
+                return call_user_func_array($proceed, $args);
+            };
+        }]);
+    }
+
+    public function addPatterns($patterns)
+    {
+        foreach ($patterns as $name => $pattern) {
+            $this->addPattern($name, $pattern);
+        }
+    }
+
+    public function exportPattern($name)
+    {
+        $this->formatter->getDependencies()->setAsRequired(
+            $this->patternName($name)
+        );
+
+        return $this->formatter->getDependencyStorage(
+            $this->patternName($name)
+        );
+    }
+
+    public function setFormatter(Formatter $formatter)
+    {
+        $this->formatter = $formatter;
     }
 
     public function format($element)
@@ -185,16 +294,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function pattern($patternOption)
     {
-        $pattern = $this->getOption($patternOption);
         $args = func_get_args();
-        $args[0] = $pattern;
-        $function = 'sprintf';
-        if (is_callable($pattern)) {
-            $function = $pattern;
-            $args = array_slice($args, 1);
-        }
+        $args[0] = $this->patternName($patternOption);
 
-        return call_user_func_array($function, $args);
+        return call_user_func_array([$this, 'callHelper'], $args);
     }
 
     protected function handleTokens($code, $checked)

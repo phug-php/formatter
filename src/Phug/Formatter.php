@@ -2,7 +2,9 @@
 
 namespace Phug;
 
+use Phug\DependencyInjection;
 // Elements
+use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\ElementInterface;
 // Formats
@@ -33,6 +35,11 @@ class Formatter implements OptionInterface
     private $format;
 
     /**
+     * @var DependencyInjection
+     */
+    private $dependencies;
+
+    /**
      * Creates a new formatter instance.
      *
      * The formatter will turn DocumentNode tree into StringOfPhtml
@@ -42,8 +49,9 @@ class Formatter implements OptionInterface
     public function __construct(array $options = null)
     {
         $this->setOptionsRecursive([
-            'default_format' => BasicFormat::class,
-            'formats'        => [
+            'dependencies_storage' => 'pugModule',
+            'default_format'       => BasicFormat::class,
+            'formats'              => [
                 'basic'        => BasicFormat::class,
                 'frameset'     => FramesetFormat::class,
                 'html'         => HtmlFormat::class,
@@ -71,6 +79,8 @@ class Formatter implements OptionInterface
         }
 
         $this->format = $formatClassName;
+
+        $this->initDependencies();
     }
 
     /**
@@ -122,6 +132,42 @@ class Formatter implements OptionInterface
     }
 
     /**
+     * Create/reset the dependency injector.
+     */
+    public function initDependencies()
+    {
+        $this->dependencies = new DependencyInjection();
+    }
+
+    /**
+     * Create/reset the dependency injector.
+     */
+    public function formatDependencies()
+    {
+        $dependenciesExport = $this->dependencies->export($this->getOption('dependencies_storage'));
+
+        return $this->format(new CodeElement($dependenciesExport));
+    }
+
+    /**
+     * @return DependencyInjection
+     */
+    public function getDependencies()
+    {
+        return $this->dependencies;
+    }
+
+    /**
+     * @param string $name dependency name
+     *
+     * @return string
+     */
+    public function getDependencyStorage($name)
+    {
+        return $this->dependencies->getStorageItem($name, $this->getOption('dependencies_storage'));
+    }
+
+    /**
      * Entry point of the Formatter, typically waiting for a DocumentElement and
      * a format, to return a string with HTML and PHP nested.
      *
@@ -155,6 +201,8 @@ class Formatter implements OptionInterface
         if (!($format instanceof FormatInterface)) {
             $format = new $format($this);
         }
+
+        $format->setFormatter($this);
 
         return $format($element);
     }

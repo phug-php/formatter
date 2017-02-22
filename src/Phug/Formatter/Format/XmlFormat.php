@@ -27,6 +27,14 @@ class XmlFormat extends AbstractFormat
     public function __construct(Formatter $formatter)
     {
         $this->setOptions([
+            'assignment_handlers'   => [],
+            'attribute_assignments' => [],
+        ]);
+
+        parent::__construct($formatter);
+
+        $this->registerHelper('available_attribute_assignments', []);
+        $this->addPatterns([
             'open_pair_tag'             => static::OPEN_PAIR_TAG,
             'close_pair_tag'            => static::CLOSE_PAIR_TAG,
             'self_closing_tag'          => static::SELF_CLOSING_TAG,
@@ -35,8 +43,87 @@ class XmlFormat extends AbstractFormat
             'save_value'                => static::SAVE_VALUE,
             'test_value'                => static::TEST_VALUE,
             'buffer_variable'           => static::BUFFER_VARIABLE,
+            'attribute_assignments'     => [
+                'available_attribute_assignments',
+                    function ($availableAssignments) {
+                    return function ($name, $value) use ($availableAssignments) {
+                        /**
+                         * @var array $pugModule
+                         */
+                        return in_array($name, $availableAssignments)
+                            ? $pugModule[$name.'_attribute_assignment']($value)
+                            : $value;
+                    };
+                }
+            ],
+            'attribute_assignment'      => [
+                'attribute_assignments',
+                function ($attributeAssignments) {
+                    return function (&$attributes, $name, $value) use ($attributeAssignments) {
+                        $attributes[$name] = $attributeAssignments($name, $value);
+                    };
+                },
+            ],
+            'attributes_assignment'     => [
+                'attribute_assignment',
+                function ($attributeAssignment) {
+                    return function ($attributes) use ($attributeAssignment) {
+                        $attributes = [];
+                        foreach (func_get_args() as $input) {
+                            foreach ($input as $name => $value) {
+                                $attributeAssignment($attributes, $name, $value);
+                            }
+                        }
+                        $code = '';
+
+                        return $code;
+                    };
+                },
+            ],
         ]);
-        parent::__construct($formatter);
+
+        $this->addAttributeAssignment('class', function ($classes) {
+            $classes = $classes ? array_filter(explode(' ', $classes)) : [];
+            foreach ((array) $value as $input) {
+                foreach (explode(' ', strval($input)) as $class) {
+                    if (!in_array($class, $classes)) {
+                        $classes[] = $class;
+                    }
+                }
+            }
+
+            return implode(' ', $classes);
+        });
+
+        $this->addAttributeAssignment('style', function ($styles) {
+            $styles = $styles ? array_filter(explode(' ', $styles)) : [];
+            foreach ((array) $value as $propertyName => $propertyValue) {
+                if (!is_int($propertyName)) {
+                    $propertyValue = $propertyName.':'.$propertyValue;
+                }
+                $styles[] = $propertyValue;
+            }
+
+            return implode(';', $styles);
+        });
+
+        $handlers = $this->getOption('attribute_assignments');
+        foreach ($handlers as $name => $handler) {
+            $this->addAttributeAssignment($name, $handler);
+        }
+    }
+
+    protected function addAttributeAssignment($name, $handler)
+    {
+        $availableAssignments = $this->getHelper('available_attribute_assignments');
+        $this->addPattern($name.'_attribute_assignment', function () {
+            return $handler;
+        });
+        $availableAssignments[] = $name;
+        $provider = array_map(function ($name) {
+            return $name.'_attribute_assignment';
+        }, $availableAssignments);
+        $this->registerHelper('available_attribute_assignments', $availableAssignments);
     }
 
     public function __invoke(ElementInterface $element)
@@ -128,6 +215,15 @@ class XmlFormat extends AbstractFormat
 
     protected function formatAssignmentElement(AssignmentElement $element)
     {
+        $handlers = $this->getOption('assignment_handlers');
+        $newElements = [];
+        foreach ($handlers as $handler) {
+            $iterator = $handler($element) ?: [];
+            foreach ($iterator as $newElement) {
+                $newElements[] = $newElement;
+            }
+        }
+
         $markup = $element->getMarkup();
         $attributesAssignments = $markup->getAssignmentsByName('attributes');
 
@@ -161,6 +257,10 @@ class XmlFormat extends AbstractFormat
                 'Unable to handle '.$assignment->getName().' assignment'
             );
         }
+
+        $newElements[] = new ExpressionElement($this->exportPattern('attributes_assignment').'('.implode(', ', $arguments).')');
+
+        return implode('', array_map([$this, 'format'], $newElements));
     }
 
     protected function formatAttributes(MarkupElement $element)

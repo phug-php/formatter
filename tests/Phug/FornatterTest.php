@@ -190,7 +190,9 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     {
         $answer = new CodeElement('42');
         $formatter = new Formatter([
-            'php_handle_code' => '%s * 2',
+            'patterns' => [
+                'php_handle_code' => '%s * 2',
+            ],
         ]);
 
         self::assertSame(
@@ -207,9 +209,11 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     {
         $answer = new ExpressionElement('call_me()');
         $formatter = new Formatter([
-            'php_display_code' => function ($string) {
-                return str_replace('call_me()', '42', $string);
-            },
+            'patterns' => [
+                'php_display_code' => function ($string) {
+                    return str_replace('call_me()', '42', $string);
+                },
+            ],
         ]);
 
         self::assertSame(
