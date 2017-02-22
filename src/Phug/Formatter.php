@@ -86,7 +86,7 @@ class Formatter implements OptionInterface
      * Set the format handler for a given doctype identifier.
      *
      * @param string                 $doctype doctype identifier
-     * @param FormatInterface|string $format format handler
+     * @param FormatInterface|string $format  format handler
      *
      * @return $this
      */
