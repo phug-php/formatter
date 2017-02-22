@@ -2,7 +2,6 @@
 
 namespace Phug\Formatter;
 
-use Closure;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
@@ -14,7 +13,6 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
-use ReflectionFunction;
 
 abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
@@ -84,6 +82,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return static::class.'::'.$name;
     }
 
+    /**
+     * @param $name
+     * @param $provider
+     *
+     * @return $this
+     */
     public function provideHelper($name, $provider)
     {
         if (is_array($provider)) {
@@ -96,16 +100,33 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $this->helperName($name),
             $provider
         );
+
+        return $this;
     }
 
+    /**
+     * @param $name
+     * @param $provider
+     *
+     * @return $this
+     */
     public function registerHelper($name, $provider)
     {
         $this->formatter->getDependencies()->register(
             $this->helperName($name),
             $provider
         );
+
+        return $this;
     }
 
+    /**
+     * @param $name
+     * @param $method
+     * @param $args
+     *
+     * @return mixed
+     */
     public function helperMethod($name, $method, $args)
     {
         $args[0] = $this->helperName($name);
@@ -114,32 +135,60 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return call_user_func_array([$dependencies, $method], $args);
     }
 
+    /**
+     * @param $name
+     *
+     * @return mixed
+     */
     public function getHelper($name)
     {
         return $this->helperMethod($name, 'get', func_get_args());
     }
 
+    /**
+     * @param $name
+     *
+     * @return mixed
+     */
     public function callHelper($name)
     {
         return $this->helperMethod($name, 'call', func_get_args());
     }
 
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
     public function requireHelper($name)
     {
         $this->formatter->getDependencies()->setAsRequired(
             $this->helperName($name)
         );
+
+        return $this;
     }
 
     protected function patternName($name)
     {
-        return $this->helperName('pattern.'.$name);
+        return 'pattern.'.$name;
     }
 
+    /**
+     * @param $name
+     * @param $pattern
+     *
+     * @return AbstractFormat
+     */
     public function addPattern($name, $pattern)
     {
+        if (is_array($pattern)) {
+            return $this->provideHelper($this->patternName($name), $pattern);
+        }
+
         $this->registerHelper('patterns.'.$name, $pattern);
-        $this->provideHelper($this->patternName($name), ['pattern', 'patterns.'.$name, function ($proceed, $pattern) {
+
+        return $this->provideHelper($this->patternName($name), ['pattern', 'patterns.'.$name, function ($proceed, $pattern) {
             return function () use ($proceed, $pattern) {
                 $args = func_get_args();
                 array_unshift($args, $pattern);
@@ -149,29 +198,53 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }]);
     }
 
+    /**
+     * @param $patterns
+     *
+     * @return $this
+     */
     public function addPatterns($patterns)
     {
         foreach ($patterns as $name => $pattern) {
             $this->addPattern($name, $pattern);
         }
+
+        return $this;
     }
 
-    public function exportPattern($name)
+    /**
+     * @param $name
+     *
+     * @return string
+     */
+    public function exportHelper($name)
     {
         $this->formatter->getDependencies()->setAsRequired(
-            $this->patternName($name)
+            $this->helperName($name)
         );
 
         return $this->formatter->getDependencyStorage(
-            $this->patternName($name)
+            $this->helperName($name)
         );
     }
 
+    /**
+     * @param Formatter $formatter
+     *
+     * @return $this
+     */
     public function setFormatter(Formatter $formatter)
     {
         $this->formatter = $formatter;
+
+        return $this;
     }
 
+    /**
+     * @param $element
+     *
+     * @return string
+     */
     public function format($element)
     {
         if (is_string($element)) {
@@ -187,21 +260,43 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return '';
     }
 
+    /**
+     * @param $className
+     *
+     * @return $this
+     */
     public function removeElementHandler($className)
     {
         return $this->unsetOption(['element_handlers', $className]);
     }
 
+    /**
+     * @param          $className
+     * @param callable $handler
+     *
+     * @return $this
+     */
     public function setElementHandler($className, callable $handler)
     {
         return $this->setOption(['element_handlers', $className], $handler);
     }
 
+    /**
+     * @param $phpTokenId
+     *
+     * @return $this
+     */
     public function removePhpTokenHandler($phpTokenId)
     {
         return $this->unsetOption(['php_token_handlers', $phpTokenId]);
     }
 
+    /**
+     * @param $phpTokenId
+     * @param $handler
+     *
+     * @return $this
+     */
     public function setPhpTokenHandler($phpTokenId, $handler)
     {
         return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
@@ -272,7 +367,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
         }
 
-        return '(isset(' . $variable . ') ? ' . $variable . " : '')";
+        return '(isset('.$variable.') ? '.$variable." : '')";
     }
 
     protected function getNewLine()
@@ -303,7 +398,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function handleTokens($code, $checked)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
-        $tokens = array_slice(token_get_all('<?php ' . $code), 1);
+        $tokens = array_slice(token_get_all('<?php '.$code), 1);
 
         foreach ($tokens as $index => $token) {
             $id = $token;
@@ -349,7 +444,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $value = $code->getValue();
 
         if ($code->hasStaticValue()) {
-            $value = strval(eval('return ' . $value . ';'));
+            $value = strval(eval('return '.$value.';'));
             if ($code->isEscaped()) {
                 $value = $this->pattern('html_text_escape', $value);
             }
@@ -371,7 +466,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_text_escape', $value);
         }
         if ($text->getPreviousSibling() instanceof TextElement) {
-            $value = ' ' . $value;
+            $value = ' '.$value;
         }
 
         return $this->format($value);

@@ -32,6 +32,25 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             'default_class_name' => XmlFormat::class,
         ]);
 
-        self::assertSame('<img src="/foo/bar.png" alt="Foo" />', $formatter->format($img));
+        self::assertSame(
+            '',
+            $formatter->formatDependencies()
+        );
+
+        self::assertSame(
+            '<img<?= $pugModule['.
+            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+            '(["alt" => "Foo"], [\'src\' => \'/foo/bar.png\']) ?> />',
+            $formatter->format($img)
+        );
+
+        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return $pugModule['.
+            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+            '(["alt" => "Foo"], [\'src\' => \'/foo/bar.png\']);');
+
+        self::assertSame(
+            ' alt="Foo" src="/foo/bar.png"',
+            $attributes
+        );
     }
 }

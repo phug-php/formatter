@@ -2,7 +2,6 @@
 
 namespace Phug;
 
-use Phug\DependencyInjection;
 // Elements
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
@@ -84,10 +83,10 @@ class Formatter implements OptionInterface
     }
 
     /**
-     * Set the node compiler for a givent node class name.
+     * Set the format handler for a given doctype identifier.
      *
-     * @param string                       node class name
-     * @param NodeCompilerInterface|string handler
+     * @param string                 $doctype doctype identifier
+     * @param FormatInterface|string $format format handler
      *
      * @return $this
      */
@@ -144,9 +143,15 @@ class Formatter implements OptionInterface
      */
     public function formatDependencies()
     {
-        $dependenciesExport = $this->dependencies->export($this->getOption('dependencies_storage'));
+        if ($this->dependencies->countRequiredDependencies() === 0) {
+            return '';
+        }
 
-        return $this->format(new CodeElement($dependenciesExport));
+        $dependenciesExport = $this->dependencies->export(
+            $this->getOption('dependencies_storage')
+        );
+
+        return $this->format(new CodeElement(trim($dependenciesExport)));
     }
 
     /**
