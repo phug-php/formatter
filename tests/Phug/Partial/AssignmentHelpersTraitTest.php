@@ -2,7 +2,6 @@
 
 namespace Phug\Test\Partial;
 
-use Phug\Formatter;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
