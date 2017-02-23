@@ -70,7 +70,7 @@ class HtmlFormat extends XmlFormat
         return $isSelfClosing;
     }
 
-    public function isBlockTag(MarkupInterface $element)
+    protected function isBlockTag(MarkupInterface $element)
     {
         if ($element->belongsTo($this->getOption('inline_tags'))) {
             return false;

@@ -10,7 +10,6 @@ use Phug\Formatter\Format\XmlFormat;
 class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @group i
      * @covers ::provideAttributeAssignments
      */
     public function testAttributeAssignments()
@@ -32,6 +31,7 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::provideAttributeAssignment
+     * @covers \Phug\Formatter\AbstractFormat::setFormatter
      */
     public function testAttributeAssignment()
     {

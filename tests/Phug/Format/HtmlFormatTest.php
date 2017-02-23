@@ -4,6 +4,7 @@ namespace Phug\Test\Format;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -192,5 +193,29 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
             '<!DOCTYPE html><p>'.PHP_EOL.'<span><div></div></span></p>',
             trim($formatter->format($document))
         );
+
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement('html'));
+        $p = new MarkupElement('p');
+        $document->appendChild($p);
+        $span = new MarkupElement('span');
+        $p->appendChild($span);
+        $code2 = new CodeElement('if ($condition)');
+        $span->appendChild($code2);
+        $code3 = new CodeElement('foreach ($items as $item)');
+        $code2->appendChild($code3);
+        $div = new MarkupElement('div');
+        $code3->appendChild($div);
+        $formatter = new Formatter([
+            'pretty' => '  ',
+        ]);
+
+        self::assertSame(
+            '<!DOCTYPE html><p>'.PHP_EOL.'<span><?php if ($condition) { ?>'.
+            '<?php foreach ($items as $item) { ?><div></div><?php } ?>'.
+            '<?php } ?></span></p>',
+            trim($formatter->format($document))
+        );
+        exit;
     }
 }
