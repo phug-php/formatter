@@ -12,9 +12,12 @@ engines:
         enabled: true
     phpmd:
         enabled: true
+        checks:
+            Design/EvalExpression:
+                enabled: false
         exclude_fingerprints:
         # isBlockTag(MarkupElement $element) used by extended classes
-        - e8533761c132ab1194c271eba9b176e9
+        - 5ab33bda35b1024e2545fa3f9f81cd20
 ratings:
     paths:
     - "**.inc"

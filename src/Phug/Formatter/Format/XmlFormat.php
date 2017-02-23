@@ -10,10 +10,13 @@ use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
+use Phug\Formatter\Partial\AssignmentHelpersTrait;
 use Phug\FormatterException;
 
 class XmlFormat extends AbstractFormat
 {
+    use AssignmentHelpersTrait;
+
     const DOCTYPE = '<?xml version="1.0" encoding="utf-8" ?>';
     const OPEN_PAIR_TAG = '<%s>';
     const CLOSE_PAIR_TAG = '</%s>';
@@ -45,80 +48,11 @@ class XmlFormat extends AbstractFormat
                 'test_value'                => static::TEST_VALUE,
                 'buffer_variable'           => static::BUFFER_VARIABLE,
             ])
-            ->provideHelper('attribute_assignments', [
-                'available_attribute_assignments',
-                'get_helper',
-                function ($availableAssignments, $getHelper) {
-                    return function (&$attributes, $name, $value) use ($availableAssignments, $getHelper) {
-                        if (!in_array($name, $availableAssignments)) {
-                            return $value;
-                        }
-
-                        $helper = $getHelper($name.'_attribute_assignment');
-
-                        return $helper($attributes, $value);
-                    };
-                },
-            ])
-            ->provideHelper('attribute_assignment', [
-                'attribute_assignments',
-                function ($attributeAssignments) {
-                    return function (&$attributes, $name, $value) use ($attributeAssignments) {
-                        $attributes[$name] = $attributeAssignments($attributes, $name, $value);
-                    };
-                },
-            ])
-            ->provideHelper('attributes_assignment', [
-                'attribute_assignment',
-                'pattern',
-                'pattern.attribute_pattern',
-                'pattern.boolean_attribute_pattern',
-                function ($attributeAssignment, $pattern, $attributePattern, $booleanPattern) {
-                    return function () use ($attributeAssignment, $pattern, $attributePattern, $booleanPattern) {
-                        $attributes = [];
-                        foreach (func_get_args() as $input) {
-                            foreach ($input as $name => $value) {
-                                $attributeAssignment($attributes, $name, $value);
-                            }
-                        }
-                        $code = '';
-                        foreach ($attributes as $name => $value) {
-                            if ($value) {
-                                $code .= $pattern(
-                                    $value === true ? $booleanPattern : $attributePattern,
-                                    $name,
-                                    $value
-                                );
-                            }
-                        }
-
-                        return $code;
-                    };
-                },
-            ])
-            ->addAttributeAssignment('class', function (&$attributes, $value) {
-                $classes = isset($attributes['class']) ? array_filter(explode(' ', $attributes['class'])) : [];
-                foreach ((array) $value as $input) {
-                    foreach (explode(' ', strval($input)) as $class) {
-                        if (!in_array($class, $classes)) {
-                            $classes[] = $class;
-                        }
-                    }
-                }
-
-                return implode(' ', $classes);
-            })
-            ->addAttributeAssignment('style', function (&$attributes, $value) {
-                $styles = isset($attributes['style']) ? array_filter(explode(';', $attributes['style'])) : [];
-                foreach ((array) $value as $propertyName => $propertyValue) {
-                    if (!is_int($propertyName)) {
-                        $propertyValue = $propertyName.':'.$propertyValue;
-                    }
-                    $styles[] = $propertyValue;
-                }
-
-                return implode(';', $styles);
-            });
+            ->provideAttributeAssignments()
+            ->provideAttributeAssignment()
+            ->provideAttributesAssignment()
+            ->provideClassAttributeAssignment()
+            ->provideStyleAttributeAssignment();
 
         $handlers = $this->getOption('attribute_assignments');
         foreach ($handlers as $name => $handler) {
@@ -254,10 +188,9 @@ class XmlFormat extends AbstractFormat
         }
 
         $markup = $element->getMarkup();
-        $attributesAssignments = $markup->getAssignmentsByName('attributes');
 
         $arguments = [];
-        foreach ($attributesAssignments as $attributesAssignment) {
+        foreach ($markup->getAssignmentsByName('attributes') as $attributesAssignment) {
             /**
              * @var AssignmentElement $attributesAssignment
              */
