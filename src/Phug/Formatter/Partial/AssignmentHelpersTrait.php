@@ -53,11 +53,9 @@ trait AssignmentHelpersTrait
                     $code = '';
                     foreach ($attributes as $name => $value) {
                         if ($value) {
-                            $code .= $pattern(
-                                $value === true ? $booleanPattern : $attributePattern,
-                                $name,
-                                $value
-                            );
+                            $code .= $value === true
+                                ? $pattern($booleanPattern, $name, $name)
+                                : $pattern($attributePattern, $name, $value);
                         }
                     }
 
