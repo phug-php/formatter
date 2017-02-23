@@ -443,6 +443,5 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame('<?php $dep = ['.PHP_EOL.
             '  \'bar\' => 42,'.PHP_EOL.
             ']; ?>', $formatter->formatDependencies());
-
     }
 }

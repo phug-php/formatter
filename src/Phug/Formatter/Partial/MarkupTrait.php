@@ -78,8 +78,8 @@ trait MarkupTrait
     {
         $assignments = iterator_to_array($this->getAssignments());
 
-        return array_filter($assignments, function (AssignmentElement $element) use ($name) {
+        return array_values(array_filter($assignments, function (AssignmentElement $element) use ($name) {
             return $element->getName() === $name;
-        });
+        }));
     }
 }

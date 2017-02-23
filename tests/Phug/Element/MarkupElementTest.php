@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -54,5 +55,30 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement(new ExpressionElement('"link"'));
 
         self::assertFalse($img->belongsTo(['input', 'link']));
+    }
+
+    /**
+     * @covers ::addAssignment
+     * @covers ::removedAssignment
+     * @covers ::getAssignments
+     * @covers ::getAssignmentsByName
+     */
+    public function testAssignments()
+    {
+        $img = new MarkupElement('img');
+        $foo = new AssignmentElement('foo', $img);
+        $bar = new AssignmentElement('bar', $img);
+
+        self::assertSame(0, $img->getAssignments()->count());
+
+        $img->addAssignment($foo)->addAssignment($bar);
+
+        self::assertSame(2, $img->getAssignments()->count());
+        self::assertSame(1, count($img->getAssignmentsByName('foo')));
+        self::assertSame($foo, $img->getAssignmentsByName('foo')[0]);
+        self::assertSame(1, count($img->getAssignmentsByName('bar')));
+        self::assertSame($bar, $img->getAssignmentsByName('bar')[0]);
+        self::assertSame($img, $img->removedAssignment($foo));
+        self::assertSame($bar, iterator_to_array($img->getAssignments())[0]);
     }
 }

@@ -42,11 +42,13 @@ class AssignmentElement extends AbstractElement
         $arguments = new UnorderedArguments(func_get_args());
 
         $name = $arguments->required('string');
-        $attributes = $arguments->required(SplObjectStorage::class);
+        $attributes = $arguments->optional(SplObjectStorage::class);
         $markup = $arguments->required(MarkupElement::class);
 
         $this->setName($name);
-        $this->getAttributes()->addAll($attributes);
+        if ($attributes) {
+            $this->getAttributes()->addAll($attributes);
+        }
         $this->setMarkup($markup);
 
         $parent = $arguments->optional(NodeInterface::class);
