@@ -371,7 +371,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetFormatter()
     {
-        include_once __DIR__ . '/FakeFormat.php';
+        include_once __DIR__.'/FakeFormat.php';
 
         $format = new FakeFormat();
 
