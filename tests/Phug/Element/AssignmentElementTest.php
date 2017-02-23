@@ -22,7 +22,13 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributesAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStyleAttributeAssignment
+     * @covers \Phug\Formatter\Format\XmlFormat::addAttributeAssignment
+     * @covers \Phug\Formatter\Format\XmlFormat::requireHelper
      * @covers \Phug\Formatter\Format\XmlFormat::formatMarkupElement
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentValue
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeAsArrayItem
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      */
     public function testAttributeElement()
     {

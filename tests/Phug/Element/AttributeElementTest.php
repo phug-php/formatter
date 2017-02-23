@@ -11,6 +11,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      */
     public function testAttributeElement()
     {
