@@ -3,14 +3,17 @@
 namespace Phug\Test\Format;
 
 use Phug\Formatter;
+use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\XmlFormat;
+use SplObjectStorage;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XmlFormat
@@ -299,7 +302,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter\AbstractFormat::__construct
      */
     public function testNativePhpHelperCall()
     {
@@ -311,5 +314,56 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $actual = eval('?>'.$formatter->formatDependencies().'<?php return '.$function.'("<>");');
 
         self::assertSame('&lt;&gt;', $actual);
+
+        $text = new TextElement('<>');
+        $text->escape();
+
+        self::assertSame('&lt;&gt;', $formatter->format($text));
+    }
+
+    /**
+     * @group i
+     * @covers ::__construct
+     * @covers ::formatAssignmentValue
+     * @covers ::formatAssignmentElement
+     * @covers ::formatAttributes
+     */
+    public function testAttributeAssignmentsOption()
+    {
+        $formatter = new Formatter([
+            'default_format'        => XmlFormat::class,
+            'attribute_assignments' => [
+                'data-user' => function (&$attributes, $value) {
+                    $data = isset($attributes['data-user']) ? json_decode($attributes['data-user']) : [];
+                    $value = is_string($value) ? json_decode($value) : $value;
+
+                    return json_encode(array_merge_recursive((array) $data, (array) $value));
+                },
+            ],
+        ]);
+        $link = new MarkupElement('a');
+        $data = new SplObjectStorage();
+        $attributes = new AttributeElement('data-user', new ExpressionElement('"{\"name\":{\"first\":\"Linus\"}}"'));
+        $link->getAttributes()->attach($attributes);
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('["data-user" => ["name" => ["last" => "Trosvald"]]]'));
+        $link->addAssignment(new AssignmentElement('attributes', $data, $link));
+
+        self::assertSame(
+            '<a<?= $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
+            '(["data-user" => ["name" => ["last" => "Trosvald"]]], '.
+            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]) ?> />',
+            $formatter->format($link)
+        );
+
+        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return '.
+            '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
+            '(["data-user" => ["name" => ["last" => "Trosvald"]]], '.
+            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]);');
+
+        self::assertSame(
+            ' data-user="{"name":{"last":"Trosvald","first":"Linus"}}"',
+            $attributes
+        );
     }
 }
