@@ -188,14 +188,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
         $this->registerHelper('patterns.'.$name, $pattern);
 
-        return $this->provideHelper($this->patternName($name), ['pattern', 'patterns.'.$name, function ($proceed, $pattern) {
-            return function () use ($proceed, $pattern) {
-                $args = func_get_args();
-                array_unshift($args, $pattern);
+        return $this->provideHelper($this->patternName($name), [
+            'pattern',
+            'patterns.'.$name,
+            function ($proceed, $pattern) {
+                return function () use ($proceed, $pattern) {
+                    $args = func_get_args();
+                    array_unshift($args, $pattern);
 
-                return call_user_func_array($proceed, $args);
-            };
-        }]);
+                    return call_user_func_array($proceed, $args);
+                };
+            },
+        ]);
     }
 
     /**

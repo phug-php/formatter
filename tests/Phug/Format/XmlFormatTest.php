@@ -128,7 +128,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         );
 
         $input = new MarkupElement('input');
-        $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('"(name)"'), new ExpressionElement('"user"')));
+        $input->getAttributes()->attach(
+            new AttributeElement(
+                new ExpressionElement('"(name)"'),
+                new ExpressionElement('"user"')
+            )
+        );
 
         self::assertSame(
             '<input (name)="user" />',
