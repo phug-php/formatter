@@ -124,17 +124,17 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
                     foreach ($markup->getAssignmentsByName('data') as $dataAssignment) {
                         $attributesAssignment = new AssignmentElement('attributes', $markup);
                         /**
-                         * @var AssignmentElement $attributesAssignment
+                         * @var AssignmentElement $dataAssignment
                          */
                         foreach ($dataAssignment->getAttributes() as $attribute) {
                             $expression = new ExpressionElement(
-                                '(function ($data) { '.
+                                'call_user_func(function ($data) { '.
                                     '$result = []; '.
                                     'foreach ($data as $name => $value) { '.
                                         '$result["data-".$name] = $value; '.
                                     '} '.
                                     'return $result; '.
-                                '})('.$attribute->getValue().')'
+                                '}, '.$attribute->getValue().')'
                             );
                             $expression->uncheck();
                             $attributesAssignment->getAttributes()->attach($expression);
@@ -144,7 +144,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
                     }
 
                     return [];
-                }
+                },
             ],
         ]);
         $img->getAttributes()->attach(new AttributeElement('data-foo', 'bar'));
@@ -153,9 +153,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             '<img<?= '.
             '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
-            '((function ($data) { $result = []; foreach ($data as $name => $value) '.
+            '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
             '{ $result["data-".$name] = $value; } '.
-            'return $result; })(["user" => "Bob"]), '.
+            'return $result; }, ["user" => "Bob"]), '.
             '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']) ?> />',
             $formatter->format($img)
         );
@@ -165,9 +165,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             eval(
                 '?>'.$formatter->formatDependencies().'<?php '.
                 'return $pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
-                '((function ($data) { $result = []; foreach ($data as $name => $value) '.
+                '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
                 '{ $result["data-".$name] = $value; } '.
-                'return $result; })(["user" => "Bob"]), '.
+                'return $result; }, ["user" => "Bob"]), '.
                 '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']);'
             )
         );
