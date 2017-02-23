@@ -17,6 +17,11 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignments
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributesAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideClassAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStyleAttributeAssignment
      * @covers \Phug\Formatter\Format\XmlFormat::formatMarkupElement
      */
     public function testAttributeElement()
