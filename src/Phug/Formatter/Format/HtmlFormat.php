@@ -12,7 +12,7 @@ class HtmlFormat extends XmlFormat
     const SELF_CLOSING_TAG = '<%s>';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s';
 
-    public function __construct(Formatter $formatter)
+    public function __construct(Formatter $formatter = null)
     {
         $this->setOptions([
             'inline_tags' => [

@@ -27,7 +27,7 @@ class XmlFormat extends AbstractFormat
     const SAVE_VALUE = '%s=%s';
     const TEST_VALUE = 'isset(%s)';
 
-    public function __construct(Formatter $formatter)
+    public function __construct(Formatter $formatter = null)
     {
         $this->setOptions([
             'assignment_handlers'   => [],

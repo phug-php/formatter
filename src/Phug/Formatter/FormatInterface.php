@@ -9,7 +9,7 @@ use Phug\Formatter;
  */
 interface FormatInterface
 {
-    public function __construct(Formatter $formatter);
+    public function __construct(Formatter $formatter = null);
 
     public function format($element);
 

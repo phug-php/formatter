@@ -10,7 +10,7 @@ abstract class XhtmlFormat extends HtmlFormat
     const DOCTYPE_LANGUAGE = 'html';
     const SELF_CLOSING_TAG = '<%s />';
 
-    public function __construct(Formatter $formatter)
+    public function __construct(Formatter $formatter = null)
     {
         parent::__construct($formatter);
 

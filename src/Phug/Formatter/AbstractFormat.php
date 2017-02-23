@@ -74,7 +74,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'php_token_handlers' => [
                     T_VARIABLE => [$this, 'handleVariable'],
                 ],
-            ], $formatter->getOptions() ?: [])
+            ], $this->formatter->getOptions() ?: [])
             ->registerHelper('pattern', $this->getOption('pattern'))
             ->addPatterns($this->getOption('patterns'));
     }
@@ -87,6 +87,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     public function setFormatter(Formatter $formatter)
     {
         $this->formatter = $formatter;
+        $format = $this;
 
         return $this->registerHelper(
             'dependencies_storage',
@@ -99,8 +100,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             [
                 'dependencies_storage',
                 'helper_prefix',
-                function ($dependenciesStorage, $prefix) {
-                    return function ($name) use ($dependenciesStorage, $prefix) {
+                function ($dependenciesStorage, $prefix) use ($format) {
+                    return function ($name) use ($dependenciesStorage, $prefix, $format) {
+                        if (!isset($$dependenciesStorage)) {
+                            return $format->getHelper($name);
+                        }
+
                         $storage = $$dependenciesStorage;
 
                         return $storage[$prefix.$name];
