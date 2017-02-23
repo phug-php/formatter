@@ -216,6 +216,5 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
             '<?php } ?></span></p>',
             trim($formatter->format($document))
         );
-        exit;
     }
 }

@@ -365,4 +365,16 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $attributes
         );
     }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::setFormatter
+     */
+    public function testSetFormatter()
+    {
+        include_once __DIR__ . '/FakeFormat.php';
+
+        $format = new FakeFormat();
+
+        self::assertSame(FakeFormat::class.'::hello', $format(new MarkupElement('hello')));
+    }
 }
