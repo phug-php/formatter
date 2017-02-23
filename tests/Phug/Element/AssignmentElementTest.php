@@ -86,4 +86,90 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             $attributes
         );
     }
+
+    /**
+     * @covers                   \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @expectedException        \Phug\FormatterException
+     * @expectedExceptionMessage Unable to handle class assignment
+     */
+    public function testFormatAssignmentElementException()
+    {
+        $img = new MarkupElement('img');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('[1]'));
+        $assignment = new AssignmentElement('class', $data, $img);
+        $img->getAssignments()->attach($assignment);
+        $formatter = new Formatter([
+            'default_class_name' => XmlFormat::class,
+        ]);
+        $formatter->format($img);
+    }
+
+    /**
+     * @group i
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     */
+    public function testAssignmentHandlersOption()
+    {
+        $img = new MarkupElement('img');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('["user" => "Bob"]'));
+        $assignment = new AssignmentElement('data', $data, $img);
+        $img->getAssignments()->attach($assignment);
+        $formatter = new Formatter([
+            'default_class_name'  => XmlFormat::class,
+            'assignment_handlers' => [
+                function (AssignmentElement $element) {
+                    $markup = $element->getMarkup();
+                    foreach ($markup->getAssignmentsByName('data') as $dataAssignment) {
+                        $attributesAssignment = new AssignmentElement('attributes', $markup);
+                        /**
+                         * @var AssignmentElement $attributesAssignment
+                         */
+                        foreach ($dataAssignment->getAttributes() as $attribute) {
+                            $expression = new ExpressionElement(
+                                '(function ($data) { '.
+                                    '$result = []; '.
+                                    'foreach ($data as $name => $value) { '.
+                                        '$result["data-".$name] = $value; '.
+                                    '} '.
+                                    'return $result; '.
+                                '})('.$attribute->getValue().')'
+                            );
+                            $expression->uncheck();
+                            $attributesAssignment->getAttributes()->attach($expression);
+                        }
+                        $markup->removedAssignment($dataAssignment);
+                        $markup->addAssignment($attributesAssignment);
+                    }
+
+                    return [];
+                }
+            ],
+        ]);
+        $img->getAttributes()->attach(new AttributeElement('data-foo', 'bar'));
+        $img->getAttributes()->attach(new AttributeElement('bar', 'foo'));
+
+        self::assertSame(
+            '<img<?= '.
+            '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+            '((function ($data) { $result = []; foreach ($data as $name => $value) '.
+            '{ $result["data-".$name] = $value; } '.
+            'return $result; })(["user" => "Bob"]), '.
+            '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']) ?> />',
+            $formatter->format($img)
+        );
+
+        self::assertSame(
+            ' data-user="Bob" data-foo="bar" bar="foo"',
+            eval(
+                '?>'.$formatter->formatDependencies().'<?php '.
+                'return $pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+                '((function ($data) { $result = []; foreach ($data as $name => $value) '.
+                '{ $result["data-".$name] = $value; } '.
+                'return $result; })(["user" => "Bob"]), '.
+                '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']);'
+            )
+        );
+    }
 }

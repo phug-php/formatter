@@ -322,7 +322,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers ::__construct
      * @covers ::formatAssignmentValue
      * @covers ::formatAssignmentElement

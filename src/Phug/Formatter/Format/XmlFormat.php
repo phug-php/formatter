@@ -220,10 +220,13 @@ class XmlFormat extends AbstractFormat
             );
         }
 
-        $newElements[] = new ExpressionElement(
+        $expression = new ExpressionElement(
             $this->exportHelper('attributes_assignment').
             '('.implode(', ', $arguments).')'
         );
+        $expression->uncheck();
+
+        $newElements[] = $expression;
 
         return implode('', array_map([$this, 'format'], $newElements));
     }
