@@ -9,6 +9,7 @@ use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
+use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
@@ -215,9 +216,6 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testHelperName()
     {
-        $document = new DocumentElement();
-        $document->appendChild(new DoctypeElement());
-        $document->appendChild(new MarkupElement('img'));
         $formatter = new Formatter([
             'default_format' => XmlFormat::class,
         ]);
@@ -237,5 +235,63 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $states = $formatter->getDependencies()->getRequirementsStates();
 
         self::assertTrue($states[XmlFormat::class.'::foo']);
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::patternName
+     * @covers \Phug\Formatter\AbstractFormat::addPattern
+     * @covers \Phug\Formatter\AbstractFormat::exportHelper
+     */
+    public function testAddPattern()
+    {
+        $formatter = new Formatter([
+            'default_format' => BasicFormat::class,
+        ]);
+        $xmlFormat = new BasicFormat($formatter);
+        $xmlFormat->addPattern('foo', [function () {
+            return function () {
+                return 1;
+            };
+        }]);
+
+        $states = $formatter->getDependencies()->getRequirementsStates();
+
+        self::assertTrue(isset($states[BasicFormat::class.'::pattern.foo']));
+        self::assertFalse($states[BasicFormat::class.'::pattern.foo']);
+        self::assertSame('$pugModule[\''.addslashes(BasicFormat::class).'::pattern.foo\']', $xmlFormat->exportHelper('pattern.foo'));
+
+        $states = $formatter->getDependencies()->getRequirementsStates();
+
+        self::assertTrue($states[BasicFormat::class.'::pattern.foo']);
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::setFormatter
+     */
+    public function testGetDynamicHelper()
+    {
+        $formatter = new Formatter([
+            'default_format' => BasicFormat::class,
+        ]);
+        $basicFormat = new BasicFormat($formatter);
+        $basicFormat->provideHelper('foobar', [function () {
+            return function () {
+                return 123;
+            };
+        }]);
+        $basicFormat->provideHelper('test', ['get_helper', function ($getHelper) {
+            return function ($name) use ($getHelper) {
+                return call_user_func($getHelper($name)) + 5;
+            };
+        }]);
+        $function = $basicFormat->exportHelper('foobar');
+        $actual = eval('?>'.$formatter->formatDependencies().'<?php return '.$function.'();');
+
+        self::assertSame(123, $actual);
+
+        $function = $basicFormat->exportHelper('test');
+        $actual = eval('?>'.$formatter->formatDependencies().'<?php return '.$function.'("foobar");');
+
+        self::assertSame(128, $actual);
     }
 }
