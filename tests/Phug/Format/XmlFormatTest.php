@@ -258,7 +258,10 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertTrue(isset($states[BasicFormat::class.'::pattern.foo']));
         self::assertFalse($states[BasicFormat::class.'::pattern.foo']);
-        self::assertSame('$pugModule[\''.addslashes(BasicFormat::class).'::pattern.foo\']', $xmlFormat->exportHelper('pattern.foo'));
+        self::assertSame(
+            '$pugModule[\''.addslashes(BasicFormat::class).'::pattern.foo\']',
+            $xmlFormat->exportHelper('pattern.foo')
+        );
 
         $states = $formatter->getDependencies()->getRequirementsStates();
 
@@ -293,5 +296,20 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $actual = eval('?>'.$formatter->formatDependencies().'<?php return '.$function.'("foobar");');
 
         self::assertSame(128, $actual);
+    }
+
+    /**
+     * @covers \Phug\Formatter::__construct
+     */
+    public function testNativePhpHelperCall()
+    {
+        $formatter = new Formatter([
+            'default_format' => BasicFormat::class,
+        ]);
+        $basicFormat = new BasicFormat($formatter);
+        $function = $basicFormat->exportHelper('pattern.html_text_escape');
+        $actual = eval('?>'.$formatter->formatDependencies().'<?php return '.$function.'("<>");');
+
+        self::assertSame('&lt;&gt;', $actual);
     }
 }
