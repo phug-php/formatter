@@ -2,6 +2,7 @@
 
 namespace Phug\Test;
 
+use Phug\DependencyException;
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
@@ -398,5 +399,50 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
             '<p>Foo bar</p>',
             $formatter->format($document, $format)
         );
+    }
+
+    /**
+     * @covers ::initDependencies
+     * @covers ::formatDependencies
+     * @covers ::getDependencies
+     * @covers ::getDependencyStorage
+     */
+    public function testDependencies()
+    {
+        $formatter = new Formatter(['dependencies_storage' => 'dep']);
+        $formatter->getDependencies()->register('bar', 42);
+
+        self::assertSame('$dep[\'foo\']', $formatter->getDependencyStorage('foo'));
+
+        self::assertSame(0, $formatter->getDependencies()->countRequiredDependencies());
+
+        $formatter->getDependencies()->setAsRequired('bar');
+
+        self::assertSame(1, $formatter->getDependencies()->countRequiredDependencies());
+
+        $formatter->initDependencies();
+
+        self::assertSame(0, $formatter->getDependencies()->countRequiredDependencies());
+
+        self::assertSame('', $formatter->formatDependencies());
+
+        $message = null;
+        try {
+            $formatter->getDependencies()->setAsRequired('bar');
+        } catch (DependencyException $e) {
+            $message = $e->getMessage();
+        }
+
+        self::assertSame('bar dependency not found.', $message);
+
+        $formatter->getDependencies()->register('bar', 42);
+        $formatter->getDependencies()->setAsRequired('bar');
+
+        self::assertSame(1, $formatter->getDependencies()->countRequiredDependencies());
+
+        self::assertSame('<?php $dep = ['.PHP_EOL.
+            '  \'bar\' => 42,'.PHP_EOL.
+            ']; ?>', $formatter->formatDependencies());
+
     }
 }
