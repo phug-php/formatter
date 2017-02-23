@@ -279,11 +279,11 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
             'pretty' => true,
         ]);
 
+        $expected = "<foo>\n  <bar></bar>\n  <biz></biz>\n".
+            "  <license>\n    <mit></mit>\n  </license>\n</foo>\n";
+
         self::assertSame(
-            str_replace("\n", PHP_EOL,
-                "<foo>\n  <bar></bar>\n  <biz></biz>\n".
-                "  <license>\n    <mit></mit>\n  </license>\n</foo>\n"
-            ),
+            str_replace("\n", PHP_EOL, $expected),
             $formatter->format($foo, HtmlFormat::class)
         );
 
@@ -291,11 +291,11 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
             'pretty' => "\t",
         ]);
 
+        $expected = "<foo>\n\t<bar></bar>\n\t<biz></biz>\n".
+            "\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n";
+
         self::assertSame(
-            str_replace("\n", PHP_EOL,
-                "<foo>\n\t<bar></bar>\n\t<biz></biz>\n".
-                "\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n"
-            ),
+            str_replace("\n", PHP_EOL, $expected),
             $formatter->format($foo, HtmlFormat::class)
         );
     }
