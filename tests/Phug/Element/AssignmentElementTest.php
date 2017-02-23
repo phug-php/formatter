@@ -106,7 +106,6 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
      */
     public function testAssignmentHandlersOption()
