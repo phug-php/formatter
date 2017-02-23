@@ -203,4 +203,34 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($input)
         );
     }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::helperName
+     * @covers \Phug\Formatter\AbstractFormat::requireHelper
+     */
+    public function testHelperName()
+    {
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement());
+        $document->appendChild(new MarkupElement('img'));
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+        $xmlFormat->provideHelper('foo', function () {
+            return function () {
+                return 1;
+            };
+        });
+
+        $states = $formatter->getDependencies()->getRequirementsStates();
+
+        self::assertTrue(isset($states[XmlFormat::class.'::foo']));
+        self::assertFalse($states[XmlFormat::class.'::foo']);
+
+        $xmlFormat->requireHelper('foo');
+        $states = $formatter->getDependencies()->getRequirementsStates();
+
+        self::assertTrue($states[XmlFormat::class.'::foo']);
+    }
 }
