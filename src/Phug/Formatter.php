@@ -41,7 +41,7 @@ class Formatter implements OptionInterface
     /**
      * Creates a new formatter instance.
      *
-     * The formatter will turn DocumentNode tree into StringOfPhtml
+     * The formatter will turn DocumentNode tree into a PHTML string
      *
      * @param array|null $options the options array
      */
@@ -185,7 +185,7 @@ class Formatter implements OptionInterface
      *
      * @throws FormatterException
      *
-     * @return StringOfPhtml
+     * @return string
      */
     public function format()
     {
