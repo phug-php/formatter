@@ -1,0 +1,116 @@
+<?php
+
+namespace Phug\Formatter\Partial;
+
+trait HandleVariable
+{
+    private function isInFunctionParams(&$tokens, $index)
+    {
+        $afterOpen = false;
+        for ($i = $index - 1; $i >= 0; $i--) {
+            if (in_array($tokens[$i], [')', '}'])) {
+                break;
+            }
+            if ($tokens[$i] === '(') {
+                $afterOpen = true;
+                continue;
+            }
+            if ($afterOpen && is_array($tokens[$i]) && $tokens[$i][0] === T_FUNCTION) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isInInterpolation(&$tokens, $index)
+    {
+        return
+            isset($tokens[$index - 1]) &&
+            is_array($tokens[$index - 1]) &&
+            $tokens[$index - 1][0] === T_ENCAPSED_AND_WHITESPACE;
+    }
+
+    private function isInExclusionContext(&$tokens, $index)
+    {
+        foreach ([
+            // Exclude tokens before the variables
+            -1 => [
+                T_AS,
+                T_EMPTY,
+                T_GLOBAL,
+                T_ISSET,
+                T_OBJECT_OPERATOR,
+                T_UNSET,
+                T_UNSET_CAST,
+                T_VAR,
+                T_STATIC,
+                T_PRIVATE,
+                T_PROTECTED,
+                T_PUBLIC,
+            ],
+            // Exclude tokens after the variables
+            1  => [
+                '[',
+                '=',
+                T_AND_EQUAL,
+                T_CONCAT_EQUAL,
+                T_CURLY_OPEN,
+                T_DIV_EQUAL,
+                T_DOUBLE_ARROW,
+                T_INC,
+                T_MINUS_EQUAL,
+                T_MOD_EQUAL,
+                T_MUL_EQUAL,
+                T_OBJECT_OPERATOR,
+                T_OR_EQUAL,
+                T_PLUS_EQUAL,
+                defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
+                T_SL_EQUAL,
+                T_SR_EQUAL,
+                T_XOR_EQUAL,
+            ],
+        ] as $direction => $exclusions) {
+            $id = null;
+            for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
+                $id = $tokens[$index + $direction * $i];
+                if (is_array($id)) {
+                    $id = $id[0];
+                }
+                // Ignore the following tokens
+                if (in_array($id, [
+                    T_COMMENT,
+                    T_DOC_COMMENT,
+                    T_WHITESPACE,
+                ])) {
+                    continue;
+                }
+                break;
+            }
+
+            if (in_array($id, $exclusions)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function handleVariable($variable, $index, &$tokens, $checked)
+    {
+        if (
+            !$checked ||
+            $this->isInExclusionContext($tokens, $index) ||
+            $this->isInFunctionParams($tokens, $index)
+        ) {
+            return $variable;
+        }
+
+        $checkedVariable = '(isset('.$variable.') ? '.$variable." : '')";
+        if ($this->isInInterpolation($tokens, $index)) {
+            $checkedVariable = '".'.$checkedVariable.'."';
+        }
+
+        return $checkedVariable;
+    }
+}

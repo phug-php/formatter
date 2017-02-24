@@ -133,9 +133,12 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::format
      * @covers \Phug\Formatter\AbstractFormat::__construct
-     * @covers \Phug\Formatter\AbstractFormat::handleVariable
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInFunctionParams
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
+     * @covers \Phug\Formatter\Partial\HandleVariable::handleVariable
      */
     public function testFormat()
     {
@@ -327,8 +330,11 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
-     * @covers \Phug\Formatter\AbstractFormat::handleVariable
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInFunctionParams
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
+     * @covers \Phug\Formatter\Partial\HandleVariable::handleVariable
      */
     public function testFormatCode()
     {
