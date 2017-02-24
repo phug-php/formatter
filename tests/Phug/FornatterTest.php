@@ -186,12 +186,12 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame('foo.bar', $return);
 
-        $exp = new ExpressionElement('($a = function ($a) { return $a; }) ? $a("A") : null');
+        $exp = new ExpressionElement('($a = function ($a) { return $a; }) ? call_user_func($a, "A") : null');
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 
         self::assertSame('A', $return);
 
-        $exp = new ExpressionElement('($a = function ($a, $b) { return $c; }) ? $a("A", "B") : null');
+        $exp = new ExpressionElement('($a = function ($a, $b) { return $c; }) ? call_user_func($a, "A", "B") : null');
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 
         self::assertSame('', $return);
