@@ -204,12 +204,12 @@ class XmlFormat extends AbstractFormat
 
         if ($attributes->count()) {
             $arguments[] = '['.implode(
-                ', ',
-                array_map(
-                    [$this, 'formatAttributeAsArrayItem'],
-                    iterator_to_array($attributes)
-                )
-            ).']';
+                    ', ',
+                    array_map(
+                        [$this, 'formatAttributeAsArrayItem'],
+                        iterator_to_array($attributes)
+                    )
+                ).']';
             $attributes->removeAll($attributes);
         }
 
@@ -220,13 +220,15 @@ class XmlFormat extends AbstractFormat
             );
         }
 
-        $expression = new ExpressionElement(
-            $this->exportHelper('attributes_assignment').
-            '('.implode(', ', $arguments).')'
-        );
-        $expression->uncheck();
+        if (count($arguments)) {
+            $expression = new ExpressionElement(
+                $this->exportHelper('attributes_assignment').
+                '('.implode(', ', $arguments).')'
+            );
+            $expression->uncheck();
 
-        $newElements[] = $expression;
+            $newElements[] = $expression;
+        }
 
         return implode('', array_map([$this, 'format'], $newElements));
     }

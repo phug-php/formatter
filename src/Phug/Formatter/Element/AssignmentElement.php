@@ -14,6 +14,28 @@ class AssignmentElement extends AbstractElement
     use AttributeTrait;
     use NameTrait;
 
+    public function __construct()
+    {
+        $arguments = new UnorderedArguments(func_get_args());
+
+        $name = $arguments->required('string');
+        $attributes = $arguments->optional(SplObjectStorage::class);
+        $markup = $arguments->required(MarkupElement::class);
+
+        $this->setName($name);
+        if ($attributes) {
+            $this->getAttributes()->addAll($attributes);
+        }
+        $this->setMarkup($markup);
+
+        $parent = $arguments->optional(NodeInterface::class);
+        $children = $arguments->optional('array');
+
+        $arguments->noMoreDefinedArguments();
+
+        parent::__construct($parent, $children);
+    }
+
     /**
      * @var MarkupElement
      */
@@ -37,25 +59,11 @@ class AssignmentElement extends AbstractElement
         return $this->markup;
     }
 
-    public function __construct()
+    /**
+     * Detach the assignment from its markup.
+     */
+    public function detach()
     {
-        $arguments = new UnorderedArguments(func_get_args());
-
-        $name = $arguments->required('string');
-        $attributes = $arguments->optional(SplObjectStorage::class);
-        $markup = $arguments->required(MarkupElement::class);
-
-        $this->setName($name);
-        if ($attributes) {
-            $this->getAttributes()->addAll($attributes);
-        }
-        $this->setMarkup($markup);
-
-        $parent = $arguments->optional(NodeInterface::class);
-        $children = $arguments->optional('array');
-
-        $arguments->noMoreDefinedArguments();
-
-        parent::__construct($parent, $children);
+        return $this->markup->removedAssignment($this);
     }
 }

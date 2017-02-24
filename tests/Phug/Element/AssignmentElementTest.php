@@ -73,13 +73,15 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $img->getAttributes()->attach($attributes);
         $formatter->initDependencies()->format($img);
 
-        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return $pugModule['.
+        $attributes = eval(
+            '?>'.$formatter->formatDependencies().'<?php return $pugModule['.
             '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
             '(["class" => "foo bar", "style" => "height: 100px; z-index: 9;"], '.
             '[\'style\' => '.
             '[\'width\' => \'200px\', \'display\' => \'block\'],'.
             '\'class\' => [\'baz\', \'foo\', \'foobar\']]'.
-            ');');
+            ');'
+        );
 
         self::assertSame(
             ' class="foo bar baz foobar" style="height: 100px; z-index: 9;width:200px;display:block"',
@@ -169,6 +171,39 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
                 'return $result; }, ["user" => "Bob"]), '.
                 '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']);'
             )
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\Element\AssignmentElement::detach
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     */
+    public function testAssignmentHandlersWithYield()
+    {
+        $img = new MarkupElement('img');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('$var'));
+        $assignment = new AssignmentElement('foo', $data, $img);
+        $img->getAssignments()->attach($assignment);
+        $formatter = new Formatter([
+            'default_class_name'  => XmlFormat::class,
+            'assignment_handlers' => [
+                function (AssignmentElement $element) {
+                    if ($element->getName() === 'foo') {
+                        $element->detach();
+                        yield new ExpressionElement(
+                            'my_func('.implode(', ', array_map(function (ExpressionElement $attribute) {
+                                return $attribute->getValue();
+                            }, iterator_to_array($element->getAttributes()))).')'
+                        );
+                    }
+                },
+            ],
+        ]);
+
+        self::assertSame(
+            '<img<?= my_func((isset($var) ? $var : \'\')) ?> />',
+            $formatter->format($img)
         );
     }
 }
