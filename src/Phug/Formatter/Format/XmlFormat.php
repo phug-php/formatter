@@ -204,12 +204,12 @@ class XmlFormat extends AbstractFormat
 
         if ($attributes->count()) {
             $arguments[] = '['.implode(
-                    ', ',
-                    array_map(
-                        [$this, 'formatAttributeAsArrayItem'],
-                        iterator_to_array($attributes)
-                    )
-                ).']';
+                ', ',
+                array_map(
+                    [$this, 'formatAttributeAsArrayItem'],
+                    iterator_to_array($attributes)
+                )
+            ).']';
             $attributes->removeAll($attributes);
         }
 

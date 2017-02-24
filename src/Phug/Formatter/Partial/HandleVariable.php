@@ -98,8 +98,7 @@ trait HandleVariable
 
     protected function handleVariable($variable, $index, &$tokens, $checked)
     {
-        if (
-            !$checked ||
+        if (!$checked ||
             $this->isInExclusionContext($tokens, $index) ||
             $this->isInFunctionParams($tokens, $index)
         ) {
