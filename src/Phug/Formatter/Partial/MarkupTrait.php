@@ -34,6 +34,7 @@ trait MarkupTrait
      */
     public function addAssignment(AssignmentElement $element)
     {
+        $element->setMarkup($this);
         $this->getAssignments()->attach($element);
 
         return $this;

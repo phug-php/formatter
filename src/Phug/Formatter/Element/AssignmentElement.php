@@ -4,6 +4,7 @@ namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
+use Phug\Formatter\MarkupInterface;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
 use Phug\Util\UnorderedArguments;
@@ -20,13 +21,15 @@ class AssignmentElement extends AbstractElement
 
         $name = $arguments->required('string');
         $attributes = $arguments->optional(SplObjectStorage::class);
-        $markup = $arguments->required(MarkupElement::class);
+        $markup = $arguments->optional(MarkupInterface::class);
 
         $this->setName($name);
         if ($attributes) {
             $this->getAttributes()->addAll($attributes);
         }
-        $this->setMarkup($markup);
+        if ($markup) {
+            $this->setMarkup($markup);
+        }
 
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
@@ -44,9 +47,9 @@ class AssignmentElement extends AbstractElement
     /**
      * Set markup subject.
      *
-     * @param MarkupElement $markup
+     * @param MarkupInterface $markup
      */
-    public function setMarkup(MarkupElement $markup)
+    public function setMarkup(MarkupInterface $markup)
     {
         $this->markup = $markup;
     }
