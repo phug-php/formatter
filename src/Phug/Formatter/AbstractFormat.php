@@ -184,41 +184,42 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
 
         foreach ([
-             // Exclude tokens before the variables
-             -1 => [
-                 T_AS,
-                 T_EMPTY,
-                 T_GLOBAL,
-                 T_ISSET,
-                 T_OBJECT_OPERATOR,
-                 T_UNSET,
-                 T_UNSET_CAST,
-                 T_VAR,
-                 T_STATIC,
-                 T_PRIVATE,
-                 T_PROTECTED,
-                 T_PUBLIC,
-             ],
-             // Exclude tokens after the variables
-             1  => [
-                 '[',
-                 T_AND_EQUAL,
-                 T_CONCAT_EQUAL,
-                 T_CURLY_OPEN,
-                 T_DIV_EQUAL,
-                 T_DOUBLE_ARROW,
-                 T_INC,
-                 T_MINUS_EQUAL,
-                 T_MOD_EQUAL,
-                 T_MUL_EQUAL,
-                 T_OBJECT_OPERATOR,
-                 T_OR_EQUAL,
-                 T_PLUS_EQUAL,
-                 defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
-                 T_SL_EQUAL,
-                 T_SR_EQUAL,
-                 T_XOR_EQUAL,
-             ],
+            // Exclude tokens before the variables
+            -1 => [
+                T_AS,
+                T_EMPTY,
+                T_GLOBAL,
+                T_ISSET,
+                T_OBJECT_OPERATOR,
+                T_UNSET,
+                T_UNSET_CAST,
+                T_VAR,
+                T_STATIC,
+                T_PRIVATE,
+                T_PROTECTED,
+                T_PUBLIC,
+            ],
+            // Exclude tokens after the variables
+            1  => [
+                '[',
+                '=',
+                T_AND_EQUAL,
+                T_CONCAT_EQUAL,
+                T_CURLY_OPEN,
+                T_DIV_EQUAL,
+                T_DOUBLE_ARROW,
+                T_INC,
+                T_MINUS_EQUAL,
+                T_MOD_EQUAL,
+                T_MUL_EQUAL,
+                T_OBJECT_OPERATOR,
+                T_OR_EQUAL,
+                T_PLUS_EQUAL,
+                defined('T_POW_EQUAL') ? T_POW_EQUAL : 'T_POW_EQUAL',
+                T_SL_EQUAL,
+                T_SR_EQUAL,
+                T_XOR_EQUAL,
+            ],
         ] as $direction => $exclusions) {
             $id = null;
             for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
@@ -242,7 +243,35 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
         }
 
-        return '(isset('.$variable.') ? '.$variable." : '')";
+        $inFunctionParams = false;
+        $afterOpen = false;
+        for ($i = $index - 1; $i >=0; $i--) {
+            if (in_array($tokens[$i], [')', '}'])) {
+                break;
+            }
+            if ($tokens[$i] === '(') {
+                $afterOpen = true;
+                continue;
+            }
+            if ($afterOpen && is_array($tokens[$i]) && $tokens[$i][0] === T_FUNCTION) {
+                $inFunctionParams = true;
+                break;
+            }
+        }
+        if ($inFunctionParams) {
+            return $variable;
+        }
+
+        $checkedVariable = '(isset('.$variable.') ? '.$variable." : '')";
+        if (
+            isset($tokens[$index - 1]) &&
+            is_array($tokens[$index - 1]) &&
+            $tokens[$index - 1][0] === T_ENCAPSED_AND_WHITESPACE
+        ) {
+            $checkedVariable = '".'.$checkedVariable.'."';
+        }
+
+        return $checkedVariable;
     }
 
     protected function getNewLine()

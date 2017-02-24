@@ -20,6 +20,7 @@ use Phug\Formatter\Format\XmlFormat;
 class FornatterTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @group i
      * @covers ::__construct
      */
     public function testConstructor()
@@ -170,6 +171,27 @@ class FornatterTest extends \PHPUnit_Framework_TestCase
             '<<?= $tagName ?>></<?= $tagName ?>>',
             $formatter->format($link, $format)
         );
+
+        $exp = new ExpressionElement('"foo.$ext"');
+        $formatter = new Formatter();
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
+
+        self::assertSame('foo.', $return);
+
+        $exp = new ExpressionElement('"foo.$ext"');
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], '$ext = "bar";'.$formatter->format($exp)));
+
+        self::assertSame('foo.bar', $return);
+
+        $exp = new ExpressionElement('(function ($a) { return $a; })("A")');
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
+
+        self::assertSame('A', $return);
+
+        $exp = new ExpressionElement('(function ($a, $b) { return $c; })("A", "B")');
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
+
+        self::assertSame('', $return);
     }
 
     /**
