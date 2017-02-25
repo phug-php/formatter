@@ -178,7 +178,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
             '{ $result["data-".$name] = $value; } '.
             'return $result; }, ["user" => "Bob"]), '.
-            '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']) ?> />',
+            '[\'data-foo\' => \'bar\'], [\'bar\' => \'foo\']) ?> />',
             $formatter->format($img)
         );
 
@@ -190,7 +190,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
                 '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
                 '{ $result["data-".$name] = $value; } '.
                 'return $result; }, ["user" => "Bob"]), '.
-                '[\'data-foo\' => \'bar\', \'bar\' => \'foo\']);'
+                '[\'data-foo\' => \'bar\'], [\'bar\' => \'foo\']);'
             )
         );
     }

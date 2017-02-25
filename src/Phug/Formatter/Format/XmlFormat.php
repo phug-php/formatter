@@ -171,9 +171,11 @@ class XmlFormat extends AbstractFormat
 
     protected function formatAttributeAsArrayItem(AttributeElement $attribute)
     {
-        return $this->formatAssignmentValue($this->format($attribute->getName())).
+        return '['.
+            $this->formatAssignmentValue($attribute->getName()).
             ' => '.
-            $this->formatAssignmentValue($attribute->getValue());
+            $this->formatAssignmentValue($attribute->getValue()).
+        ']';
     }
 
     protected function formatAssignmentElement(AssignmentElement $element)
@@ -201,17 +203,10 @@ class XmlFormat extends AbstractFormat
         }
 
         $attributes = $markup->getAttributes();
-
-        if ($attributes->count()) {
-            $arguments[] = '['.implode(
-                ', ',
-                array_map(
-                    [$this, 'formatAttributeAsArrayItem'],
-                    iterator_to_array($attributes)
-                )
-            ).']';
-            $attributes->removeAll($attributes);
+        foreach ($attributes as $attribute) {
+            $arguments[] = $this->formatAttributeAsArrayItem($attribute);
         }
+        $attributes->removeAll($attributes);
 
         $assignments = $markup->getAssignments();
         foreach ($assignments as $assignment) {
