@@ -62,4 +62,23 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             $formatter->format($input)
         );
     }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     */
+    public function testConstantAttribute()
+    {
+        $input = new MarkupElement('input');
+        $attribute = new AttributeElement('class', new ExpressionElement("'foo'"));
+        $input->getAttributes()->attach($attribute);
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        self::assertSame(
+            '<input class="foo">',
+            $formatter->format($input)
+        );
+    }
 }

@@ -163,15 +163,15 @@ class XmlFormat extends AbstractFormat
     protected function formatAssignmentValue($value)
     {
         if ($value instanceof ExpressionElement) {
-            return $value->getValue();
+            return $this->format($value->getValue());
         }
 
-        return var_export(strval($value), true);
+        return var_export(strval($this->format($value)), true);
     }
 
     protected function formatAttributeAsArrayItem(AttributeElement $attribute)
     {
-        return $this->formatAssignmentValue($attribute->getName()).
+        return $this->formatAssignmentValue($this->format($attribute->getName())).
             ' => '.
             $this->formatAssignmentValue($attribute->getValue());
     }
