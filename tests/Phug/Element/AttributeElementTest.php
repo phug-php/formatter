@@ -45,7 +45,6 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers ::<public>
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      */
