@@ -39,9 +39,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('attributes', $data, $img);
         $img->getAssignments()->attach($assignment);
         $img->getAttributes()->attach($attributes);
-        $formatter = new Formatter([
-            'default_class_name' => XmlFormat::class,
-        ]);
+        $formatter = new Formatter();
 
         self::assertSame(
             '',
@@ -102,7 +100,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('class', $data, $img);
         $img->getAssignments()->attach($assignment);
         $formatter = new Formatter([
-            'default_class_name' => XmlFormat::class,
+            'default_format' => XmlFormat::class,
         ]);
         $formatter->format($img);
     }
@@ -118,7 +116,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('data', $data, $img);
         $img->getAssignments()->attach($assignment);
         $formatter = new Formatter([
-            'default_class_name'  => XmlFormat::class,
+            'default_format'  => XmlFormat::class,
             'assignment_handlers' => [
                 function (AssignmentElement $element) {
                     $markup = $element->getMarkup();
@@ -153,7 +151,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<img<?= '.
-            '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+            '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
             '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
             '{ $result["data-".$name] = $value; } '.
             'return $result; }, ["user" => "Bob"]), '.
@@ -165,7 +163,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             ' data-user="Bob" data-foo="bar" bar="foo"',
             eval(
                 '?>'.$formatter->formatDependencies().'<?php '.
-                'return $pugModule[\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
+                'return $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
                 '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
                 '{ $result["data-".$name] = $value; } '.
                 'return $result; }, ["user" => "Bob"]), '.
@@ -186,7 +184,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('foo', $data, $img);
         $img->getAssignments()->attach($assignment);
         $formatter = new Formatter([
-            'default_class_name'  => XmlFormat::class,
+            'default_format'  => XmlFormat::class,
             'assignment_handlers' => [
                 function (AssignmentElement $element) {
                     if ($element->getName() === 'foo') {
