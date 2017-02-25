@@ -7,6 +7,8 @@ use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
+use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 use SplObjectStorage;
 
@@ -84,6 +86,27 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             ' class="foo bar baz foobar" style="height: 100px; z-index: 9;width:200px;display:block"',
             $attributes
+        );
+
+        $input = new MarkupElement('input');
+        $attribute = new AttributeElement('class', new TextElement('foo'));
+        $input->getAttributes()->attach($attribute);
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('["class" => "top bottom"]'));
+        $assignment = new AssignmentElement('attributes', $data);
+        $input->addAssignment($assignment);
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+        $phtml = $formatter->format($input);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$phtml);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<input class="top bottom foo">',
+            $actual
         );
     }
 

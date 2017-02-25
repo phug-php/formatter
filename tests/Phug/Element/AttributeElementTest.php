@@ -6,6 +6,7 @@ use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 
@@ -71,6 +72,18 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $attribute = new AttributeElement('class', new ExpressionElement("'foo'"));
+        $input->getAttributes()->attach($attribute);
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        self::assertSame(
+            '<input class="foo">',
+            $formatter->format($input)
+        );
+
+        $input = new MarkupElement('input');
+        $attribute = new AttributeElement('class', new TextElement('foo'));
         $input->getAttributes()->attach($attribute);
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,

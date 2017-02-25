@@ -17,10 +17,9 @@ use Phug\Formatter\Format\XmlFormat;
 /**
  * @coversDefaultClass \Phug\Formatter
  */
-class FornatterTest extends \PHPUnit_Framework_TestCase
+class FormatterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @group i
      * @covers ::__construct
      */
     public function testConstructor()
