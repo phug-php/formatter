@@ -116,7 +116,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('data', $data, $img);
         $img->getAssignments()->attach($assignment);
         $formatter = new Formatter([
-            'default_format'  => XmlFormat::class,
+            'default_format'      => XmlFormat::class,
             'assignment_handlers' => [
                 function (AssignmentElement $element) {
                     $markup = $element->getMarkup();
@@ -184,7 +184,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $assignment = new AssignmentElement('foo', $data, $img);
         $img->getAssignments()->attach($assignment);
         $formatter = new Formatter([
-            'default_format'  => XmlFormat::class,
+            'default_format'      => XmlFormat::class,
             'assignment_handlers' => [
                 function (AssignmentElement $element) {
                     if ($element->getName() === 'foo') {
