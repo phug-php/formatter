@@ -4,6 +4,7 @@ namespace Phug\Formatter\Format;
 
 use Phug\Formatter;
 use Phug\Formatter\AbstractFormat;
+use Phug\Formatter\AbstractValueElement;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -202,7 +203,7 @@ class XmlFormat extends AbstractFormat
                 $attributes = iterator_to_array($attributesAssignment->getAttributes());
                 array_walk(
                     $attributes,
-                    function (ExpressionElement $attribute) use (&$arguments) {
+                    function (AbstractValueElement $attribute) use (&$arguments) {
                         $arguments[] = $attribute->getValue();
                     }
                 );

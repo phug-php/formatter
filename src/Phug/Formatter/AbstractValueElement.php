@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter;
 
+use Phug\Ast\NodeInterface;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Util\Partial\ValueTrait;
 use Phug\Util\UnorderedArguments;
@@ -22,6 +23,8 @@ abstract class AbstractValueElement extends AbstractElement
 
         parent::__construct($parent, $children);
 
-        $this->setValue($value);
+        if ($value) {
+            $this->setValue($value);
+        }
     }
 }
