@@ -204,7 +204,7 @@ class XmlFormat extends AbstractFormat
                 array_walk(
                     $attributes,
                     function (AbstractValueElement $attribute) use (&$arguments) {
-                        $arguments[] = $attribute->getValue();
+                        $arguments[] = $this->format($attribute->getValue());
                     }
                 );
                 $markup->removedAssignment($attributesAssignment);
