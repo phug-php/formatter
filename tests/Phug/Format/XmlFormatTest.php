@@ -5,6 +5,7 @@ namespace Phug\Test\Format;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -61,6 +62,28 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             'IMG',
             $xmlFormat($img)
+        );
+    }
+
+    /**
+     * @covers ::formatElementChildren
+     */
+    public function testElementsMerge()
+    {
+        $if = new CodeElement('if (true)');
+        $if->appendChild(new MarkupElement('img'));
+        $else = new CodeElement('else');
+        $else->appendChild(new MarkupElement('img'));
+        $document = new DocumentElement();
+        $document->appendChild($if);
+        $document->appendChild($else);
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<?php if (true) { ?><img /><?php } else { ?><img /><?php } ?>',
+            $xmlFormat($document)
         );
     }
 

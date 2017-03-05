@@ -182,38 +182,53 @@ class XmlFormat extends AbstractFormat
     {
         $handlers = $this->getOption('assignment_handlers');
         $newElements = [];
-        foreach ($handlers as $handler) {
-            $iterator = $handler($element) ?: [];
-            foreach ($iterator as $newElement) {
-                $newElements[] = $newElement;
+        array_walk(
+            $handlers,
+            function (callable $handler) use (&$newElements, $element) {
+                $iterator = $handler($element) ?: [];
+                foreach ($iterator as $newElement) {
+                    $newElements[] = $newElement;
+                }
             }
-        }
+        );
 
         $markup = $element->getMarkup();
 
         $arguments = [];
-        foreach ($markup->getAssignmentsByName('attributes') as $attributesAssignment) {
-            /**
-             * @var AssignmentElement $attributesAssignment
-             */
-            foreach ($attributesAssignment->getAttributes() as $attribute) {
-                $arguments[] = $attribute->getValue();
+        $attributes = $markup->getAssignmentsByName('attributes');
+        array_walk(
+            $attributes,
+            function (AssignmentElement $attributesAssignment) use (&$arguments, $markup) {
+                $attributes = iterator_to_array($attributesAssignment->getAttributes());
+                array_walk(
+                    $attributes,
+                    function (ExpressionElement $attribute) use (&$arguments) {
+                        $arguments[] = $attribute->getValue();
+                    }
+                );
+                $markup->removedAssignment($attributesAssignment);
             }
-            $markup->removedAssignment($attributesAssignment);
-        }
+        );
 
         $attributes = $markup->getAttributes();
-        foreach ($attributes as $attribute) {
-            $arguments[] = $this->formatAttributeAsArrayItem($attribute);
-        }
+        $attributesArray = iterator_to_array($attributes);
+        array_walk(
+            $attributesArray,
+            function (AttributeElement $attribute) use (&$arguments) {
+                $arguments[] = $this->formatAttributeAsArrayItem($attribute);
+            }
+        );
         $attributes->removeAll($attributes);
 
-        $assignments = $markup->getAssignments();
-        foreach ($assignments as $assignment) {
-            throw new FormatterException(
-                'Unable to handle '.$assignment->getName().' assignment'
-            );
-        }
+        $assignments = iterator_to_array($markup->getAssignments());
+        array_walk(
+            $assignments,
+            function (AssignmentElement $assignment) {
+                throw new FormatterException(
+                    'Unable to handle '.$assignment->getName().' assignment'
+                );
+            }
+        );
 
         if (count($arguments)) {
             $expression = new ExpressionElement(
