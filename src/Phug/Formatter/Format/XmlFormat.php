@@ -24,7 +24,6 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
     const BUFFER_VARIABLE = '$__value';
-    const SAVE_VALUE = '%s=%s';
     const TEST_VALUE = 'isset(%s)';
 
     public function __construct(Formatter $formatter = null)

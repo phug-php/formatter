@@ -11,6 +11,7 @@ use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
+use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
 use Phug\Formatter\Partial\PatternTrait;
 use Phug\Util\OptionInterface;
@@ -30,6 +31,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const PHP_DISPLAY_CODE = '<?= %s ?>';
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
+    const SAVE_VALUE = '%s=%s';
 
     /**
      * @var Formatter
@@ -72,6 +74,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     DocumentElement::class   => [$this, 'formatDocumentElement'],
                     MarkupElement::class     => [$this, 'formatMarkupElement'],
                     TextElement::class       => [$this, 'formatTextElement'],
+                    VariableElement::class   => [$this, 'formatVariableElement'],
                 ],
                 'php_token_handlers' => [
                     T_VARIABLE => [$this, 'handleVariable'],
@@ -233,6 +236,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatCode($code, $checked)
     {
         return implode('', iterator_to_array($this->handleTokens($code, $checked)));
+    }
+
+    protected function formatVariableElement(VariableElement $element)
+    {
+        $variable = $this->formatCode($element->getVariable()->getValue(), false);
+        $expression = $element->getExpression();
+        $value = $this->formatCode($expression->getValue(), $expression->isChecked());
+        if ($expression->isEscaped()) {
+            $value = $this->pattern('html_expression_escape', $value);
+        }
+
+        return $this->pattern('php_handle_code', $this->pattern('save_value', $variable, $value));
     }
 
     protected function formatCodeElement(CodeElement $code)
