@@ -3,8 +3,6 @@
 namespace Phug\Formatter\Element;
 
 use Phug\Formatter\AbstractElement;
-use Phug\Util\Partial\NameTrait;
-use Phug\Util\Partial\ValueTrait;
 
 class VariableElement extends AbstractElement
 {

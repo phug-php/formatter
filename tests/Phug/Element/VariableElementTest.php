@@ -3,10 +3,10 @@
 namespace Phug\Test\Element;
 
 use Phug\Formatter;
-use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\VariableElement;
+use Phug\Formatter\Format\HtmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Element\VariableElement
