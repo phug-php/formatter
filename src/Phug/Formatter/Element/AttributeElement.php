@@ -2,18 +2,27 @@
 
 namespace Phug\Formatter\Element;
 
-use Phug\Formatter\AbstractElement;
+use Phug\Ast\NodeInterface;
+use Phug\Formatter\AbstractValueElement;
 use Phug\Util\Partial\NameTrait;
-use Phug\Util\Partial\ValueTrait;
+use Phug\Util\UnorderedArguments;
 
-class AttributeElement extends AbstractElement
+class AttributeElement extends AbstractValueElement
 {
     use NameTrait;
-    use ValueTrait;
 
     public function __construct($name, $value)
     {
         $this->setName($name);
         $this->setValue($value);
+
+        $arguments = new UnorderedArguments(array_slice(func_get_args(), 2));
+
+        $parent = $arguments->optional(NodeInterface::class);
+        $children = $arguments->optional('array');
+
+        $arguments->noMoreDefinedArguments();
+
+        parent::__construct($parent, $children);
     }
 }
