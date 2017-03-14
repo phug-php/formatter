@@ -71,11 +71,13 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testConditionals()
     {
+        $call = new CodeElement('call_something()');
         $if = new CodeElement('if (true)');
         $if->appendChild(new MarkupElement('img'));
         $else = new CodeElement('else');
         $else->appendChild(new MarkupElement('img'));
         $document = new DocumentElement();
+        $document->appendChild($call);
         $document->appendChild($if);
         $document->appendChild($else);
         $xmlFormat = new XmlFormat(new Formatter([
@@ -83,7 +85,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         ]));
 
         self::assertSame(
-            '<?php if (true) { ?><img /><?php } else { ?><img /><?php } ?>',
+            '<?php call_something() ?><?php if (true) { ?><img /><?php } else { ?><img /><?php } ?>',
             $xmlFormat($document)
         );
 
