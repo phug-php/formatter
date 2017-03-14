@@ -312,8 +312,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $previous = null;
         foreach ($element->getChildren() as $child) {
             $childContent = $this->formatter->format($child);
-            if (
-                $child instanceof CodeElement &&
+            if ($child instanceof CodeElement &&
                 $previous instanceof CodeElement &&
                 $previous->isCodeBlock()
             ) {
