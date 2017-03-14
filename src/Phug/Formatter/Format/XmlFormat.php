@@ -104,6 +104,11 @@ class XmlFormat extends AbstractFormat
         return true;
     }
 
+    public function isWhiteSpaceSensitive(MarkupInterface $element)
+    {
+        return false;
+    }
+
     protected function formatAttributeElement(AttributeElement $element)
     {
         $value = $element->getValue();
@@ -145,17 +150,26 @@ class XmlFormat extends AbstractFormat
         );
     }
 
+    protected function formatPairTagChildren(MarkupElement $element)
+    {
+        $firstChild = $element->getChildAt(0);
+
+        return sprintf(
+            $firstChild instanceof MarkupInterface &&
+            $this->isBlockTag($firstChild) &&
+            !$this->isWhiteSpaceSensitive($element)
+                ? $this->getNewLine().'%s'.$this->getIndent()
+                : '%s',
+            $this->formatElementChildren($element)
+        );
+    }
+
     protected function formatPairTag($pattern, MarkupElement $element)
     {
         return sprintf(
             $pattern,
             $element->hasChildren()
-                ? sprintf(
-                    $this->isBlockTag($element)
-                        ? $this->getNewLine().'%s'.$this->getIndent()
-                        : '%s',
-                    $this->formatElementChildren($element)
-                )
+                ? $this->formatPairTagChildren($element)
                 : ''
         );
     }

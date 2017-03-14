@@ -15,6 +15,10 @@ class HtmlFormat extends XmlFormat
     public function __construct(Formatter $formatter = null)
     {
         $this->setOptions([
+            'white_space_sensitive_tags' => [
+                'pre',
+                'textarea',
+            ],
             'inline_tags' => [
                 'a',
                 'abbr',
@@ -79,11 +83,20 @@ class HtmlFormat extends XmlFormat
         if ($element->hasParent()) {
             for ($element = $element->getParent(); $element->hasParent(); $element = $element->getParent()) {
                 if ($element instanceof MarkupInterface) {
+                    if ($this->isWhiteSpaceSensitive($element)) {
+                        return false;
+                    }
+
                     return $this->isBlockTag($element);
                 }
             }
         }
 
         return true;
+    }
+
+    public function isWhiteSpaceSensitive(MarkupInterface $element)
+    {
+        return $element->belongsTo($this->getOption('white_space_sensitive_tags'));
     }
 }

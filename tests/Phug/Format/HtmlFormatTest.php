@@ -9,6 +9,7 @@ use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\HtmlFormat;
 
@@ -190,7 +191,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            '<!DOCTYPE html><p>'.PHP_EOL.'<span><div></div></span></p>',
+            '<!DOCTYPE html>'.PHP_EOL.
+            '<p><span><div></div></span></p>',
             trim($formatter->format($document))
         );
 
@@ -211,9 +213,48 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            '<!DOCTYPE html><p>'.PHP_EOL.'<span><?php if ($condition) { ?>'.
+            '<!DOCTYPE html>'.PHP_EOL.
+            '<p><span><?php if ($condition) { ?>'.
             '<?php foreach ($items as $item) { ?><div></div><?php } ?>'.
             '<?php } ?></span></p>',
+            trim($formatter->format($document))
+        );
+    }
+
+    /**
+     * @covers ::isWhiteSpaceSensitive
+     */
+    public function testIsWhiteSpaceSensitive()
+    {
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement('html'));
+        $div1 = new MarkupElement('div');
+        $div4 = new MarkupElement('div');
+        $div4->appendChild(new TextElement('foo'));
+        $div1->appendChild($div4);
+        $document->appendChild($div1);
+        $div2 = new MarkupElement('div');
+        $div3 = new MarkupElement('div');
+        $div3->appendChild(new MarkupElement('span'));
+        $div3->appendChild(new MarkupElement('i'));
+        $div2->appendChild($div3);
+        $document->appendChild($div2);
+        $textarea = new MarkupElement('textarea');
+        $textarea->appendChild(new MarkupElement('div'));
+        $document->appendChild($textarea);
+        $formatter = new Formatter([
+            'pretty' => '  ',
+        ]);
+
+        self::assertSame(
+            '<!DOCTYPE html>'.PHP_EOL.
+            '<div>'.PHP_EOL.
+            '  <div>foo</div>'.PHP_EOL.
+            '</div>'.PHP_EOL.
+            '<div>'.PHP_EOL.
+            '  <div><span></span><i></i></div>'.PHP_EOL.
+            '</div>'.PHP_EOL.
+            '<textarea><div></div></textarea>',
             trim($formatter->format($document))
         );
     }

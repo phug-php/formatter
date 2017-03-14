@@ -301,7 +301,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $type = $doctype->getValue();
         $pattern = $type ? 'custom_doctype' : 'doctype';
 
-        return $this->pattern($pattern, $type);
+        return $this->pattern($pattern, $type).$this->getNewLine();
     }
 
     protected function formatElementChildren(ElementInterface $element, $indentStep = 1)
