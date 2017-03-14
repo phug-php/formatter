@@ -15,7 +15,6 @@ use Phug\Formatter\Format\HtmlFormat;
 class VariableElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @group i
      * @covers \Phug\Formatter\AbstractFormat::formatVariableElement
      * @covers ::<public>
      */

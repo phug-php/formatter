@@ -87,6 +87,21 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($document)
         );
 
+        $do = new CodeElement('do');
+        $do->appendChild(new MarkupElement('img'));
+        $while = new CodeElement('while ($i < 2);');
+        $document = new DocumentElement();
+        $document->appendChild($do);
+        $document->appendChild($while);
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format'   => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<?php do { ?><img /><?php } while ($i < 2); ?>',
+            $xmlFormat($document)
+        );
+
         $if = new CodeElement('if (true)');
         $if->appendChild(new VariableElement(
             new CodeElement('$a'),
