@@ -245,6 +245,9 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $textarea = new MarkupElement('textarea');
         $textarea->appendChild(new MarkupElement('div'));
         $document->appendChild($textarea);
+        $section = new MarkupElement('section');
+        $section->appendChild(new MarkupElement('div', [new MarkupElement('div')]));
+        $document->appendChild($section);
         $formatter = new Formatter([
             'pretty' => '  ',
         ]);
@@ -257,7 +260,12 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
             '<div>'.PHP_EOL.
             '  <div><span></span><i></i></div>'.PHP_EOL.
             '</div>'.PHP_EOL.
-            '<textarea><div></div></textarea>',
+            '<textarea><div></div></textarea>'.PHP_EOL.
+            '<section>'.PHP_EOL.
+            '  <div>'.PHP_EOL.
+            '    <div></div>'.PHP_EOL.
+            '  </div>'.PHP_EOL.
+            '</section>',
             trim($formatter->format($document))
         );
     }
