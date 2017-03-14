@@ -46,6 +46,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::isSelfClosingTag
      * @covers ::isBlockTag
+     * @covers ::isWhiteSpaceSensitive
      * @covers ::formatMarkupElement
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
@@ -269,6 +270,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::isSelfClosingTag
      * @covers ::isBlockTag
+     * @covers ::isWhiteSpaceSensitive
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
      * @covers ::formatMarkupElement

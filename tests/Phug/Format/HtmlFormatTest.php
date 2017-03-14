@@ -175,6 +175,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::isBlockTag
+     * @covers ::formatPairTagChildren
      */
     public function testIsBlockTag()
     {
@@ -222,7 +223,9 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::isBlockTag
      * @covers ::isWhiteSpaceSensitive
+     * @covers ::formatPairTagChildren
      */
     public function testIsWhiteSpaceSensitive()
     {
