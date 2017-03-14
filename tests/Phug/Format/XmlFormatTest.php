@@ -68,6 +68,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::formatElementChildren
+     * @covers \Phug\Formatter\Element\CodeElement::isCodeBlock
      */
     public function testConditionals()
     {
