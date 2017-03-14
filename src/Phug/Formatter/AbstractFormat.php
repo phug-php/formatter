@@ -308,14 +308,21 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $indentLevel = $this->formatter->getLevel();
         $this->formatter->setLevel($indentLevel + $indentStep);
-        $children = array_map([$this->formatter, 'format'], $element->getChildren());
-        for ($i = 1, $length = count($children); $i < $length; $i++) {
-            if (substr($children[$i - 1], -3) === ' ?>' && substr($children[$i], 0, 6) === '<?php ') {
-                $children[$i - 1] = substr($children[$i - 1], 0, -2);
-                $children[$i] = substr($children[$i], 6);
+        $content = '';
+        $previous = null;
+        foreach ($element->getChildren() as $child) {
+            $childContent = $this->formatter->format($child);
+            if ($child instanceof CodeElement &&
+                $previous instanceof CodeElement &&
+                $previous->isCodeBlock() &&
+                $child->isCodeBlock()
+            ) {
+                $content = substr($content, 0, -2);
+                $childContent = preg_replace('/^<\?(?:php)?\s/', '', $childContent);
             }
+            $content .= $childContent;
+            $previous = $child;
         }
-        $content = implode('', $children);
         $this->formatter->setLevel($indentLevel);
 
         return $content;

@@ -11,6 +11,7 @@ use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
+use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\XmlFormat;
@@ -68,7 +69,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatElementChildren
      */
-    public function testElementsMerge()
+    public function testConditionals()
     {
         $if = new CodeElement('if (true)');
         $if->appendChild(new MarkupElement('img'));
@@ -78,12 +79,34 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document->appendChild($if);
         $document->appendChild($else);
         $xmlFormat = new XmlFormat(new Formatter([
-            'default_format' => XmlFormat::class,
+            'default_format'   => XmlFormat::class,
         ]));
 
         self::assertSame(
             '<?php if (true) { ?><img /><?php } else { ?><img /><?php } ?>',
             $xmlFormat($document)
+        );
+
+        $if = new CodeElement('if (true)');
+        $if->appendChild(new VariableElement(
+            new CodeElement('$a'),
+            new ExpressionElement('2')
+        ));
+        $else = new CodeElement('else');
+        $else->appendChild(new VariableElement(
+            new CodeElement('$a'),
+            new ExpressionElement('4')
+        ));
+        $document = new DocumentElement();
+        $document->appendChild($if);
+        $document->appendChild($else);
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            2,
+            eval('?>'.$xmlFormat($document).'<?php return $a;')
         );
     }
 
@@ -139,19 +162,23 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
         ]));
+        $document = new DocumentElement();
+        $document->appendChild($input);
 
         self::assertSame(
             '<input type="checkbox" checked="checked" />',
-            $xmlFormat($input)
+            $xmlFormat($document)
         );
 
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('$foo'), 'checked'));
+        $document = new DocumentElement();
+        $document->appendChild($input);
 
         self::assertSame(
             '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="checked" />',
-            $xmlFormat($input)
+            $xmlFormat($document)
         );
 
         $input = new MarkupElement('input');
@@ -161,10 +188,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
                 new ExpressionElement('"user"')
             )
         );
+        $document = new DocumentElement();
+        $document->appendChild($input);
 
         self::assertSame(
             '<input (name)="user" />',
-            $xmlFormat($input)
+            $xmlFormat($document)
         );
 
         $input = new MarkupElement('input');
@@ -173,10 +202,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             new ExpressionElement('$foo'),
             new ExpressionElement('$bar')
         ));
+        $document = new DocumentElement();
+        $document->appendChild($input);
 
         self::assertSame(
             '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="<?= (isset($bar) ? $bar : \'\') ?>" />',
-            $xmlFormat($input)
+            $xmlFormat($document)
         );
 
         $input = new MarkupElement('input');
@@ -185,12 +216,14 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             new ExpressionElement('$foo'),
             new ExpressionElement('true')
         ));
+        $document = new DocumentElement();
+        $document->appendChild($input);
 
         self::assertSame(
             '<input type="checkbox" '.
             '<?= $__value=(isset($foo) ? $foo : \'\') ?>='.
             '"<?= (isset($__value) ? $__value : \'\') ?>" />',
-            $xmlFormat($input)
+            $xmlFormat($document)
         );
     }
 

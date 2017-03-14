@@ -4,6 +4,7 @@ namespace Phug\Test\Element;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Format\HtmlFormat;
@@ -14,6 +15,7 @@ use Phug\Formatter\Format\HtmlFormat;
 class VariableElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @group i
      * @covers \Phug\Formatter\AbstractFormat::formatVariableElement
      * @covers ::<public>
      */
@@ -26,8 +28,10 @@ class VariableElementTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,
         ]);
+        $document = new DocumentElement();
+        $document->appendChild($variable);
 
-        self::assertSame('<?php $foo=42 ?>', $formatter->format($variable));
+        self::assertSame('<?php $foo=42 ?>', $formatter->format($document));
 
         $value = new ExpressionElement('$bar');
         $value->escape();
@@ -39,7 +43,9 @@ class VariableElementTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,
         ]);
+        $document = new DocumentElement();
+        $document->appendChild($variable);
 
-        self::assertSame('<?php $foo=htmlspecialchars((isset($bar) ? $bar : \'\')) ?>', $formatter->format($variable));
+        self::assertSame('<?php $foo=htmlspecialchars((isset($bar) ? $bar : \'\')) ?>', $formatter->format($document));
     }
 }
