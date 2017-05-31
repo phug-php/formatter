@@ -4,7 +4,6 @@ namespace Phug\Formatter\Format;
 
 use Phug\Formatter;
 use Phug\Formatter\MarkupInterface;
-use Phug\FormatterException;
 
 abstract class XhtmlFormat extends XmlFormat
 {
