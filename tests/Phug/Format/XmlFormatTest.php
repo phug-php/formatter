@@ -32,13 +32,25 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $document = new DocumentElement();
         $document->appendChild(new DoctypeElement());
-        $document->appendChild(new MarkupElement('img'));
+        $document->appendChild(new MarkupElement('img', true));
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
         ]));
 
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img />',
+            $xmlFormat($document)
+        );
+
+        $document = new DocumentElement();
+        $document->appendChild(new DoctypeElement());
+        $document->appendChild(new MarkupElement('img'));
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<?xml version="1.0" encoding="utf-8" ?><img></img>',
             $xmlFormat($document)
         );
     }
@@ -75,9 +87,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $call = new CodeElement('call_something()');
         $if = new CodeElement('if (true)');
-        $if->appendChild(new MarkupElement('img'));
+        $if->appendChild(new MarkupElement('img', true));
         $else = new CodeElement('else');
-        $else->appendChild(new MarkupElement('img'));
+        $else->appendChild(new MarkupElement('img', true));
         $document = new DocumentElement();
         $document->appendChild($call);
         $document->appendChild($if);
@@ -92,7 +104,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         );
 
         $do = new CodeElement('do');
-        $do->appendChild(new MarkupElement('img'));
+        $do->appendChild(new MarkupElement('img', true));
         $while = new CodeElement('while ($i < 2);');
         $document = new DocumentElement();
         $document->appendChild($do);
@@ -134,7 +146,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingFormatHandler()
     {
-        $img = new MarkupElement('img');
+        $img = new MarkupElement('img', true);
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
         ]));
@@ -154,7 +166,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatSingleTagWithAttributes()
     {
-        $img = new MarkupElement('img');
+        $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
@@ -175,7 +187,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanTrueAttribute()
     {
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('true')));
         $xmlFormat = new XmlFormat(new Formatter([
@@ -189,7 +201,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($document)
         );
 
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('$foo'), 'checked'));
         $document = new DocumentElement();
@@ -200,7 +212,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($document)
         );
 
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(
             new AttributeElement(
                 new ExpressionElement('"(name)"'),
@@ -215,7 +227,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($document)
         );
 
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement(
             new ExpressionElement('$foo'),
@@ -229,7 +241,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             $xmlFormat($document)
         );
 
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement(
             new ExpressionElement('$foo'),
@@ -254,7 +266,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatBooleanFalseAttribute()
     {
-        $input = new MarkupElement('input');
+        $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('false')));
         $xmlFormat = new XmlFormat(new Formatter([
@@ -277,8 +289,8 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      */
     public function testChildrenInATag()
     {
-        $input = new MarkupElement('input');
-        $input->appendChild(new MarkupElement('i'));
+        $input = new MarkupElement('input', false);
+        $input->appendChild(new MarkupElement('i', true));
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
         ]));
@@ -427,7 +439,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             '<a<?= $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
             '(["data-user" => ["name" => ["last" => "Trosvald"]]], '.
-            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]) ?> />',
+            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]) ?>></a>',
             $formatter->format($link)
         );
 

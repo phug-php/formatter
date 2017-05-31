@@ -17,11 +17,17 @@ class MarkupElement extends AbstractElement implements MarkupInterface
     use NameTrait;
     use MarkupTrait;
 
+    /**
+     * @var bool
+     */
+    protected $autoClosed = false;
+
     public function __construct()
     {
         $arguments = new UnorderedArguments(func_get_args());
 
         $name = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
+        $this->autoClosed = $arguments->optional('boolean');
         $parent = $arguments->optional(NodeInterface::class);
         $attributes = $arguments->optional(SplObjectStorage::class);
         $children = $arguments->optional('array');
@@ -43,5 +49,13 @@ class MarkupElement extends AbstractElement implements MarkupInterface
                 return $attribute->getValue();
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoClosed()
+    {
+        return $this->autoClosed;
     }
 }

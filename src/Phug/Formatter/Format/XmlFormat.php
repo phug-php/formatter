@@ -94,9 +94,18 @@ class XmlFormat extends AbstractFormat
         return $this->format($element);
     }
 
-    protected function isSelfClosingTag(MarkupInterface $element)
+    protected function isSelfClosingTag(MarkupInterface $element, $isSelfClosing = null)
     {
-        return !$element->hasChildren();
+        if (is_null($isSelfClosing)) {
+            $isSelfClosing = $element->isAutoClosed();
+        }
+
+        if ($isSelfClosing && $element->hasChildren()) {
+            throw new FormatterException($element->getName().' is a self closing element: '.
+                '<'.$element->getName().'/> but contains nested content.');
+        }
+
+        return $isSelfClosing;
     }
 
     protected function isBlockTag(MarkupInterface $element)

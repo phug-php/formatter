@@ -133,7 +133,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssignmentHandlersOption()
     {
-        $img = new MarkupElement('img');
+        $img = new MarkupElement('img', true);
         $data = new SplObjectStorage();
         $data->attach(new ExpressionElement('["user" => "Bob"]'));
         $assignment = new AssignmentElement('data', $data, $img);
@@ -201,7 +201,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssignmentHandlersWithYield()
     {
-        $img = new MarkupElement('img');
+        $img = new MarkupElement('img', true);
         $data = new SplObjectStorage();
         $data->attach(new ExpressionElement('$var'));
         $assignment = new AssignmentElement('foo', $data, $img);

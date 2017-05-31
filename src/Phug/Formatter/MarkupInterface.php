@@ -17,4 +17,6 @@ interface MarkupInterface extends ElementInterface
     public function getAssignments();
 
     public function getAssignmentsByName($name);
+
+    public function isAutoClosed();
 }

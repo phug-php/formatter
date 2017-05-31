@@ -14,4 +14,9 @@ class DocumentElement extends AbstractElement implements MarkupInterface
     {
         return 'document';
     }
+
+    public function isAutoClosed()
+    {
+        return false;
+    }
 }

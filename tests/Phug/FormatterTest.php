@@ -94,7 +94,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     public function testSetFormat()
     {
         $formatter = new Formatter();
-        $img = new MarkupElement('img');
+        $img = new MarkupElement('img', true);
 
         $formatter->setFormat('html');
 

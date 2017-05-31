@@ -36,7 +36,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            '<img src="/foo/bar.png" alt="text" />',
+            '<img src="/foo/bar.png" alt="text"></img>',
             $formatter->format($img)
         );
         $attributes = new AttributeElement('foo', '/foo/bar.png');
