@@ -100,7 +100,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(HtmlFormat::class, $formatter->getFormat());
         self::assertSame(
-            '<img>',
+            '<img/>',
             $formatter->format($img)
         );
 

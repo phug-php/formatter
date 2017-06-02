@@ -291,6 +291,10 @@ class XmlFormat extends AbstractFormat
         $attributes = $this->formatAttributes($element);
 
         if ($this->isSelfClosingTag($element)) {
+            if ($element->isAutoClosed() && $this->hasPattern('explicit_closing_tag')) {
+                return $this->pattern('explicit_closing_tag', $tag.$attributes);
+            }
+
             return $this->pattern('self_closing_tag', $tag.$attributes);
         }
 

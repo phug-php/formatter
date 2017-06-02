@@ -65,6 +65,16 @@ trait HelperTrait
     /**
      * @param $name
      *
+     * @return bool
+     */
+    public function hasHelper($name)
+    {
+        return $this->helperMethod($name, 'has', func_get_args());
+    }
+
+    /**
+     * @param $name
+     *
      * @return mixed
      */
     public function getHelper($name)

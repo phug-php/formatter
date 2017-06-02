@@ -20,6 +20,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @group i
      */
     public function testHtmlFormat()
     {
@@ -28,6 +29,14 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<img>',
+            $htmlFormat($img)
+        );
+
+        $img = new MarkupElement('img', true);
+        $htmlFormat = new HtmlFormat(new Formatter());
+
+        self::assertSame(
+            '<img/>',
             $htmlFormat($img)
         );
     }

@@ -13,9 +13,19 @@ trait PatternTrait
 
     /**
      * @param $name
+     *
+     * @return bool
+     */
+    public function hasPattern($name)
+    {
+        return $this->hasHelper($this->patternName($name));
+    }
+
+    /**
+     * @param $name
      * @param $pattern
      *
-     * @return AbstractFormat
+     * @return PatternTrait
      */
     public function addPattern($name, $pattern)
     {
