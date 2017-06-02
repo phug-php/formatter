@@ -20,7 +20,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
-     * @group i
      */
     public function testHtmlFormat()
     {
