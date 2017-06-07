@@ -29,7 +29,7 @@ class Formatter implements OptionInterface
     use OptionTrait;
 
     /**
-     * @var FormatInterface
+     * @var FormatInterface|string
      */
     private $format;
 
@@ -106,11 +106,41 @@ class Formatter implements OptionInterface
     /**
      * Return current format.
      *
-     * @return FormatInterface
+     * @return FormatInterface|string
      */
     public function getFormat()
     {
         return $this->format;
+    }
+
+    /**
+     * Return current format as instance of FormatInterface.
+     *
+     * @param FormatInterface|string optional format, if missing current format is used
+     *
+     * @return FormatInterface
+     */
+    public function getFormatInstance($format = null)
+    {
+        $format = $format ?: $this->format;
+
+        if (!($format instanceof FormatInterface)) {
+            $format = new $format($this);
+        }
+
+        return $format;
+    }
+
+    /**
+     * Handle PHP code with the pattern php_handle_code.
+     *
+     * @param string $phpCode
+     *
+     * @return string
+     */
+    public function handleCode($phpCode)
+    {
+        return $this->getFormatInstance()->handleCode($phpCode);
     }
 
     /**
@@ -205,11 +235,7 @@ class Formatter implements OptionInterface
             }
         }
 
-        $format = $format ?: $this->format;
-
-        if (!($format instanceof FormatInterface)) {
-            $format = new $format($this);
-        }
+        $format = $this->getFormatInstance($format);
 
         $format->setFormatter($this);
 

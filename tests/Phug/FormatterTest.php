@@ -227,6 +227,21 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::handleCode
+     * @covers ::handleCode
+     * @covers ::getFormatInstance
+     */
+    public function testHandleCode()
+    {
+        $formatter = new Formatter();
+
+        self::assertSame(
+            '<?php $foo = "bar"; ?>',
+            $formatter->handleCode('$foo = "bar";')
+        );
+    }
+
+    /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      */

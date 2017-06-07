@@ -23,5 +23,7 @@ interface FormatInterface
 
     public function setPhpTokenHandler($phpTokenId, $handler);
 
+    public function handleCode($phpCode);
+
     public function __invoke(ElementInterface $element);
 }

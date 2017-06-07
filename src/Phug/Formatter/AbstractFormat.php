@@ -184,6 +184,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->setOption(['php_token_handlers', $phpTokenId], $handler);
     }
 
+    /**
+     * Handle PHP code with the pattern php_handle_code.
+     *
+     * @param string $phpCode
+     *
+     * @return string
+     */
+    public function handleCode($phpCode)
+    {
+        return $this->pattern('php_handle_code', $phpCode);
+    }
+
     protected function getNewLine()
     {
         $pretty = $this->getOption('pretty');
@@ -252,7 +264,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_expression_escape', $value);
         }
 
-        return $this->pattern('php_handle_code', $this->pattern('save_value', $variable, $value));
+        return $this->handleCode($this->pattern('save_value', $variable, $value));
     }
 
     protected function formatCodeElement(CodeElement $code)
@@ -265,7 +277,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             );
         }
 
-        return $this->pattern('php_handle_code', $php);
+        return $this->handleCode($php);
     }
 
     protected function formatExpressionElement(ExpressionElement $code)
