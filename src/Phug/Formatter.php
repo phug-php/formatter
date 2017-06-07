@@ -106,7 +106,7 @@ class Formatter implements OptionInterface
     /**
      * Return current format.
      *
-     * @return string
+     * @return FormatInterface
      */
     public function getFormat()
     {
