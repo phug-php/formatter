@@ -20,6 +20,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::formatMarkupElement
      */
     public function testHtmlFormat()
     {
@@ -152,7 +153,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::isSelfClosingTag
+     * @covers                   \Phug\Formatter\Format\XmlFormat::isSelfClosingTag
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage input is a self closing element: <input/> but contains nested content.
      */

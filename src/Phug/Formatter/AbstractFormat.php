@@ -25,6 +25,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
+    const TRANSFORM_EXPRESSION = '%s';
     const PHP_HANDLE_CODE = '<?php %s ?>';
     const PHP_BLOCK_CODE = ' {%s}';
     const PHP_NESTED_HTML = ' ?>%s<?php ';
@@ -57,6 +58,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'patterns'           => [
                     'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
                     'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+                    'transform_expression'   => static::TRANSFORM_EXPRESSION,
                     'php_handle_code'        => static::PHP_HANDLE_CODE,
                     'php_display_code'       => static::PHP_DISPLAY_CODE,
                     'php_block_code'         => static::PHP_BLOCK_CODE,
@@ -235,7 +237,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatCode($code, $checked)
     {
-        return implode('', iterator_to_array($this->handleTokens($code, $checked)));
+        return implode('', iterator_to_array($this->handleTokens(
+            $this->pattern('transform_expression', $code),
+            $checked
+        )));
     }
 
     protected function formatVariableElement(VariableElement $element)

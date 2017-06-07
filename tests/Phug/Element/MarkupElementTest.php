@@ -18,20 +18,24 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractElement::__construct
      * @covers ::__construct
      * @covers ::getAttribute
+     * @covers ::isAutoClosed
      */
     public function testMarkupElement()
     {
         $attributes = new SplObjectStorage();
         $source = new AttributeElement('src', '/foo/bar.png');
         $attributes->attach($source);
-        $img = new MarkupElement('img', null, $attributes);
+        $img = new MarkupElement('img', null, false, $attributes);
         $altValue = new CodeElement('$alt');
         $alt = new AttributeElement('alt', $altValue);
         $img->getAttributes()->attach($alt);
         $mysteryCode = new CodeElement('$mystery');
         $mystery = new AttributeElement($mysteryCode, '42');
         $img->getAttributes()->attach($mystery);
+        $link = new MarkupElement('link', true);
 
+        self::assertFalse($img->isAutoClosed());
+        self::assertTrue($link->isAutoClosed());
         self::assertSame('img', $img->getName());
         self::assertTrue($img->getAttributes()->contains($source));
         self::assertTrue($img->getAttributes()->contains($alt));

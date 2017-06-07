@@ -228,6 +228,47 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
+     * @covers \Phug\Formatter\AbstractFormat::formatCode
+     */
+    public function testTransformExpression()
+    {
+        $formatter = new Formatter([
+            'patterns' => [
+                'transform_expression' => function ($expression) {
+                    return str_replace('.', '->', $expression);
+                },
+            ],
+        ]);
+
+        $code = new CodeElement('$bar = $foo.bar');
+        self::assertSame(
+            '<?php $bar = $foo->bar ?>',
+            $formatter->format($code, HtmlFormat::class)
+        );
+
+        $expression = new ExpressionElement('$foo.bar');
+        self::assertSame(
+            '<?= $foo->bar ?>',
+            $formatter->format($expression, HtmlFormat::class)
+        );
+
+        $formatter = new Formatter([
+            'patterns' => [
+                'transform_expression' => function ($expression) {
+                    return '$'.$expression;
+                },
+            ],
+        ]);
+
+        $expression = new ExpressionElement('foo');
+        self::assertSame(
+            '<?= (isset($foo) ? $foo : \'\') ?>',
+            $formatter->format($expression, HtmlFormat::class)
+        );
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      */
     public function testExpressionElement()
