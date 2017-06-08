@@ -237,7 +237,11 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document->appendChild($input);
 
         self::assertSame(
-            '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="<?= (isset($bar) ? $bar : \'\') ?>" />',
+            '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="'.
+            '<?= (is_array($_pug_temp = is_array($_pug_temp = (isset($bar) ? $bar : \'\')) '.
+            '&& (isset($foo) ? $foo : \'\') === "class"'.
+            ' ? implode(" ", $_pug_temp) : $_pug_temp) || is_object($_pug_temp) ? '.
+            'json_encode($_pug_temp) : $_pug_temp) ?>" />',
             $xmlFormat($document)
         );
 

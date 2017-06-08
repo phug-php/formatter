@@ -100,7 +100,8 @@ trait HandleVariable
     {
         if (!$checked ||
             $this->isInExclusionContext($tokens, $index) ||
-            $this->isInFunctionParams($tokens, $index)
+            $this->isInFunctionParams($tokens, $index) ||
+            $variable === '$_pug_temp'
         ) {
             return $variable;
         }

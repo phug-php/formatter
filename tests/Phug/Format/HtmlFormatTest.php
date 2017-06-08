@@ -131,7 +131,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
-            '<input type="text" value="<?= a_function(42) ?>">',
+            '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || is_object($_pug_temp) '.
+            '? json_encode($_pug_temp) : $_pug_temp) ?>">',
             $htmlFormat($input)
         );
     }
@@ -147,7 +148,9 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
-            '<input type="text" value="<?= (isset($foo) ? $foo : \'\') ?>">',
+            '<input type="text" value="'.
+            '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || is_object($_pug_temp) '.
+            '? json_encode($_pug_temp) : $_pug_temp) ?>">',
             $htmlFormat($input)
         );
     }

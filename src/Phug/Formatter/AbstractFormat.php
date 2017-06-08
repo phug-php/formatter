@@ -23,6 +23,15 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     use OptionTrait;
     use PatternTrait;
 
+    const CLASS_ATTRIBUTE = '(is_array($_pug_temp = %s) ? implode(" ", $_pug_temp) : $_pug_temp)';
+    const STRING_ATTRIBUTE = '
+        (is_array($_pug_temp = %s) || is_object($_pug_temp)
+            ? json_encode($_pug_temp)
+            : $_pug_temp)';
+    const DYNAMIC_ATTRIBUTE = '
+        (is_array($_pug_temp = is_array($_pug_temp = %s) && %s === "class"
+            ? implode(" ", $_pug_temp) : $_pug_temp) || is_object($_pug_temp) ? json_encode($_pug_temp)
+            : $_pug_temp)';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
     const TRANSFORM_EXPRESSION = '%s';
@@ -41,6 +50,25 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     public function __construct(Formatter $formatter = null)
     {
+        $patterns = [
+            'class_attribute'        => static::CLASS_ATTRIBUTE,
+            'string_attribute'       => static::STRING_ATTRIBUTE,
+            'dynamic_attribute'      => static::DYNAMIC_ATTRIBUTE,
+            'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
+            'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+            'transform_expression'   => static::TRANSFORM_EXPRESSION,
+            'php_handle_code'        => static::PHP_HANDLE_CODE,
+            'php_display_code'       => static::PHP_DISPLAY_CODE,
+            'php_block_code'         => static::PHP_BLOCK_CODE,
+            'php_nested_html'        => static::PHP_NESTED_HTML,
+            'doctype'                => static::DOCTYPE,
+            'custom_doctype'         => static::CUSTOM_DOCTYPE,
+        ];
+        foreach ($patterns as &$pattern) {
+            if (is_string($pattern) && substr($pattern, 0, 1) === "\n") {
+                $pattern = preg_replace('/\s+/', ' ', trim($pattern));
+            }
+        }
         $this
             ->setFormatter($formatter ?: new Formatter())
             ->setOptionsRecursive([
@@ -55,17 +83,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
                     return call_user_func_array($function, $args);
                 },
-                'patterns'           => [
-                    'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
-                    'html_text_escape'       => static::HTML_TEXT_ESCAPE,
-                    'transform_expression'   => static::TRANSFORM_EXPRESSION,
-                    'php_handle_code'        => static::PHP_HANDLE_CODE,
-                    'php_display_code'       => static::PHP_DISPLAY_CODE,
-                    'php_block_code'         => static::PHP_BLOCK_CODE,
-                    'php_nested_html'        => static::PHP_NESTED_HTML,
-                    'doctype'                => static::DOCTYPE,
-                    'custom_doctype'         => static::CUSTOM_DOCTYPE,
-                ],
+                'patterns'           => $patterns,
                 'pretty'             => false,
                 'element_handlers'   => [
                     AssignmentElement::class => [$this, 'formatAssignmentElement'],
@@ -280,9 +298,28 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->handleCode($php);
     }
 
+    protected function formatAttributeValueAccordingToName($value, $name)
+    {
+        if ($name instanceof ExpressionElement) {
+            return $this->pattern('dynamic_attribute', $value, $name->getValue());
+        }
+
+        if ($name === 'class') {
+            $value = $this->pattern('class_attribute', $value);
+        }
+
+        return $this->pattern('string_attribute', $value);
+    }
+
     protected function formatExpressionElement(ExpressionElement $code)
     {
         $value = $code->getValue();
+
+        if ($link = $code->getLink()) {
+            if ($link instanceof AttributeElement) {
+                $value = $this->formatAttributeValueAccordingToName($value, $link->getName());
+            }
+        }
 
         if ($code->hasStaticValue()) {
             $value = strval(eval('return '.$value.';'));

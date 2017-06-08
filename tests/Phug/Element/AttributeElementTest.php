@@ -94,4 +94,29 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             $formatter->format($input)
         );
     }
+
+    /**
+     * @group i
+     * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     */
+    public function testSpecialAttributes()
+    {
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('class', new ExpressionElement('[1,2,3]')));
+        $link->getAttributes()->attach(new AttributeElement('data-class', new ExpressionElement('[1,2,3]')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        ob_start();
+        eval('?>'.$formatter->format($link));
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<a class="1 2 3" data-class="[1,2,3]"></a>',
+            $actual
+        );
+    }
 }

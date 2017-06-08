@@ -25,4 +25,12 @@ class AttributeElement extends AbstractValueElement
 
         parent::__construct($parent, $children);
     }
+
+    public function setValue($value)
+    {
+        parent::setValue($value);
+        if ($value instanceof ExpressionElement) {
+            $value->linkTo($this);
+        }
+    }
 }
