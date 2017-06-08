@@ -23,15 +23,15 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     use OptionTrait;
     use PatternTrait;
 
-    const CLASS_ATTRIBUTE = '(is_array($_pug_temp = %s) ? implode(" ", $_pug_temp) : $_pug_temp)';
+    const CLASS_ATTRIBUTE = '(is_array($_pug_temp = %s) ? implode(" ", $_pug_temp) : strval($_pug_temp))';
     const STRING_ATTRIBUTE = '
         (is_array($_pug_temp = %s) || is_object($_pug_temp)
             ? json_encode($_pug_temp)
-            : $_pug_temp)';
+            : strval($_pug_temp))';
     const DYNAMIC_ATTRIBUTE = '
         (is_array($_pug_temp = is_array($_pug_temp = %s) && %s === "class"
             ? implode(" ", $_pug_temp) : $_pug_temp) || is_object($_pug_temp) ? json_encode($_pug_temp)
-            : $_pug_temp)';
+            : strval($_pug_temp))';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
     const TRANSFORM_EXPRESSION = '%s';
