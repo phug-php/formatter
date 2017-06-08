@@ -4,6 +4,7 @@ namespace Phug\Test;
 
 use Phug\DependencyException;
 use Phug\Formatter;
+use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
@@ -264,6 +265,14 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $expression = new ExpressionElement('$foo.bar');
         self::assertSame(
             '<?= $foo->bar ?>',
+            $formatter->format($expression, HtmlFormat::class)
+        );
+
+        $expression = new AttributeElement('class', new ExpressionElement('$foo.bar'));
+        self::assertSame(
+            ' class="<?= (is_array($_pug_temp = '.
+            '(is_array($_pug_temp = $foo->bar) ? implode(" ", $_pug_temp) : $_pug_temp)) || is_object($_pug_temp) '.
+            '? json_encode($_pug_temp) : $_pug_temp) ?>"',
             $formatter->format($expression, HtmlFormat::class)
         );
 

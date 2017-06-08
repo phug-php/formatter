@@ -298,10 +298,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->handleCode($php);
     }
 
-    protected function formatAttributeValueAccordingToName($value, $name)
+    protected function formatAttributeValueAccordingToName($value, $name, $checked)
     {
         if ($name instanceof ExpressionElement) {
-            return $this->pattern('dynamic_attribute', $value, $name->getValue());
+            return $this->pattern('dynamic_attribute', $value, $this->formatCode($name->getValue(), $checked));
         }
 
         if ($name === 'class') {
@@ -315,12 +315,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $value = $code->getValue();
 
-        if ($link = $code->getLink()) {
-            if ($link instanceof AttributeElement) {
-                $value = $this->formatAttributeValueAccordingToName($value, $link->getName());
-            }
-        }
-
         if ($code->hasStaticValue()) {
             $value = strval(eval('return '.$value.';'));
             if ($code->isEscaped()) {
@@ -330,11 +324,19 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return $value;
         }
 
+        $value = $this->formatCode($value, $code->isChecked());
+
+        if ($link = $code->getLink()) {
+            if ($link instanceof AttributeElement) {
+                $value = $this->formatAttributeValueAccordingToName($value, $link->getName(), $code->isChecked());
+            }
+        }
+
         if ($code->isEscaped()) {
             $value = $this->pattern('html_expression_escape', $value);
         }
 
-        return $this->pattern('php_display_code', $this->formatCode($value, $code->isChecked()));
+        return $this->pattern('php_display_code', $value);
     }
 
     protected function formatTextElement(TextElement $text)
