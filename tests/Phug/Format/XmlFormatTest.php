@@ -240,7 +240,8 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="'.
             '<?= (is_array($_pug_temp = is_array($_pug_temp = (isset($bar) ? $bar : \'\')) '.
             '&& (isset($foo) ? $foo : \'\') === "class"'.
-            ' ? implode(" ", $_pug_temp) : $_pug_temp) || is_object($_pug_temp) ? '.
+            ' ? implode(" ", $_pug_temp) : $_pug_temp) || '.
+            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) ? '.
             'json_encode($_pug_temp) : strval($_pug_temp)) ?>" />',
             $xmlFormat($document)
         );

@@ -131,7 +131,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
-            '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || is_object($_pug_temp) '.
+            '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || '.
+            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
             '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">',
             $htmlFormat($input)
         );
@@ -149,7 +150,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<input type="text" value="'.
-            '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || is_object($_pug_temp) '.
+            '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || '.
+            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
             '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">',
             $htmlFormat($input)
         );

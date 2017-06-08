@@ -272,7 +272,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             ' class="<?= (is_array($_pug_temp = '.
             '(is_array($_pug_temp = $foo->bar) '.
-            '? implode(" ", $_pug_temp) : strval($_pug_temp))) || is_object($_pug_temp) '.
+            '? implode(" ", $_pug_temp) : strval($_pug_temp))) || '.
+            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
             '? json_encode($_pug_temp) : strval($_pug_temp)) ?>"',
             $formatter->format($expression, HtmlFormat::class)
         );
