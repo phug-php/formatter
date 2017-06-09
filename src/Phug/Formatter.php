@@ -18,14 +18,17 @@ use Phug\Formatter\Format\TransitionalFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\Formatter\FormatInterface;
 // Utils
+use Phug\Util\ModulesContainerInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\LevelTrait;
+use Phug\Util\Partial\ModuleTrait;
 use Phug\Util\Partial\OptionTrait;
 use Phug\Util\UnorderedArguments;
 
-class Formatter implements OptionInterface
+class Formatter implements ModulesContainerInterface, OptionInterface
 {
     use LevelTrait;
+    use ModuleTrait;
     use OptionTrait;
 
     /**
@@ -61,6 +64,7 @@ class Formatter implements OptionInterface
                 'transitional' => TransitionalFormat::class,
                 'xml'          => XmlFormat::class,
             ],
+            'modules'              => [],
         ], $options ?: []);
 
         $formatClassName = $this->getOption('default_format');
@@ -80,6 +84,9 @@ class Formatter implements OptionInterface
         $this->format = $formatClassName;
 
         $this->initDependencies();
+
+        $this->setExpectedModuleType(FormatterModuleInterface::class);
+        $this->addModules($this->getOption('modules'));
     }
 
     /**

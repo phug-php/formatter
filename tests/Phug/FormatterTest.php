@@ -295,6 +295,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      */
     public function testExpressionElement()

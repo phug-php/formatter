@@ -161,6 +161,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
@@ -182,8 +183,10 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
      * @covers ::formatExpressionElement
+     * @covers ::formatAttributeValueAccordingToName
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
+     * @covers \Phug\Formatter\Element\ExpressionElement::<public>
      */
     public function testFormatBooleanTrueAttribute()
     {
@@ -266,6 +269,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
      */
