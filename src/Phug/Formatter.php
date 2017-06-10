@@ -67,6 +67,9 @@ class Formatter implements ModulesContainerInterface, OptionInterface
             'modules'              => [],
         ], $options ?: []);
 
+        $this->setExpectedModuleType(FormatterModuleInterface::class);
+        $this->addModules($this->getOption('modules'));
+
         $formatClassName = $this->getOption('default_format');
 
         if (!is_a($formatClassName, FormatInterface::class, true)) {
@@ -84,9 +87,6 @@ class Formatter implements ModulesContainerInterface, OptionInterface
         $this->format = $formatClassName;
 
         $this->initDependencies();
-
-        $this->setExpectedModuleType(FormatterModuleInterface::class);
-        $this->addModules($this->getOption('modules'));
     }
 
     /**
