@@ -51,9 +51,10 @@ class Formatter implements ModulesContainerInterface, OptionInterface
     public function __construct(array $options = null)
     {
         $this->setOptionsRecursive([
-            'dependencies_storage' => 'pugModule',
-            'default_format'       => BasicFormat::class,
-            'formats'              => [
+            'dependencies_storage'        => 'pugModule',
+            'dependencies_storage_getter' => null,
+            'default_format'              => BasicFormat::class,
+            'formats'                     => [
                 'basic'        => BasicFormat::class,
                 'frameset'     => FramesetFormat::class,
                 'html'         => HtmlFormat::class,
@@ -210,7 +211,13 @@ class Formatter implements ModulesContainerInterface, OptionInterface
      */
     public function getDependencyStorage($name)
     {
-        return $this->dependencies->getStorageItem($name, $this->getOption('dependencies_storage'));
+        $dependencyStorage = $this->dependencies->getStorageItem($name, $this->getOption('dependencies_storage'));
+        $getter = $this->getOption('dependencies_storage_getter');
+        if ($getter) {
+            $dependencyStorage = $getter($dependencyStorage);
+        }
+
+        return $dependencyStorage;
     }
 
     /**

@@ -303,14 +303,21 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatAttributeValueAccordingToName($value, $name, $checked)
     {
         if ($name instanceof ExpressionElement) {
-            return $this->pattern('dynamic_attribute', $value, $this->formatCode($name->getValue(), $checked));
+            return $this->exportHelper('stand_alone_attribute_assignment').
+                '('.$this->formatCode($name->getValue(), $checked).', '.$value.')';
         }
 
         if ($name === 'class') {
-            $value = $this->pattern('class_attribute', $value);
+            return $this->exportHelper('stand_alone_class_attribute_assignment').
+                '('.$value.')';
         }
 
-        return $this->pattern('string_attribute', $value);
+        if ($name === 'style') {
+            return $this->exportHelper('stand_alone_style_attribute_assignment').
+                '('.$value.')';
+        }
+
+        return $this->pattern('string_attribute', $value, $this->formatCode($name, $checked));
     }
 
     protected function formatExpressionElement(ExpressionElement $code)

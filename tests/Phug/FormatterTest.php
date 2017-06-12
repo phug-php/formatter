@@ -269,13 +269,19 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         );
 
         $expression = new AttributeElement('class', new ExpressionElement('$foo.bar'));
+
+        ob_start();
+        $foo = (object) [
+            'bar' => ['gg', 'hh'],
+        ];
+        $php = $formatter->format($expression, HtmlFormat::class);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            ' class="<?= (is_array($_pug_temp = '.
-            '(is_array($_pug_temp = $foo->bar) '.
-            '? implode(" ", $_pug_temp) : strval($_pug_temp))) || '.
-            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
-            '? json_encode($_pug_temp) : strval($_pug_temp)) ?>"',
-            $formatter->format($expression, HtmlFormat::class)
+            ' class="gg hh"',
+            $actual
         );
 
         $formatter = new Formatter([
@@ -544,5 +550,14 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame('<?php $dep = ['.PHP_EOL.
             '  \'bar\' => 42,'.PHP_EOL.
             ']; ?>', $formatter->formatDependencies());
+
+        $formatter = new Formatter([
+            'dependencies_storage'        => 'dep',
+            'dependencies_storage_getter' => function ($php) {
+                return substr(ltrim($php), 1);
+            },
+        ]);
+
+        self::assertSame('dep[\'foo\']', $formatter->getDependencyStorage('foo'));
     }
 }

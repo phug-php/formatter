@@ -110,13 +110,31 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             'default_format' => HtmlFormat::class,
         ]);
 
+        $php = $formatter->format($link);
         ob_start();
-        eval('?>'.$formatter->format($link));
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
         self::assertSame(
             '<a class="1 2 3" data-class="[1,2,3]"></a>',
+            $actual
+        );
+
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('style', new ExpressionElement('["color" => "white"]')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        $php = $formatter->format($link);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<a style="color:white"></a>',
             $actual
         );
     }

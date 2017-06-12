@@ -4,6 +4,9 @@ namespace Phug\Formatter\Partial;
 
 trait AssignmentHelpersTrait
 {
+    /**
+     * @return $this
+     */
     protected function provideAttributeAssignments()
     {
         return $this->provideHelper('attribute_assignments', [
@@ -23,6 +26,9 @@ trait AssignmentHelpersTrait
         ]);
     }
 
+    /**
+     * @return $this
+     */
     protected function provideAttributeAssignment()
     {
         return $this->provideHelper('attribute_assignment', [
@@ -35,6 +41,27 @@ trait AssignmentHelpersTrait
         ]);
     }
 
+    /**
+     * @return $this
+     */
+    protected function provideStandAloneAttributeAssignment()
+    {
+        return $this->provideHelper('stand_alone_attribute_assignment', [
+            'attribute_assignment',
+            function ($attributeAssignment) {
+                return function ($name, $value) use ($attributeAssignment) {
+                    $attributes = [];
+                    $attributeAssignment($attributes, $name, $value);
+
+                    return $attributes[$name];
+                };
+            },
+        ]);
+    }
+
+    /**
+     * @return $this
+     */
     protected function provideAttributesAssignment()
     {
         return $this->provideHelper('attributes_assignment', [
@@ -65,6 +92,9 @@ trait AssignmentHelpersTrait
         ]);
     }
 
+    /**
+     * @return $this
+     */
     protected function provideClassAttributeAssignment()
     {
         return $this->addAttributeAssignment('class', function (&$attributes, $value) {
@@ -81,6 +111,9 @@ trait AssignmentHelpersTrait
         });
     }
 
+    /**
+     * @return $this
+     */
     protected function provideStyleAttributeAssignment()
     {
         return $this->addAttributeAssignment('style', function (&$attributes, $value) {
@@ -94,5 +127,39 @@ trait AssignmentHelpersTrait
 
             return implode(';', $styles);
         });
+    }
+
+    /**
+     * @return $this
+     */
+    protected function provideStandAloneClassAttributeAssignment()
+    {
+        return $this->provideHelper('stand_alone_class_attribute_assignment', [
+            'class_attribute_assignment',
+            function ($classAttributeAssignment) {
+                return function ($value) use ($classAttributeAssignment) {
+                    $attributes = [];
+
+                    return $classAttributeAssignment($attributes, $value);
+                };
+            },
+        ]);
+    }
+
+    /**
+     * @return $this
+     */
+    protected function provideStandAloneStyleAttributeAssignment()
+    {
+        return $this->provideHelper('stand_alone_style_attribute_assignment', [
+            'style_attribute_assignment',
+            function ($styleAttributeAssignment) {
+                return function ($value) use ($styleAttributeAssignment) {
+                    $attributes = [];
+
+                    return $styleAttributeAssignment($attributes, $value);
+                };
+            },
+        ]);
     }
 }

@@ -50,9 +50,12 @@ class XmlFormat extends AbstractFormat
             ])
             ->provideAttributeAssignments()
             ->provideAttributeAssignment()
+            ->provideStandAloneAttributeAssignment()
             ->provideAttributesAssignment()
             ->provideClassAttributeAssignment()
-            ->provideStyleAttributeAssignment();
+            ->provideStandAloneClassAttributeAssignment()
+            ->provideStyleAttributeAssignment()
+            ->provideStandAloneStyleAttributeAssignment();
 
         $handlers = $this->getOption('attribute_assignments');
         foreach ($handlers as $name => $handler) {
