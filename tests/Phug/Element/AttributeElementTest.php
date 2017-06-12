@@ -100,6 +100,9 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
      * @covers ::<public>
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneStyleAttributeAssignment
      */
     public function testSpecialAttributes()
     {

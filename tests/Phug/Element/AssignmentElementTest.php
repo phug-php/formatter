@@ -21,9 +21,12 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      * @covers ::<public>
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignments
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributesAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideClassAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStyleAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneStyleAttributeAssignment
      * @covers \Phug\Formatter\Format\XmlFormat::addAttributeAssignment
      * @covers \Phug\Formatter\Format\XmlFormat::requireHelper
      * @covers \Phug\Formatter\Format\XmlFormat::formatMarkupElement

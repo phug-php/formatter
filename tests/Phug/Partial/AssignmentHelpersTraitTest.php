@@ -74,4 +74,34 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
             $code
         );
     }
+
+    /**
+     * @covers ::provideStandAloneAttributeAssignment
+     * @covers ::provideStandAloneClassAttributeAssignment
+     * @covers ::provideStandAloneStyleAttributeAssignment
+     */
+    public function testStandAloneAttributesAssignment()
+    {
+        $format = new XmlFormat();
+        $helper = $format->getHelper('stand_alone_attribute_assignment');
+
+        self::assertSame(
+            'a b',
+            $helper('class', ['a', 'b'])
+        );
+
+        $helper = $format->getHelper('stand_alone_class_attribute_assignment');
+
+        self::assertSame(
+            'a b',
+            $helper(['a', 'b'])
+        );
+
+        $helper = $format->getHelper('stand_alone_style_attribute_assignment');
+
+        self::assertSame(
+            'a:b',
+            $helper(['a' => 'b'])
+        );
+    }
 }
