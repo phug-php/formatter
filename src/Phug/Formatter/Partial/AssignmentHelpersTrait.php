@@ -35,7 +35,9 @@ trait AssignmentHelpersTrait
             'attribute_assignments',
             function ($attributeAssignments) {
                 return function (&$attributes, $name, $value) use ($attributeAssignments) {
-                    $attributes[$name] = $attributeAssignments($attributes, $name, $value);
+                    if (isset($name) && $name !== '') {
+                        $attributes[$name] = $attributeAssignments($attributes, $name, $value);
+                    }
                 };
             },
         ]);

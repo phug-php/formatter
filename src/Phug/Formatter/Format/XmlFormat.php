@@ -13,6 +13,7 @@ use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
 use Phug\Formatter\Partial\AssignmentHelpersTrait;
 use Phug\FormatterException;
+use SplObjectStorage;
 
 class XmlFormat extends AbstractFormat
 {
@@ -277,8 +278,28 @@ class XmlFormat extends AbstractFormat
     protected function formatAttributes(MarkupElement $element)
     {
         $code = '';
-        $assignments = $element->getAssignments();
-        foreach ($assignments as $assignment) {
+        $names = [];
+        $needAttributeAssignment = false;
+        foreach ($element->getAttributes() as $attribute) {
+            $name = $attribute->getName();
+            if (($name instanceof ExpressionElement && !$name->hasStaticValue()) || in_array($name, $names)) {
+                $needAttributeAssignment = true;
+                break;
+            }
+
+            $names[] = $name;
+        }
+
+        if ($needAttributeAssignment) {
+            $attributeAssignment = $element->getAssignmentsByName('attributes');
+            if (!count($attributeAssignment)) {
+                $data = new SplObjectStorage();
+                $data->attach(new ExpressionElement('[]'));
+                $element->addAssignment(new AssignmentElement('attributes', $data, $element));
+            }
+        }
+
+        foreach ($element->getAssignments() as $assignment) {
             return $this->format($assignment);
         }
 

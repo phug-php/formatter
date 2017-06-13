@@ -212,9 +212,39 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild($input);
 
+        ob_start();
+        $foo = null;
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<input type="checkbox" <?= (isset($foo) ? $foo : \'\') ?>="checked" />',
-            $xmlFormat($document)
+            '<input type="checkbox" />',
+            $actual
+        );
+
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        $input = new MarkupElement('input', true);
+        $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
+        $input->getAttributes()->attach(new AttributeElement(new ExpressionElement('$foo'), 'checked'));
+        $document = new DocumentElement();
+        $document->appendChild($input);
+
+        ob_start();
+        $foo = 'checked';
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<input type="checkbox" checked="checked" />',
+            $actual
         );
 
         $input = new MarkupElement('input', true);
@@ -282,11 +312,37 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild($input);
 
+        ob_start();
+        $foo = null;
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<input type="checkbox" '.
-            '<?= $__value=(isset($foo) ? $foo : \'\') ?>='.
-            '"<?= (isset($__value) ? $__value : \'\') ?>" />',
-            $xmlFormat($document)
+            '<input type="checkbox" />',
+            $actual
+        );
+
+        $input = new MarkupElement('input', true);
+        $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
+        $input->getAttributes()->attach(new AttributeElement(
+            new ExpressionElement('$foo'),
+            new ExpressionElement('true')
+        ));
+        $document = new DocumentElement();
+        $document->appendChild($input);
+
+        ob_start();
+        $foo = 'checked';
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<input type="checkbox" checked="checked" />',
+            $actual
         );
     }
 

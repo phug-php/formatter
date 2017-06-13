@@ -237,6 +237,35 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     */
+    public function testClassMerge()
+    {
+        $formatter = new Formatter([
+            'pretty' => '  ',
+        ]);
+
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('class', 'tag-class'));
+        $link->getAttributes()->attach(new AttributeElement('class',
+            new ExpressionElement("['class1', 'class2']")
+        ));
+        $document = new DocumentElement();
+        $document->appendChild($link);
+
+        ob_start();
+        $php = $formatter->format($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<a class="tag-class class1 class2"></a>',
+            trim($actual)
+        );
+    }
+
+    /**
      * @covers ::isBlockTag
      * @covers ::isWhiteSpaceSensitive
      * @covers ::formatPairTagChildren

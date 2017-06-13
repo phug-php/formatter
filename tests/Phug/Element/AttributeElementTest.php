@@ -58,6 +58,12 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             'default_format' => HtmlFormat::class,
         ]);
 
+        ob_start();
+        $php = $formatter->format($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
             '<input (name)="user">',
             $formatter->format($input)
