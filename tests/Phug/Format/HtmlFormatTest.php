@@ -247,7 +247,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         $link = new MarkupElement('a');
         $link->getAttributes()->attach(new AttributeElement('class', 'tag-class'));
-        $link->getAttributes()->attach(new AttributeElement('class',
+        $link->getAttributes()->attach(new AttributeElement(
+            'class',
             new ExpressionElement("['class1', 'class2']")
         ));
         $document = new DocumentElement();
