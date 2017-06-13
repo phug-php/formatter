@@ -177,13 +177,15 @@ class XmlFormat extends AbstractFormat
         );
     }
 
-    protected function formatPairTag($pattern, MarkupElement $element)
+    protected function formatPairTag($open, $close, MarkupElement $element)
     {
-        return sprintf(
-            $pattern,
+        return $this->pattern(
+            'pair_tag',
+            $open,
             $element->hasChildren()
                 ? $this->formatPairTagChildren($element)
-                : ''
+                : '',
+            $close
         );
     }
 
@@ -328,11 +330,8 @@ class XmlFormat extends AbstractFormat
                 ? $this->getIndent().'%s'.$this->getNewLine()
                 : '%s',
             $this->formatPairTag(
-                (
-                    $this->pattern('open_pair_tag', $tag.$attributes).
-                    '%s'.
-                    $this->pattern('close_pair_tag', $tag)
-                ),
+                $this->pattern('open_pair_tag', $tag.$attributes),
+                $this->pattern('close_pair_tag', $tag),
                 $element
             )
         );

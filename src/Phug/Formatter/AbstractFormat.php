@@ -36,6 +36,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 : strval($_pug_temp))';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
+    const PAIR_TAG = '%s%s%s';
     const TRANSFORM_EXPRESSION = '%s';
     const PHP_HANDLE_CODE = '<?php %s ?>';
     const PHP_BLOCK_CODE = ' {%s}';
@@ -58,6 +59,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'dynamic_attribute'      => static::DYNAMIC_ATTRIBUTE,
             'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
+            'pair_tag'               => static::PAIR_TAG,
             'transform_expression'   => static::TRANSFORM_EXPRESSION,
             'php_handle_code'        => static::PHP_HANDLE_CODE,
             'php_display_code'       => static::PHP_DISPLAY_CODE,
