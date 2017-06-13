@@ -13,7 +13,8 @@ class CodeElement extends AbstractValueElement
             1
         );
 
-        return is_array($tokens[0]) &&
+        return isset($tokens[0]) &&
+            is_array($tokens[0]) &&
             (
                 end($tokens) === '}' ||
                 $this->hasChildren()
