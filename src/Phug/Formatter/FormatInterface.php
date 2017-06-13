@@ -13,6 +13,8 @@ interface FormatInterface
 
     public function format($element);
 
+    public function formatCode($code, $checked, $noTransformation = false);
+
     public function setFormatter(Formatter $formatter);
 
     public function removeElementHandler($className);

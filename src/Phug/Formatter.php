@@ -152,6 +152,20 @@ class Formatter implements ModulesContainerInterface, OptionInterface
     }
 
     /**
+     * Format a code with transform_expression and tokens handlers.
+     *
+     * @param string $code             input code
+     * @param bool   $checked          test variables
+     * @param bool   $noTransformation disable transform_expression
+     *
+     * @return string
+     */
+    public function formatCode($code, $checked = false, $noTransformation = false)
+    {
+        return $this->getFormatInstance()->formatCode($code, $checked, $noTransformation);
+    }
+
+    /**
      * Set a format name as the current or fallback to default if not available.
      *
      * @param string $doctype format identifier

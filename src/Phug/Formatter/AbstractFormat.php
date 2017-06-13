@@ -269,7 +269,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
     }
 
-    protected function formatCode($code, $checked, $noTransformation = false)
+    /**
+     * Format a code with transform_expression and tokens handlers.
+     *
+     * @param string $code
+     * @param bool   $checked
+     * @param bool   $noTransformation
+     *
+     * @return string
+     */
+    public function formatCode($code, $checked, $noTransformation = false)
     {
         if (!$noTransformation) {
             $code = $this->pattern('transform_expression', $code);
