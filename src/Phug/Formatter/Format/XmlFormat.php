@@ -189,7 +189,7 @@ class XmlFormat extends AbstractFormat
     protected function formatAssignmentValue($value)
     {
         if ($value instanceof ExpressionElement) {
-            return $this->format($value->getValue());
+            return $this->formatCode($value->getValue(), false);
         }
 
         return var_export(strval($this->format($value)), true);
@@ -233,7 +233,7 @@ class XmlFormat extends AbstractFormat
                         while (method_exists($value, 'getValue')) {
                             $value = $value->getValue();
                         }
-                        $arguments[] = $this->format($value);
+                        $arguments[] = $this->formatCode($value, false);
                     }
                 );
                 $markup->removedAssignment($attributesAssignment);
@@ -263,9 +263,7 @@ class XmlFormat extends AbstractFormat
         if (count($arguments)) {
             $expression = new ExpressionElement(
                 $this->exportHelper('attributes_assignment').
-                    '('.implode(', ', array_map(function ($argument) {
-                        return $this->formatCode($argument, true);
-                    }, $arguments)).')'
+                    '('.implode(', ', $arguments).')'
             );
             $expression->uncheck();
             $expression->preventFromTransformation();

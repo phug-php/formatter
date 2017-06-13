@@ -187,6 +187,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
      * @covers ::formatElementChildren
      * @covers ::formatPairTag
      * @covers \Phug\Formatter\Element\ExpressionElement::<public>
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInKeywordParams
      */
     public function testFormatBooleanTrueAttribute()
     {
@@ -250,6 +251,23 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<input type="checkbox" class="bar" />',
+            $actual
+        );
+
+        $input = new MarkupElement('input', true);
+        $getter = 'call_user_func(function ($foo) { foreach ($foo as $k => $v) { $foo[$k] = $v."a"; } return $foo; }, [false, "b"])';
+        $input->getAttributes()->attach(new AttributeElement('class', new ExpressionElement($getter)));
+        $document = new DocumentElement();
+        $document->appendChild($input);
+
+        ob_start();
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<input class="a ba" />',
             $actual
         );
 

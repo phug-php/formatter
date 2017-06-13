@@ -133,7 +133,6 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
-     * @covers \Phug\Formatter\Partial\HandleVariable::isInKeywordParams
      * @covers \Phug\Formatter\Element\ExpressionElement::<public>
      */
     public function testAssignmentHandlersOption()
@@ -179,10 +178,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<img<?= $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']('.
-            'call_user_func(function ($data) { $result = []; foreach ((isset($data) ? $data : \'\') as $name => $value'.
-            ') { $result["data-".(isset($name) ? $name : \'\')] = (isset($value) ? $value : \'\'); } '.
-            'return (isset($result) ? $result : \'\'); }, ["user" => "Bob"]), [\'data-foo\' => \'bar\'], '.
-            '[\'bar\' => \'foo\']) ?> />',
+            'call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) { '.
+            '$result["data-".$name] = $value; } return $result; }, ["user" => "Bob"]), '.
+            '[\'data-foo\' => \'bar\'], [\'bar\' => \'foo\']) ?> />',
             $formatter->format($img)
         );
 
