@@ -4,6 +4,22 @@ namespace Phug\Formatter\Partial;
 
 trait HandleVariable
 {
+    private function isInKeywordParams(&$tokens, $index)
+    {
+        $buffer = [];
+        $index--;
+        while ($index >= 0 && count($buffer) < 3) {
+            if (is_array($tokens[$index]) && trim($tokens[$index][1]) !== '') {
+                $buffer[] = $tokens[$index][0];
+            }
+            $index--;
+        }
+
+        return count($buffer) === 3 &&
+            $buffer[0] === T_DOUBLE_ARROW &&
+            $buffer[2] === T_AS;
+    }
+
     private function isInFunctionParams(&$tokens, $index)
     {
         $afterOpen = false;
@@ -101,6 +117,7 @@ trait HandleVariable
         if (!$checked ||
             $this->isInExclusionContext($tokens, $index) ||
             $this->isInFunctionParams($tokens, $index) ||
+            $this->isInKeywordParams($tokens, $index) ||
             $variable === '$_pug_temp'
         ) {
             return $variable;

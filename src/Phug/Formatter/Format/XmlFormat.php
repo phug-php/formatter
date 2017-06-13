@@ -263,9 +263,12 @@ class XmlFormat extends AbstractFormat
         if (count($arguments)) {
             $expression = new ExpressionElement(
                 $this->exportHelper('attributes_assignment').
-                '('.implode(', ', $arguments).')'
+                    '('.implode(', ', array_map(function ($argument) {
+                        return $this->formatCode($argument, true);
+                    }, $arguments)).')'
             );
             $expression->uncheck();
+            $expression->preventFromTransformation();
 
             $newElements[] = $expression;
         }

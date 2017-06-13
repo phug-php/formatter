@@ -19,6 +19,11 @@ class ExpressionElement extends AbstractValueElement
     protected $link;
 
     /**
+     * @var bool
+     */
+    protected $transformable = true;
+
+    /**
      * Link the expression to a meaningful context such as an attribute element.
      *
      * @param mixed $link
@@ -36,5 +41,21 @@ class ExpressionElement extends AbstractValueElement
     public function getLink()
     {
         return $this->link;
+    }
+
+    /**
+     * Prevent the expression from being transformed by customization patterns.
+     */
+    public function preventFromTransformation()
+    {
+        $this->transformable = false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTransformationAllowed()
+    {
+        return $this->transformable;
     }
 }

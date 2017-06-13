@@ -267,10 +267,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
     }
 
-    protected function formatCode($code, $checked)
+    protected function formatCode($code, $checked, $noTransformation = false)
     {
+        if (!$noTransformation) {
+            $code = $this->pattern('transform_expression', $code);
+        }
+
         return implode('', iterator_to_array($this->handleTokens(
-            $this->pattern('transform_expression', $code),
+            $code,
             $checked
         )));
     }
@@ -333,7 +337,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return $value;
         }
 
-        $value = $this->formatCode($value, $code->isChecked());
+        $value = $this->formatCode($value, $code->isChecked(), !$code->isTransformationAllowed());
 
         if ($link = $code->getLink()) {
             if ($link instanceof AttributeElement) {
