@@ -255,7 +255,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         );
 
         $input = new MarkupElement('input', true);
-        $getter = 'call_user_func(function ($foo) { foreach ($foo as $k => $v) { $foo[$k] = $v."a"; } return $foo; }, [false, "b"])';
+        $getter = 'call_user_func('.
+            'function ($foo) { foreach ($foo as $k => $v) { $foo[$k] = $v."a"; } return $foo; }, '.
+            '[false, "b"])';
         $input->getAttributes()->attach(new AttributeElement('class', new ExpressionElement($getter)));
         $document = new DocumentElement();
         $document->appendChild($input);
