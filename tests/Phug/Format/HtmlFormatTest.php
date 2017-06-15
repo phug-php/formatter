@@ -315,7 +315,6 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers ::isBlockTag
      * @covers ::isWhiteSpaceSensitive
      * @covers ::formatPairTagChildren
