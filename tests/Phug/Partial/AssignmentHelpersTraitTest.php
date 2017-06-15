@@ -76,6 +76,7 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group i
      * @covers ::provideStandAloneAttributeAssignment
      * @covers ::provideStandAloneClassAttributeAssignment
      * @covers ::provideStandAloneStyleAttributeAssignment
@@ -95,6 +96,13 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             'a b',
             $helper(['a', 'b'])
+        );
+
+        $helper = $format->getHelper('stand_alone_class_attribute_assignment');
+
+        self::assertSame(
+            'a c',
+            $helper(['a' => true, 'b' => false, 'c' => true])
         );
 
         $helper = $format->getHelper('stand_alone_style_attribute_assignment');

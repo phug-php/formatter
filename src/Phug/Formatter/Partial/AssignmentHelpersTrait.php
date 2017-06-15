@@ -104,7 +104,14 @@ trait AssignmentHelpersTrait
     {
         return $this->addAttributeAssignment('class', function (&$attributes, $value) {
             $classes = isset($attributes['class']) ? array_filter(explode(' ', $attributes['class'])) : [];
-            foreach ((array) $value as $input) {
+            foreach ((array) $value as $key => $input) {
+                if (!is_string($input) && is_string($key)) {
+                    if (!$input) {
+                        continue;
+                    }
+
+                    $input = $key;
+                }
                 foreach (explode(' ', strval($input)) as $class) {
                     if (!in_array($class, $classes)) {
                         $classes[] = $class;

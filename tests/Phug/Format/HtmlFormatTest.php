@@ -131,10 +131,18 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
-            '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || '.
-            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
-            '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">',
-            $htmlFormat($input)
+            preg_replace(
+                '/\\s*/',
+                '',
+                '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || '.
+                '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
+                '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">'
+            ),
+            preg_replace(
+                '/\\s*/',
+                '',
+                $htmlFormat($input)
+            )
         );
     }
 
@@ -149,11 +157,19 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $htmlFormat = new HtmlFormat(new Formatter());
 
         self::assertSame(
-            '<input type="text" value="'.
-            '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || '.
-            '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
-            '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">',
-            $htmlFormat($input)
+            preg_replace(
+                '/\\s*/',
+                '',
+                '<input type="text" value="'.
+                '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || '.
+                '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
+                '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">'
+            ),
+            preg_replace(
+                '/\\s*/',
+                '',
+                $htmlFormat($input)
+            )
         );
     }
 
@@ -262,6 +278,36 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<a class="tag-class class1 class2"></a>',
+            trim($actual)
+        );
+    }
+
+    /**
+     * @group i
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     */
+    public function testClassAssociativeObject()
+    {
+        $formatter = new Formatter([
+            'pretty' => '  ',
+        ]);
+
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement(
+            'class',
+            new ExpressionElement("array('foo' => true, 'bar' => false, 'baz' => true)")
+        ));
+        $document = new DocumentElement();
+        $document->appendChild($link);
+
+        ob_start();
+        $php = $formatter->format($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<a class="foo baz"></a>',
             trim($actual)
         );
     }
