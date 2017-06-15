@@ -7,6 +7,7 @@ use Phug\Formatter\AbstractFormat;
 use Phug\Formatter\AbstractValueElement;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\ElementInterface;
@@ -166,11 +167,21 @@ class XmlFormat extends AbstractFormat
     protected function formatPairTagChildren(MarkupElement $element)
     {
         $firstChild = $element->getChildAt(0);
+        $needIndent = (
+            (
+                (
+                    $firstChild instanceof CodeElement &&
+                    $this->isBlockTag($element)
+                ) || (
+                    $firstChild instanceof MarkupInterface &&
+                    $this->isBlockTag($firstChild)
+                )
+            ) &&
+            !$this->isWhiteSpaceSensitive($element)
+        );
 
         return sprintf(
-            $firstChild instanceof MarkupInterface &&
-            $this->isBlockTag($firstChild) &&
-            !$this->isWhiteSpaceSensitive($element)
+            $needIndent
                 ? $this->getNewLine().'%s'.$this->getIndent()
                 : '%s',
             $this->formatElementChildren($element)

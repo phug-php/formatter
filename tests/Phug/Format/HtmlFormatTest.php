@@ -313,4 +313,36 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
             trim($formatter->format($document))
         );
     }
+
+    /**
+     * @group i
+     * @covers ::isBlockTag
+     * @covers ::isWhiteSpaceSensitive
+     * @covers ::formatPairTagChildren
+     */
+    public function testIndentInCode()
+    {
+        $document = new DocumentElement();
+        $div1 = new MarkupElement('div');
+        $code = new CodeElement('if (true)');
+        $div2 = new MarkupElement('div');
+        $code->appendChild($div2);
+        $div1->appendChild($code);
+        $document->appendChild($div1);
+        $formatter = new Formatter([
+            'pretty' => true,
+        ]);
+
+        ob_start();
+        eval('?>'.$formatter->format($document));
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<div>'.PHP_EOL.
+            '  <div></div>'.PHP_EOL.
+            '</div>',
+            trim($actual)
+        );
+    }
 }

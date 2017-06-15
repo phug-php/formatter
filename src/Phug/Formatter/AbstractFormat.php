@@ -38,6 +38,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
     const PAIR_TAG = '%s%s%s';
     const TRANSFORM_EXPRESSION = '%s';
+    const TRANSFORM_CODE = '%s';
+    const TRANSFORM_RAW_CODE = '%s';
     const PHP_HANDLE_CODE = '<?php %s ?>';
     const PHP_BLOCK_CODE = ' {%s}';
     const PHP_NESTED_HTML = ' ?>%s<?php ';
@@ -61,6 +63,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
             'pair_tag'               => static::PAIR_TAG,
             'transform_expression'   => static::TRANSFORM_EXPRESSION,
+            'transform_code'         => static::TRANSFORM_CODE,
+            'transform_raw_code'     => static::TRANSFORM_RAW_CODE,
             'php_handle_code'        => static::PHP_HANDLE_CODE,
             'php_display_code'       => static::PHP_DISPLAY_CODE,
             'php_block_code'         => static::PHP_BLOCK_CODE,
@@ -281,7 +285,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     public function formatCode($code, $checked, $noTransformation = false)
     {
         if (!$noTransformation) {
-            $code = $this->pattern('transform_expression', $code);
+            $code = $this->pattern(
+                'transform_code',
+                $this->pattern(
+                    'transform_expression',
+                    $this->pattern('transform_raw_code', $code)
+                )
+            );
         }
 
         return implode('', iterator_to_array($this->handleTokens(
@@ -304,11 +314,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatCodeElement(CodeElement $code)
     {
-        $php = $this->formatCode($code->getValue(), false);
+        $php = $this->formatCode($code->getValue(), false, !$code->isTransformationAllowed());
         if ($code->hasChildren()) {
             $php .= $this->pattern(
                 'php_block_code',
-                $this->pattern('php_nested_html', $this->formatElementChildren($code))
+                $this->pattern('php_nested_html', $this->formatElementChildren($code, 0))
             );
         }
 

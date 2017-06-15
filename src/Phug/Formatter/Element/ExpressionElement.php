@@ -3,6 +3,7 @@
 namespace Phug\Formatter\Element;
 
 use Phug\Formatter\AbstractValueElement;
+use Phug\Formatter\Partial\TransformableTrait;
 use Phug\Util\Partial\CheckTrait;
 use Phug\Util\Partial\EscapeTrait;
 
@@ -10,6 +11,7 @@ class ExpressionElement extends AbstractValueElement
 {
     use CheckTrait;
     use EscapeTrait;
+    use TransformableTrait;
 
     /**
      * An element or any context representation the expression is linked to.
@@ -17,11 +19,6 @@ class ExpressionElement extends AbstractValueElement
      * @var mixed
      */
     protected $link;
-
-    /**
-     * @var bool
-     */
-    protected $transformable = true;
 
     /**
      * Link the expression to a meaningful context such as an attribute element.
@@ -41,21 +38,5 @@ class ExpressionElement extends AbstractValueElement
     public function getLink()
     {
         return $this->link;
-    }
-
-    /**
-     * Prevent the expression from being transformed by customization patterns.
-     */
-    public function preventFromTransformation()
-    {
-        $this->transformable = false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTransformationAllowed()
-    {
-        return $this->transformable;
     }
 }

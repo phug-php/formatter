@@ -134,6 +134,8 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
      * @covers \Phug\Formatter\Element\ExpressionElement::<public>
+     * @covers \Phug\Formatter\Partial\TransformableTrait::preventFromTransformation
+     * @covers \Phug\Formatter\Partial\TransformableTrait::isTransformationAllowed
      */
     public function testAssignmentHandlersOption()
     {

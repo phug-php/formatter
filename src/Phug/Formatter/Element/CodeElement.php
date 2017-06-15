@@ -3,9 +3,12 @@
 namespace Phug\Formatter\Element;
 
 use Phug\Formatter\AbstractValueElement;
+use Phug\Formatter\Partial\TransformableTrait;
 
 class CodeElement extends AbstractValueElement
 {
+    use TransformableTrait;
+
     public function isCodeBlock()
     {
         $tokens = $tokens = array_slice(
