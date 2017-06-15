@@ -127,6 +127,9 @@ class XmlFormat extends AbstractFormat
     {
         $value = $element->getValue();
         $name = $element->getName();
+        if ($name === 'class' && in_array($value, ['', '""', "''"])) {
+            return '';
+        }
         if ($value instanceof ExpressionElement) {
             if (strtolower($value->getValue()) === 'true') {
                 $formattedValue = null;

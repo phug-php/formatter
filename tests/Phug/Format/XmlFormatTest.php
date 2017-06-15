@@ -177,6 +177,18 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             '<img src="foo.png" />',
             $xmlFormat($img)
         );
+
+        $img = new MarkupElement('img', true);
+        $img->getAttributes()->attach(new AttributeElement('src', ''));
+        $img->getAttributes()->attach(new AttributeElement('class', ''));
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<img src="" />',
+            $xmlFormat($img)
+        );
     }
 
     /**
