@@ -2,8 +2,6 @@
 
 namespace Phug\Test\Format;
 
-use Phug\Formatter\Element\AttributeElement;
-use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Format\XmlFormat;
 
 class FakeXmlFormat extends XmlFormat

@@ -5,8 +5,6 @@ namespace Phug\Test\Format;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
-use Phug\Formatter\Element\MarkupElement;
-use Phug\Formatter\Format\HtmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XmlFormat
