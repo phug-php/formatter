@@ -10,6 +10,7 @@ use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
 use Phug\Formatter\Partial\AssignmentHelpersTrait;
@@ -127,10 +128,16 @@ class XmlFormat extends AbstractFormat
     {
         $value = $element->getValue();
         $name = $element->getName();
-        if ($name === 'class' && in_array($value, ['', '""', "''"])) {
+        if ($value instanceof TextElement && $name === 'class' && (!$value->getValue() || $value->getValue() === '')) {
+            return '';
+        }
+        if ($name === 'class' && (!$value || (is_string($value) && in_array(trim($value), ['', '""', "''"])))) {
             return '';
         }
         if ($value instanceof ExpressionElement) {
+            if ($name === 'class' && in_array(trim($value->getValue()), ['', '""', "''"])) {
+                return '';
+            }
             if (strtolower($value->getValue()) === 'true') {
                 $formattedValue = null;
                 if ($name instanceof ExpressionElement) {
