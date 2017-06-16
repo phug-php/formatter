@@ -182,7 +182,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame('foo.', $return);
 
         $exp = new ExpressionElement('"foo.$ext"');
-        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], '$ext = "bar";'.$formatter->format($exp)));
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], '$ext = "bar";' . $formatter->format($exp)));
 
         self::assertSame('foo.bar', $return);
 
@@ -243,6 +243,25 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::formatCode
+     * @covers ::formatCode
+     * @covers ::getFormatInstance
+     */
+    public function testFormatCodeMethod()
+    {
+        $formatter = new Formatter([
+            'patterns' => [
+                'transform_code' => '(%s)',
+            ],
+        ]);
+
+        self::assertSame(
+            '($foo = "bar")',
+            $formatter->formatCode('$foo = "bar"')
+        );
+    }
+
+    /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      */
@@ -271,11 +290,11 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $expression = new AttributeElement('class', new ExpressionElement('$foo.bar'));
 
         ob_start();
-        $foo = (object) [
+        $foo = (object)[
             'bar' => ['gg', 'hh'],
         ];
         $php = $formatter->format($expression, HtmlFormat::class);
-        eval('?>'.$formatter->formatDependencies().$php);
+        eval('?>' . $formatter->formatDependencies() . $php);
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -287,7 +306,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter([
             'patterns' => [
                 'transform_expression' => function ($expression) {
-                    return '$'.$expression;
+                    return '$' . $expression;
                 },
             ],
         ]);
@@ -377,7 +396,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
             'pretty' => true,
         ]);
 
-        $expected = "<foo>\n  <bar></bar>\n  <biz></biz>\n".
+        $expected = "<foo>\n  <bar></bar>\n  <biz></biz>\n" .
             "  <license>\n    <mit></mit>\n  </license>\n</foo>\n";
 
         self::assertSame(
@@ -389,7 +408,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
             'pretty' => "\t",
         ]);
 
-        $expected = "<foo>\n\t<bar></bar>\n\t<biz></biz>\n".
+        $expected = "<foo>\n\t<bar></bar>\n\t<biz></biz>\n" .
             "\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n";
 
         self::assertSame(
@@ -408,6 +427,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
      * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
      * @covers \Phug\Formatter\Partial\HandleVariable::handleVariable
+     * @covers \Phug\Formatter\Element\CodeElement::getValueTokens
+     * @covers \Phug\Formatter\Element\CodeElement::<public>
      */
     public function testFormatCode()
     {
@@ -469,6 +490,14 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<?php if (5 == 5) { ?><div></div><?php } ?>',
+            $formatter->format($if, $format)
+        );
+
+        $if = new CodeElement('if (5 == 5)');
+        $format = new HtmlFormat($formatter);
+
+        self::assertSame(
+            '<?php if (5 == 5) { ?><?php } ?>',
             $formatter->format($if, $format)
         );
     }
@@ -547,12 +576,12 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(1, $formatter->getDependencies()->countRequiredDependencies());
 
-        self::assertSame('<?php $dep = ['.PHP_EOL.
-            '  \'bar\' => 42,'.PHP_EOL.
+        self::assertSame('<?php $dep = [' . PHP_EOL .
+            '  \'bar\' => 42,' . PHP_EOL .
             ']; ?>', $formatter->formatDependencies());
 
         $formatter = new Formatter([
-            'dependencies_storage'        => 'dep',
+            'dependencies_storage' => 'dep',
             'dependencies_storage_getter' => function ($php) {
                 return substr(ltrim($php), 1);
             },

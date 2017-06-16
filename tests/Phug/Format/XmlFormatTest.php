@@ -81,7 +81,8 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::formatElementChildren
-     * @covers \Phug\Formatter\Element\CodeElement::isCodeBlock
+     * @covers \Phug\Formatter\Element\CodeElement::getValueTokens
+     * @covers \Phug\Formatter\Element\CodeElement::<public>
      */
     public function testConditionals()
     {
@@ -181,6 +182,30 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', ''));
         $img->getAttributes()->attach(new AttributeElement('class', ''));
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<img src="" />',
+            $xmlFormat($img)
+        );
+
+        $img = new MarkupElement('img', true);
+        $img->getAttributes()->attach(new AttributeElement('src', ''));
+        $img->getAttributes()->attach(new AttributeElement('class', new TextElement('')));
+        $xmlFormat = new XmlFormat(new Formatter([
+            'default_format' => XmlFormat::class,
+        ]));
+
+        self::assertSame(
+            '<img src="" />',
+            $xmlFormat($img)
+        );
+
+        $img = new MarkupElement('img', true);
+        $img->getAttributes()->attach(new AttributeElement('src', ''));
+        $img->getAttributes()->attach(new AttributeElement('class', new ExpressionElement('""')));
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format' => XmlFormat::class,
         ]));

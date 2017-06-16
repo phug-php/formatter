@@ -73,10 +73,19 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
             'content: "a"; background: rgb(2, 12, 255)" d="d"',
             $code
         );
+
+        $code = $helper([], [
+            'class' => ['a' => true, 'b' => false, 'c' => true],
+        ]);
+
+        self::assertSame(
+            ' class="a c"',
+            $code
+        );
     }
 
     /**
-     * @group i
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      * @covers ::provideStandAloneAttributeAssignment
      * @covers ::provideStandAloneClassAttributeAssignment
      * @covers ::provideStandAloneStyleAttributeAssignment

@@ -9,19 +9,27 @@ class CodeElement extends AbstractValueElement
 {
     use TransformableTrait;
 
-    public function isCodeBlock()
+    protected function getValueTokens()
     {
-        $tokens = $tokens = array_slice(
-            token_get_all('<?php '.$this->getValue()),
-            1
-        );
+        static $cache = [];
+
+        $value = $this->getValue();
+        if (!isset($cache[$value])) {
+            $cache[$value] = array_slice(
+                token_get_all('<?php '.$value),
+                1
+            );
+        }
+
+        return $cache[$value];
+    }
+
+    public function isCodeBlockOpening()
+    {
+        $tokens = $this->getValueTokens();
 
         return isset($tokens[0]) &&
             is_array($tokens[0]) &&
-            (
-                end($tokens) === '}' ||
-                $this->hasChildren()
-            ) &&
             in_array($tokens[0][0], [
                 T_CATCH,
                 T_CLASS,
@@ -42,5 +50,29 @@ class CodeElement extends AbstractValueElement
                 T_TRY,
                 T_WHILE,
             ]);
+    }
+
+    public function hasBlockContent()
+    {
+        $tokens = $this->getValueTokens();
+
+        return end($tokens) === '}' || $this->hasChildren();
+    }
+
+    public function isCodeBlock()
+    {
+        return $this->isCodeBlockOpening() && $this->hasBlockContent();
+    }
+
+    public function needAccolades()
+    {
+        $tokens = $this->getValueTokens();
+
+        return $this->hasChildren() ||
+            (
+                $this->isCodeBlockOpening() &&
+                !$this->hasBlockContent() &&
+                end($tokens) !== ';'
+            );
     }
 }
