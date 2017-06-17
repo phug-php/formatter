@@ -24,7 +24,9 @@ class FormatExtendTest extends \PHPUnit_Framework_TestCase
         $format = new FakeXmlFormat($formatter);
 
         ob_start();
-        eval('?>'.$format->callFormatAttributeElement(new AttributeElement(new ExpressionElement('"foo" . "bar"'), 'abc')));
+        eval('?>'.$format->callFormatAttributeElement(
+            new AttributeElement(new ExpressionElement('"foo" . "bar"'), 'abc')
+        ));
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -34,7 +36,9 @@ class FormatExtendTest extends \PHPUnit_Framework_TestCase
         );
 
         ob_start();
-        eval('?>'.$format->callFormatAttributeElement(new AttributeElement(new ExpressionElement('"foo" . "bar"'), new ExpressionElement('true'))));
+        eval('?>'.$format->callFormatAttributeElement(
+            new AttributeElement(new ExpressionElement('"foo" . "bar"'), new ExpressionElement('true'))
+        ));
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -44,7 +48,10 @@ class FormatExtendTest extends \PHPUnit_Framework_TestCase
         );
 
         ob_start();
-        $php = $format->callFormatAttributeValueAccordingToName('["a", "b"]', new ExpressionElement('"cla" . "ss"'));
+        $php = $format->callFormatAttributeValueAccordingToName(
+            '["a", "b"]',
+            new ExpressionElement('"cla" . "ss"')
+        );
         eval('?>'.$formatter->formatDependencies().'<?= '.$php.' ?>');
         $actual = ob_get_contents();
         ob_end_clean();

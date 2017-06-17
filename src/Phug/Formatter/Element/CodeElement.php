@@ -16,7 +16,7 @@ class CodeElement extends AbstractValueElement
         $value = $this->getValue();
         if (!isset($cache[$value])) {
             $cache[$value] = array_slice(
-                token_get_all('<?php '.$value),
+                token_get_all('<?php '.trim($value)),
                 1
             );
         }
@@ -72,7 +72,7 @@ class CodeElement extends AbstractValueElement
             (
                 $this->isCodeBlockOpening() &&
                 !$this->hasBlockContent() &&
-                end($tokens) !== ';'
+                !in_array(end($tokens), [';', '{'])
             );
     }
 }
