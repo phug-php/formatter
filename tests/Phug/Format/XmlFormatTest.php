@@ -564,21 +564,15 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $data->attach(new ExpressionElement('["data-user" => ["name" => ["last" => "Trosvald"]]]'));
         $link->addAssignment(new AssignmentElement('attributes', $data, $link));
 
-        self::assertSame(
-            '<a<?= $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
-            '(["data-user" => ["name" => ["last" => "Trosvald"]]], '.
-            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]) ?>></a>',
-            $formatter->format($link)
-        );
-
-        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return '.
-            '$pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
-            '(["data-user" => ["name" => ["last" => "Trosvald"]]], '.
-            '[\'data-user\' => "{\"name\":{\"first\":\"Linus\"}}"]);');
+        ob_start();
+        $php = $formatter->format($link);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            ' data-user="{"name":{"last":"Trosvald","first":"Linus"}}"',
-            $attributes
+            '<a data-user="{"name":{"last":"Trosvald","first":"Linus"}}"></a>',
+            $actual
         );
     }
 

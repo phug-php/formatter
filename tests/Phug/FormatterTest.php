@@ -162,18 +162,32 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $link = new MarkupElement(new ExpressionElement('$tagName'));
 
+        ob_start();
+        $php = $formatter->format($link, $format);
+        $tagName = 'section';
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<<?= (isset($tagName) ? $tagName : \'\') ?>></<?= (isset($tagName) ? $tagName : \'\') ?>>',
-            $formatter->format($link, $format)
+            '<section></section>',
+            $actual
         );
 
         $expression = new ExpressionElement('$tagName');
         $expression->uncheck();
         $link = new MarkupElement($expression);
 
+        ob_start();
+        $php = $formatter->format($link, $format);
+        $tagName = false;
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<<?= $tagName ?>></<?= $tagName ?>>',
-            $formatter->format($link, $format)
+            '<false></false>',
+            $actual
         );
 
         $exp = new ExpressionElement('"foo.$ext"');
@@ -284,17 +298,24 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $expression = new ExpressionElement('$foo.bar');
         self::assertSame(
-            '<?= $foo->bar ?>',
+            '<?= (is_bool($_pug_temp = $foo->bar) ? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($expression, HtmlFormat::class)
         );
 
-        $expression = new AttributeElement('class', new ExpressionElement('$foo.bar'));
+        $expression->linkTo(new AttributeElement('a', 'a'));
+        self::assertSame(
+            '<?= (is_array($_pug_temp = $foo->bar) || (is_object($_pug_temp) && '.
+            '!method_exists($_pug_temp, "__toString")) ? json_encode($_pug_temp) : strval($_pug_temp)) ?>',
+            $formatter->format($expression, HtmlFormat::class)
+        );
+
+        $attribute = new AttributeElement('class', new ExpressionElement('$foo.bar'));
 
         ob_start();
         $foo = (object) [
             'bar' => ['gg', 'hh'],
         ];
-        $php = $formatter->format($expression, HtmlFormat::class);
+        $php = $formatter->format($attribute, HtmlFormat::class);
         eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
@@ -314,7 +335,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $expression = new ExpressionElement('foo');
         self::assertSame(
-            '<?= (isset($foo) ? $foo : \'\') ?>',
+            '<?= (is_bool($_pug_temp = (isset($foo) ? $foo : \'\')) '.
+            '? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($expression, HtmlFormat::class)
         );
     }
@@ -336,7 +358,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            '42',
+            '(is_bool($_pug_temp = 42) ? var_export($_pug_temp, true) : $_pug_temp)',
             $formatter->format($answer, HtmlFormat::class)
         );
 
@@ -345,7 +367,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter();
 
         self::assertSame(
-            '<?= htmlspecialchars("<".(isset($tag) ? $tag : \'\').">") ?>',
+            '<?= htmlspecialchars((is_bool($_pug_temp = "<".(isset($tag) ? $tag : \'\').">") '.
+            '? var_export($_pug_temp, true) : $_pug_temp)) ?>',
             $formatter->format($answer, HtmlFormat::class)
         );
 
@@ -353,7 +376,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter();
 
         self::assertSame(
-            '<?= htmlspecialchars("<".$tag.">") ?>',
+            '<?= htmlspecialchars((is_bool($_pug_temp = "<".$tag.">") '.
+            '? var_export($_pug_temp, true) : $_pug_temp)) ?>',
             $formatter->format($answer, HtmlFormat::class)
         );
 
@@ -421,6 +445,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
+     * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
@@ -433,43 +458,78 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormatCode()
     {
-        $foo = new ExpressionElement('$foo');
         $bar = new ExpressionElement('$bar["x"]');
         $formatter = new Formatter();
         $format = new HtmlFormat($formatter);
 
         self::assertSame(
-            '<?= $bar["x"] ?>',
+            '<?= (is_bool($_pug_temp = $bar["x"]) ? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($bar, $format)
         );
 
         $bar = new ExpressionElement('$bar->x');
 
         self::assertSame(
-            '<?= $bar->x ?>',
+            '<?= (is_bool($_pug_temp = $bar->x) ? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($bar, $format)
         );
 
-        $bar = new ExpressionElement("\$bar\n// comment\n->x");
+        $expression = new ExpressionElement("\$bar\n// comment\n->x");
+        ob_start();
+        $bar = (object) ['x' => 'X'];
+        $php = $formatter->format($expression, $format);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            "<?= \$bar\n// comment\n->x ?>",
-            $formatter->format($bar, $format)
+            'X',
+            $actual
         );
 
+        $expression = new ExpressionElement("\$bar\n->x\n// comment");
+        ob_start();
+        $bar = (object) ['x' => 'X'];
+        $php = $formatter->format($expression, $format);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<?= (isset($foo) ? $foo : \'\') ?>',
-            $formatter->format($foo, $format)
+            'X',
+            $actual
+        );
+
+        ob_start();
+        $foo = null;
+        $php = $formatter->format(new ExpressionElement('$foo'), $format);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '',
+            $actual
         );
 
         $format->removePhpTokenHandler(T_VARIABLE);
 
+        ob_start();
+        $foo = 'hello';
+        $php = $formatter->format(new ExpressionElement('$foo'), $format);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
-            '<?= $foo ?>',
-            $formatter->format($foo, $format)
+            'hello',
+            $actual
         );
 
+        $formatter->setOption(['patterns', 'expression_in_text'], '%s');
+        $format = new HtmlFormat($formatter);
         $format->setPhpTokenHandler(T_VARIABLE, 'handle_variable(%s)');
+        $foo = new ExpressionElement('$foo');
 
         self::assertSame(
             '<?= handle_variable($foo) ?>',

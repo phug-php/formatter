@@ -51,44 +51,38 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             $formatter->formatDependencies()
         );
 
-        self::assertSame(
-            '<img<?= $pugModule['.
-            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
-            '(["alt" => "Foo"], [\'src\' => \'/foo/bar.png\']) ?> />',
-            $formatter->format($img)
-        );
-
-        $attributes = eval('?>'.$formatter->formatDependencies().'<?php return $pugModule['.
-            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
-            '(["alt" => "Foo"], [\'src\' => \'/foo/bar.png\']);');
+        ob_start();
+        $php = $formatter->format($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            ' alt="Foo" src="/foo/bar.png"',
-            $attributes
+            '<img alt="Foo" src="/foo/bar.png" />',
+            $actual
         );
 
         $img = new MarkupElement('img');
-        $attributes = new AttributeElement('src', '/foo/bar.png');
         $data = new SplObjectStorage();
-        $data->attach(new ExpressionElement('["alt" => "Foo"]'));
+        $data->attach(new ExpressionElement(
+            '['.
+                '"class" => ["baz", "foo", "foobar"],'.
+                '"style" => ["width" => "200px", "display" => "block"]'.
+            ']'));
         $assignment = new AssignmentElement('attributes', $data, $img);
         $img->getAssignments()->attach($assignment);
-        $img->getAttributes()->attach($attributes);
-        $formatter->initDependencies()->format($img);
+        $img->getAttributes()->attach(new AttributeElement('class', 'foo bar'));
+        $img->getAttributes()->attach(new AttributeElement('style', 'height: 100px; z-index: 9;'));
 
-        $attributes = eval(
-            '?>'.$formatter->formatDependencies().'<?php return $pugModule['.
-            '\'Phug\\\\Formatter\\\\Format\\\\BasicFormat::attributes_assignment\']'.
-            '(["class" => "foo bar", "style" => "height: 100px; z-index: 9;"], '.
-            '[\'style\' => '.
-            '[\'width\' => \'200px\', \'display\' => \'block\'],'.
-            '\'class\' => [\'baz\', \'foo\', \'foobar\']]'.
-            ');'
-        );
+        ob_start();
+        $php = $formatter->initDependencies()->format($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            ' class="foo bar baz foobar" style="height: 100px; z-index: 9;width:200px;display:block"',
-            $attributes
+            '<img class="baz foo foobar bar" style="width:200px;display:block;height: 100px; z-index: 9;" />',
+            $actual
         );
 
         $input = new MarkupElement('input');
@@ -177,25 +171,15 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         ]);
         $img->getAttributes()->attach(new AttributeElement('data-foo', 'bar'));
         $img->getAttributes()->attach(new AttributeElement('bar', 'foo'));
+        $phtml = $formatter->format($img);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$phtml);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
-            '<img<?= $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']('.
-            'call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) { '.
-            '$result["data-".$name] = $value; } return $result; }, ["user" => "Bob"]), '.
-            '[\'data-foo\' => \'bar\'], [\'bar\' => \'foo\']) ?> />',
-            $formatter->format($img)
-        );
-
-        self::assertSame(
-            ' data-user="Bob" data-foo="bar" bar="foo"',
-            eval(
-                '?>'.$formatter->formatDependencies().'<?php '.
-                'return $pugModule[\'Phug\\\\Formatter\\\\Format\\\\XmlFormat::attributes_assignment\']'.
-                '(call_user_func(function ($data) { $result = []; foreach ($data as $name => $value) '.
-                '{ $result["data-".$name] = $value; } '.
-                'return $result; }, ["user" => "Bob"]), '.
-                '[\'data-foo\' => \'bar\'], [\'bar\' => \'foo\']);'
-            )
+            '<img data-user="Bob" data-foo="bar" bar="foo" />',
+            $actual
         );
     }
 
@@ -227,7 +211,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame(
-            '<img<?= my_func((isset($var) ? $var : \'\')) ?> />',
+            '<img<?= (is_bool($_pug_temp = '.
+            'my_func((isset($var) ? $var : \'\'))'.
+            ') ? var_export($_pug_temp, true) : $_pug_temp) ?> />',
             $formatter->format($img)
         );
     }

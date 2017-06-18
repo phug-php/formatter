@@ -34,6 +34,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             : $_pug_temp) || (is_object($_pug_temp) && !method_exists($_pug_temp, "__toString"))
                 ? json_encode($_pug_temp)
                 : strval($_pug_temp))';
+    const EXPRESSION_IN_TEXT = '(is_bool($_pug_temp = %s) ? var_export($_pug_temp, true) : $_pug_temp)';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
     const PAIR_TAG = '%s%s%s';
@@ -59,6 +60,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'class_attribute'        => static::CLASS_ATTRIBUTE,
             'string_attribute'       => static::STRING_ATTRIBUTE,
             'dynamic_attribute'      => static::DYNAMIC_ATTRIBUTE,
+            'expression_in_text'     => static::EXPRESSION_IN_TEXT,
             'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
             'pair_tag'               => static::PAIR_TAG,
@@ -365,6 +367,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             if ($link instanceof AttributeElement) {
                 $value = $this->formatAttributeValueAccordingToName($value, $link->getName(), $code->isChecked());
             }
+        }
+
+        if (preg_match('/\/\/[^\n]*$/', $value)) {
+            $value .= "\n";
+        }
+
+        if (!$link) {
+            $value = $this->pattern('expression_in_text', $value);
         }
 
         if ($code->isEscaped()) {
