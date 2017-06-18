@@ -68,7 +68,8 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             '['.
                 '"class" => ["baz", "foo", "foobar"],'.
                 '"style" => ["width" => "200px", "display" => "block"]'.
-            ']'));
+            ']'
+        ));
         $assignment = new AssignmentElement('attributes', $data, $img);
         $img->getAssignments()->attach($assignment);
         $img->getAttributes()->attach(new AttributeElement('class', 'foo bar'));
