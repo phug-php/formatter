@@ -16,7 +16,10 @@ class CodeElement extends AbstractValueElement
         $value = $this->getValue();
         if (!isset($cache[$value])) {
             $cache[$value] = array_slice(
-                token_get_all('<?php '.trim($value)),
+                token_get_all(
+                    '<?php '.
+                    preg_replace('/\s*\{\s*\}$/', '', trim($value))
+                ),
                 1
             );
         }
