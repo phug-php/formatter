@@ -26,7 +26,10 @@ class MarkupElement extends AbstractElement implements MarkupInterface
     {
         $arguments = new UnorderedArguments(func_get_args());
 
-        $name = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
+        $name = $arguments->optional('string');
+        if (is_null($name)) {
+            $name = $arguments->optional(ExpressionElement::class);
+        }
         $this->autoClosed = $arguments->optional('boolean');
         $parent = $arguments->optional(NodeInterface::class);
         $attributes = $arguments->optional(SplObjectStorage::class);

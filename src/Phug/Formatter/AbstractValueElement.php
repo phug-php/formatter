@@ -15,7 +15,10 @@ abstract class AbstractValueElement extends AbstractElement
     {
         $arguments = new UnorderedArguments(func_get_args());
 
-        $value = $arguments->optional('string') ?: $arguments->optional(ExpressionElement::class);
+        $value = $arguments->optional('string');
+        if (is_null($value)) {
+            $value = $arguments->optional(ExpressionElement::class);
+        }
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
@@ -23,7 +26,7 @@ abstract class AbstractValueElement extends AbstractElement
 
         parent::__construct($parent, $children);
 
-        if ($value) {
+        if (!is_null($value)) {
             $this->setValue($value);
         }
     }

@@ -154,7 +154,9 @@ class XmlFormat extends AbstractFormat
                     $formattedValue = $this->format($value);
                 }
                 $formattedName = $this->format($name);
-                $formattedValue = $formattedValue ?: $formattedName;
+                $formattedValue = $formattedValue || $formattedValue === '0'
+                    ? $formattedValue
+                    : $formattedName;
 
                 return $this->pattern(
                     'boolean_attribute_pattern',

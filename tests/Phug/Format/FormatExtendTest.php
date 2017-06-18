@@ -12,7 +12,6 @@ use Phug\Formatter\Element\ExpressionElement;
 class FormatExtendTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @group i
      * @covers ::formatAttributeElement
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      */
