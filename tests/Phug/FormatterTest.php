@@ -135,6 +135,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractFormat::__construct
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
+     * @covers \Phug\Formatter\Element\MarkupElement::__construct
      * @covers \Phug\Formatter\Partial\HandleVariable::isInFunctionParams
      * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
      * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
