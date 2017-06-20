@@ -319,9 +319,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $php = $this->formatCode($code->getValue(), false, !$code->isTransformationAllowed());
 
         if ($code->needAccolades()) {
-            $php .= $this->pattern(
+            $php = preg_replace('/\s*\{\s*\}\s*$/', '', $php).$this->pattern(
                 'php_block_code',
-                $this->pattern('php_nested_html', $this->formatElementChildren($code, 0))
+                $code->hasChildren()
+                    ? $this->pattern('php_nested_html', $this->formatElementChildren($code, 0))
+                    : ''
             );
         }
 

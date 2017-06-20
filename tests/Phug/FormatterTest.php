@@ -558,7 +558,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $format = new HtmlFormat($formatter);
 
         self::assertSame(
-            '<?php if (5 == 5) { ?><?php } ?>',
+            '<?php if (5 == 5) {} ?>',
             $formatter->format($if, $format)
         );
     }
