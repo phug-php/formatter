@@ -6,6 +6,7 @@ use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\CommentElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -45,6 +46,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const PHP_BLOCK_CODE = ' {%s}';
     const PHP_NESTED_HTML = ' ?>%s<?php ';
     const PHP_DISPLAY_CODE = '<?= %s ?>';
+    const DISPLAY_COMMENT = '<!-- %s -->';
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
     const SAVE_VALUE = '%s=%s';
@@ -71,6 +73,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'php_display_code'       => static::PHP_DISPLAY_CODE,
             'php_block_code'         => static::PHP_BLOCK_CODE,
             'php_nested_html'        => static::PHP_NESTED_HTML,
+            'display_comment'        => static::DISPLAY_COMMENT,
             'doctype'                => static::DOCTYPE,
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
         ];
@@ -99,6 +102,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     AssignmentElement::class => [$this, 'formatAssignmentElement'],
                     AttributeElement::class  => [$this, 'formatAttributeElement'],
                     CodeElement::class       => [$this, 'formatCodeElement'],
+                    CommentElement::class    => [$this, 'formatCommentElement'],
                     ExpressionElement::class => [$this, 'formatExpressionElement'],
                     DoctypeElement::class    => [$this, 'formatDoctypeElement'],
                     DocumentElement::class   => [$this, 'formatDocumentElement'],
@@ -328,6 +332,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
 
         return $this->handleCode($php);
+    }
+
+    protected function formatCommentElement(CommentElement $element)
+    {
+        return $this->getIndent().
+            $this->pattern('display_comment', $element->getValue()).
+            $this->getNewLine();
     }
 
     protected function formatAttributeValueAccordingToName($value, $name, $checked)

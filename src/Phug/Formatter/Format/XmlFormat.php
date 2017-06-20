@@ -348,15 +348,14 @@ class XmlFormat extends AbstractFormat
             return $this->pattern('self_closing_tag', $tag.$attributes);
         }
 
-        return sprintf(
-            $this->isBlockTag($element)
-                ? $this->getIndent().'%s'.$this->getNewLine()
-                : '%s',
-            $this->formatPairTag(
-                $this->pattern('open_pair_tag', $tag.$attributes),
-                $this->pattern('close_pair_tag', $tag),
-                $element
-            )
+        $tag = $this->formatPairTag(
+            $this->pattern('open_pair_tag', $tag.$attributes),
+            $this->pattern('close_pair_tag', $tag),
+            $element
         );
+
+        return $this->isBlockTag($element)
+            ? $this->getIndent().$tag.$this->getNewLine()
+            : $tag;
     }
 }

@@ -6,6 +6,7 @@ use Phug\DependencyException;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\CommentElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -401,6 +402,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Phug\Formatter\AbstractFormat::getNewLine
      * @covers \Phug\Formatter\AbstractFormat::getIndent
+     * @covers \Phug\Formatter\AbstractFormat::formatCommentElement
      */
     public function testIndent()
     {
@@ -409,11 +411,12 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $foo->appendChild(new MarkupElement('biz'));
         $license = new MarkupElement('license');
         $license->appendChild(new MarkupElement('mit'));
+        $license->appendChild(new CommentElement('gpl'));
         $foo->appendChild($license);
         $formatter = new Formatter();
 
         self::assertSame(
-            '<foo><bar></bar><biz></biz><license><mit></mit></license></foo>',
+            '<foo><bar></bar><biz></biz><license><mit></mit><!-- gpl --></license></foo>',
             $formatter->format($foo, HtmlFormat::class)
         );
 
@@ -422,7 +425,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $expected = "<foo>\n  <bar></bar>\n  <biz></biz>\n".
-            "  <license>\n    <mit></mit>\n  </license>\n</foo>\n";
+            "  <license>\n    <mit></mit>\n    <!-- gpl -->\n  </license>\n</foo>\n";
 
         self::assertSame(
             str_replace("\n", PHP_EOL, $expected),
@@ -434,7 +437,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $expected = "<foo>\n\t<bar></bar>\n\t<biz></biz>\n".
-            "\t<license>\n\t\t<mit></mit>\n\t</license>\n</foo>\n";
+            "\t<license>\n\t\t<mit></mit>\n\t\t<!-- gpl -->\n\t</license>\n</foo>\n";
 
         self::assertSame(
             str_replace("\n", PHP_EOL, $expected),
