@@ -7,6 +7,7 @@ use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use SplObjectStorage;
 
 /**
@@ -16,6 +17,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers \Phug\Formatter\AbstractElement::__construct
+     * @covers \Phug\Formatter\AbstractElement::dump
      * @covers ::__construct
      * @covers ::getAttribute
      * @covers ::isAutoClosed
@@ -44,6 +46,10 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame($altValue, $img->getAttribute('alt'));
         self::assertSame('42', $img->getAttribute($mysteryCode));
         self::assertSame(null, $img->getAttribute('foo'));
+
+        $link->appendChild($img);
+        $img->appendChild(new TextElement('foo'));
+        self::assertSame("Markup: link\n  Markup: img\n    Text", $link->dump());
     }
 
     /**
