@@ -78,7 +78,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
         ];
         foreach ($patterns as &$pattern) {
-            if (is_string($pattern) && substr($pattern, 0, 1) === "\n") {
+            if (is_string($pattern) && mb_substr($pattern, 0, 1) === "\n") {
                 $pattern = preg_replace('/\s+/', ' ', trim($pattern));
             }
         }
@@ -430,7 +430,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $previous instanceof CodeElement &&
                 $previous->isCodeBlock()
             ) {
-                $content = substr($content, 0, -2);
+                $content = mb_substr($content, 0, -2);
                 $childContent = preg_replace('/^<\?(?:php)?\s/', '', $childContent);
             }
             $content .= $childContent;

@@ -647,7 +647,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter([
             'dependencies_storage'        => 'dep',
             'dependencies_storage_getter' => function ($php) {
-                return substr(ltrim($php), 1);
+                return mb_substr(ltrim($php), 1);
             },
         ]);
 
