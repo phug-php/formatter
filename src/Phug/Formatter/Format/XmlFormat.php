@@ -54,6 +54,7 @@ class XmlFormat extends AbstractFormat
             ->provideAttributeAssignments()
             ->provideAttributeAssignment()
             ->provideStandAloneAttributeAssignment()
+            ->provideMergeAttributes()
             ->provideAttributesAssignment()
             ->provideClassAttributeAssignment()
             ->provideStandAloneClassAttributeAssignment()
@@ -128,14 +129,15 @@ class XmlFormat extends AbstractFormat
     {
         $value = $element->getValue();
         $name = $element->getName();
-        if ($value instanceof TextElement && $name === 'class' && (!$value->getValue() || $value->getValue() === '')) {
+        $nonEmptyAttribute = ($name === 'class' || $name === 'id');
+        if ($value instanceof TextElement && $nonEmptyAttribute && (!$value->getValue() || $value->getValue() === '')) {
             return '';
         }
-        if ($name === 'class' && (!$value || (is_string($value) && in_array(trim($value), ['', '""', "''"])))) {
+        if ($nonEmptyAttribute && (!$value || (is_string($value) && in_array(trim($value), ['', '""', "''"])))) {
             return '';
         }
         if ($value instanceof ExpressionElement) {
-            if ($name === 'class' && in_array(trim($value->getValue()), ['', '""', "''"])) {
+            if ($nonEmptyAttribute && in_array(trim($value->getValue()), ['', '""', "''"])) {
                 return '';
             }
             if (strtolower($value->getValue()) === 'true') {
@@ -212,24 +214,6 @@ class XmlFormat extends AbstractFormat
         );
     }
 
-    protected function formatAssignmentValue($value)
-    {
-        if ($value instanceof ExpressionElement) {
-            return $this->formatCode($value->getValue(), false);
-        }
-
-        return var_export(strval($this->format($value)), true);
-    }
-
-    protected function formatAttributeAsArrayItem(AttributeElement $attribute)
-    {
-        return '['.
-            $this->formatAssignmentValue($attribute->getName()).
-            ' => '.
-            $this->formatAssignmentValue($attribute->getValue()).
-        ']';
-    }
-
     protected function formatAssignmentElement(AssignmentElement $element)
     {
         $handlers = $this->getOption('assignment_handlers');
@@ -287,14 +271,7 @@ class XmlFormat extends AbstractFormat
         );
 
         if (count($arguments)) {
-            $expression = new ExpressionElement(
-                $this->exportHelper('attributes_assignment').
-                    '('.implode(', ', $arguments).')'
-            );
-            $expression->uncheck();
-            $expression->preventFromTransformation();
-
-            $newElements[] = $expression;
+            $newElements[] = $this->attributesAssignmentsFromPairs($arguments);
         }
 
         return implode('', array_map([$this, 'format'], $newElements));
@@ -338,7 +315,15 @@ class XmlFormat extends AbstractFormat
     protected function formatMarkupElement(MarkupElement $element)
     {
         $tag = $this->format($element->getName());
+        $saveAttributes = clone $element->getAttributes();
+        $saveAssignments = clone $element->getAssignments();
         $attributes = $this->formatAttributes($element);
+        $dirtyAttributes = $element->getAttributes();
+        $dirtyAttributes->removeAll($dirtyAttributes);
+        $dirtyAttributes->addAll($saveAttributes);
+        $dirtyAssignments = $element->getAssignments();
+        $dirtyAssignments->removeAll($dirtyAssignments);
+        $dirtyAssignments->addAll($saveAssignments);
 
         if ($this->isSelfClosingTag($element)) {
             if ($element->isAutoClosed() && $this->hasPattern('explicit_closing_tag')) {

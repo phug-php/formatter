@@ -5,6 +5,7 @@ namespace Phug;
 // Elements
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\ElementInterface;
 // Formats
 use Phug\Formatter\Format\BasicFormat;
@@ -163,6 +164,16 @@ class Formatter implements ModulesContainerInterface, OptionInterface
     public function formatCode($code, $checked = false, $noTransformation = false)
     {
         return $this->getFormatInstance()->formatCode($code, $checked, $noTransformation);
+    }
+
+    /**
+     * @param array $attributes
+     *
+     * @return ExpressionElement
+     */
+    public function formatAttributesList($attributes)
+    {
+        return $this->getFormatInstance()->formatAttributesList($attributes);
     }
 
     /**

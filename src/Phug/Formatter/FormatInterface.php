@@ -27,5 +27,7 @@ interface FormatInterface
 
     public function handleCode($phpCode);
 
+    public function formatAttributesList($attributes);
+
     public function __invoke(ElementInterface $element);
 }

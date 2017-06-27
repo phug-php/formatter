@@ -280,6 +280,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     }
 
     /**
+     * Apply html_expression_escape pattern.
+     *
+     * @param string $expression
+     *
+     * @return string
+     */
+    public function escapeHtml($expression)
+    {
+        return $this->pattern('html_expression_escape', $expression);
+    }
+
+    /**
      * Format a code with transform_expression and tokens handlers.
      *
      * @param string $code
@@ -306,13 +318,79 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         )));
     }
 
+    protected function formatAssignmentValue($value)
+    {
+        if ($value instanceof ExpressionElement) {
+            $code = $this->formatCode($value->getValue(), false);
+
+            return $code;
+        }
+
+        return var_export(strval($this->format($value)), true);
+    }
+
+    protected function formatPairAsArrayItem($name, $value)
+    {
+        $name = $this->formatAssignmentValue($name);
+        $code = $this->formatAssignmentValue($value);
+        if ($value instanceof ExpressionElement && $value->isEscaped()) {
+            $code = $this->pattern(
+                'html_expression_escape',
+                $this->pattern(
+                    'dynamic_attribute',
+                    $code,
+                    $name
+                )
+            );
+        }
+
+        return '['.$name.' => '.$code.']';
+    }
+
+    protected function formatAttributeAsArrayItem(AttributeElement $attribute)
+    {
+        return $this->formatPairAsArrayItem($attribute->getName(), $attribute->getValue());
+    }
+
+    protected function arrayToPairsExports($array)
+    {
+        $exports = [];
+        foreach ($array as $attribute) {
+            $exports[] = $this->formatAttributeAsArrayItem($attribute);
+        }
+
+        return $exports;
+    }
+
+    protected function attributesAssignmentsFromPairs($pairs, $helper = 'attributes_assignment')
+    {
+        $expression = new ExpressionElement(
+            $this->exportHelper($helper).
+            '('.implode(', ', $pairs).')'
+        );
+        $expression->uncheck();
+        $expression->preventFromTransformation();
+
+        return $expression;
+    }
+
+    /**
+     * @param array $attributes
+     *
+     * @return ExpressionElement
+     */
+    public function formatAttributesList($attributes)
+    {
+        return $this->attributesAssignmentsFromPairs($this->arrayToPairsExports($attributes), 'merge_attributes');
+    }
+
     protected function formatVariableElement(VariableElement $element)
     {
         $variable = $this->formatCode($element->getVariable()->getValue(), false);
         $expression = $element->getExpression();
         $value = $this->formatCode($expression->getValue(), $expression->isChecked());
         if ($expression->isEscaped()) {
-            $value = $this->pattern('html_expression_escape', $value);
+            $value = $this->escapeHtml($value);
         }
 
         return $this->handleCode($this->pattern('save_value', $variable, $value));
@@ -391,7 +469,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
 
         if ($code->isEscaped()) {
-            $value = $this->pattern('html_expression_escape', $value);
+            $value = $this->escapeHtml($value);
         }
 
         return $this->pattern('php_display_code', $value);

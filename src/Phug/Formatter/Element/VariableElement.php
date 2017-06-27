@@ -2,6 +2,7 @@
 
 namespace Phug\Formatter\Element;
 
+use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
 use Phug\Util\UnorderedArguments;
 

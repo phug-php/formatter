@@ -37,7 +37,7 @@ trait AssignmentHelpersTrait
                 return function (&$attributes, $name, $value) use ($attributeAssignments) {
                     if (isset($name) && $name !== '') {
                         $result = $attributeAssignments($attributes, $name, $value);
-                        if ($result !== '' || $name !== 'class') {
+                        if ($result !== '' || ($name !== 'class' && $name !== 'id')) {
                             $attributes[$name] = $result;
                         }
                     }
@@ -67,21 +67,38 @@ trait AssignmentHelpersTrait
     /**
      * @return $this
      */
-    protected function provideAttributesAssignment()
+    protected function provideMergeAttributes()
     {
-        return $this->provideHelper('attributes_assignment', [
+        return $this->provideHelper('merge_attributes', [
             'attribute_assignment',
-            'pattern',
-            'pattern.attribute_pattern',
-            'pattern.boolean_attribute_pattern',
-            function ($attributeAssignment, $pattern, $attributePattern, $booleanPattern) {
-                return function () use ($attributeAssignment, $pattern, $attributePattern, $booleanPattern) {
+            function ($attributeAssignment) {
+                return function () use ($attributeAssignment) {
                     $attributes = [];
                     foreach (func_get_args() as $input) {
                         foreach ($input as $name => $value) {
                             $attributeAssignment($attributes, $name, $value);
                         }
                     }
+
+                    return $attributes;
+                };
+            },
+        ]);
+    }
+
+    /**
+     * @return $this
+     */
+    protected function provideAttributesAssignment()
+    {
+        return $this->provideHelper('attributes_assignment', [
+            'merge_attributes',
+            'pattern',
+            'pattern.attribute_pattern',
+            'pattern.boolean_attribute_pattern',
+            function ($mergeAttributes, $pattern, $attributePattern, $booleanPattern) {
+                return function () use ($mergeAttributes, $pattern, $attributePattern, $booleanPattern) {
+                    $attributes = call_user_func_array($mergeAttributes, func_get_args());
                     $code = '';
                     foreach ($attributes as $name => $value) {
                         if ($value) {
