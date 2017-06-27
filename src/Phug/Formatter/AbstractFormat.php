@@ -393,7 +393,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->escapeHtml($value);
         }
 
-        return $this->handleCode($this->pattern('save_value', $variable, $value));
+        return $this->handleCode($this->pattern('save_value', $variable, $value ?: 'null'));
     }
 
     protected function formatCodeElement(CodeElement $code)
