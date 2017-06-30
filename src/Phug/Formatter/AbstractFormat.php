@@ -147,6 +147,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
                         $storage = $$dependenciesStorage;
 
+                        if (!array_key_exists($prefix.$name, $storage)) {
+                            throw new \Exception(
+                                var_export($name, true).
+                                ' dependency not found in the namespace: '.
+                                var_export($prefix, true)
+                            );
+                        }
+
                         return $storage[$prefix.$name];
                     };
                 },
