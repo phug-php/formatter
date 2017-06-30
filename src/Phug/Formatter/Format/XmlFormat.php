@@ -108,8 +108,16 @@ class XmlFormat extends AbstractFormat
         }
 
         if ($isSelfClosing && $element->hasChildren()) {
-            throw new FormatterException($element->getName().' is a self closing element: '.
-                '<'.$element->getName().'/> but contains nested content.');
+            $visibleChildren = array_filter($element->getChildren(), function ($child) {
+                return $child && (
+                    !($child instanceof TextElement) ||
+                    trim($child->getValue()) !== ''
+                );
+            });
+            if (count($visibleChildren) > 0) {
+                throw new FormatterException($element->getName().' is a self closing element: '.
+                    '<'.$element->getName().'/> but contains nested content.');
+            }
         }
 
         return $isSelfClosing;
