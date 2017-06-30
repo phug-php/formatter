@@ -585,6 +585,24 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
 
         $format = new FakeFormat();
 
-        self::assertSame(FakeFormat::class.'::hello', $format(new MarkupElement('hello')));
+        self::assertSame(FakeFormat::class.'::existing_helper', $format(new MarkupElement('existing_helper')));
+    }
+
+    /**
+     * @group i
+     * @covers \Phug\Formatter\AbstractFormat::setFormatter
+     */
+    public function testMissingHelper()
+    {
+        self::expectException(\Exception::class);
+        self::expectExceptionMessage(
+            '\'non_existing_helper\' dependency not found in the namespace: '.
+            '\'Phug\\\\Test\\\\Format\\\\FakeFormat::\''
+        );
+        include_once __DIR__.'/FakeFormat.php';
+
+        $format = new FakeFormat();
+
+        $format(new MarkupElement('non_existing_helper'));
     }
 }

@@ -21,7 +21,7 @@ class FakeFormat extends AbstractFormat implements ArrayAccess
 
     public function offsetExists($offset)
     {
-        return true;
+        return strpos($offset, 'non_existing') === false;
     }
 
     public function offsetGet($offset)
