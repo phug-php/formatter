@@ -589,13 +589,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers \Phug\Formatter\AbstractFormat::setFormatter
      */
     public function testMissingHelper()
     {
-        self::expectException(\Exception::class);
-        self::expectExceptionMessage(
+        self::setExpectedException(
+            \Exception::class,
             '\'non_existing_helper\' dependency not found in the namespace: '.
             '\'Phug\\\\Test\\\\Format\\\\FakeFormat::\''
         );
