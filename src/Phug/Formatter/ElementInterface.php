@@ -6,4 +6,5 @@ use Phug\Ast\NodeInterface;
 
 interface ElementInterface extends NodeInterface
 {
+    public function dump();
 }
