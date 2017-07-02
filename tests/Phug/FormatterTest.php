@@ -596,7 +596,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $document->appendChild($paragraph);
 
         self::assertSame(
-            '<p>Foo bar</p>',
+            "<p>Foo\nbar</p>",
             $formatter->format($document, $format)
         );
     }
