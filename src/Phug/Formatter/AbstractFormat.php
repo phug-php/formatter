@@ -491,7 +491,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         if ($text->isEscaped()) {
             $value = $this->pattern('html_text_escape', $value);
         }
-        if ($text->getPreviousSibling() instanceof TextElement) {
+        $previous = $text->getPreviousSibling();
+        if ($previous instanceof TextElement && !$previous->isEnd()) {
             $value = ' '.$value;
         }
 
