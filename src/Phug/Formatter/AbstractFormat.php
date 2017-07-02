@@ -492,8 +492,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $value = $this->pattern('html_text_escape', $value);
         }
         $previous = $text->getPreviousSibling();
-        if ($previous instanceof TextElement && !$previous->isEnd()) {
-            $value = ' '.$value;
+        if ($previous instanceof TextElement && !$previous->isEnd() && trim($previous->getValue()) !== '') {
+            $value = "\n".$value;
         }
 
         return $this->format($value);
