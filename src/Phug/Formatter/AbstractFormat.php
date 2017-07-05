@@ -50,6 +50,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const DOCTYPE = '';
     const CUSTOM_DOCTYPE = '<!DOCTYPE %s>';
     const SAVE_VALUE = '%s=%s';
+    const DEBUG_COMMENT = "\n// PUG_DEBUG:%s\n";
+
+    /**
+     * @var array
+     */
+    protected static $debugNodes = [];
 
     /**
      * @var Formatter
@@ -76,6 +82,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'display_comment'        => static::DISPLAY_COMMENT,
             'doctype'                => static::DOCTYPE,
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
+            'debug_comment'          => static::DEBUG_COMMENT,
+            'debug'                  => function ($nodeId) {
+                return $this->pattern(
+                    'php_handle_code',
+                    $this->pattern(
+                        'debug_comment',
+                        $nodeId
+                    )
+                );
+            },
         ];
         foreach ($patterns as &$pattern) {
             if (is_string($pattern) && mb_substr($pattern, 0, 1) === "\n") {
@@ -85,6 +101,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $this
             ->setFormatter($formatter ?: new Formatter())
             ->setOptionsRecursive([
+                'debug'               => true,
                 'pattern'             => function ($pattern) {
                     $args = func_get_args();
                     $args[0] = $pattern;
@@ -164,6 +181,17 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         );
     }
 
+    protected function getDebugInfo($element)
+    {
+        if (!($element instanceof ElementInterface)) {
+            return '';
+        }
+        $nodeId = count(static::$debugNodes);
+        static::$debugNodes[] = $element->getOriginNode();
+
+        return $this->pattern('debug', $nodeId);
+    }
+
     /**
      * @param $element
      *
@@ -175,9 +203,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return $element;
         }
 
+        $debug = $this->getOption('debug');
         foreach ($this->getOption('element_handlers') as $className => $handler) {
             if (is_a($element, $className)) {
-                return $handler($element);
+                return ($debug ? $this->getDebugInfo($element) : '').$handler($element);
             }
         }
 

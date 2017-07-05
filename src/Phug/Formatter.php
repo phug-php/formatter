@@ -52,6 +52,7 @@ class Formatter implements ModulesContainerInterface, OptionInterface
     public function __construct(array $options = null)
     {
         $this->setOptionsRecursive([
+            'debug'                       => false,
             'dependencies_storage'        => 'pugModule',
             'dependencies_storage_getter' => null,
             'default_format'              => BasicFormat::class,
