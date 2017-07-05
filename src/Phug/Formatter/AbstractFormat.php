@@ -53,11 +53,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     const DEBUG_COMMENT = "\n// PUG_DEBUG:%s\n";
 
     /**
-     * @var array
-     */
-    protected static $debugNodes = [];
-
-    /**
      * @var Formatter
      */
     protected $formatter;
@@ -93,13 +88,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 );
             },
         ];
-        foreach ($patterns as &$pattern) {
-            if (is_string($pattern) && mb_substr($pattern, 0, 1) === "\n") {
-                $pattern = preg_replace('/\s+/', ' ', trim($pattern));
+        $formatter = $formatter ?: new Formatter();
+        if (!$formatter->getOption('debug')) {
+            foreach ($patterns as &$pattern) {
+                if (is_string($pattern) && mb_substr($pattern, 0, 1) === "\n") {
+                    $pattern = preg_replace('/\s+/', ' ', trim($pattern));
+                }
             }
         }
         $this
-            ->setFormatter($formatter ?: new Formatter())
+            ->setFormatter($formatter)
             ->setOptionsRecursive([
                 'debug'               => true,
                 'pattern'             => function ($pattern) {
@@ -183,13 +181,17 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function getDebugInfo($element)
     {
-        if (!($element instanceof ElementInterface)) {
+        if (!(
+            $element instanceof ElementInterface &&
+            ($node = $element->getOriginNode())
+        )) {
             return '';
         }
-        $nodeId = count(static::$debugNodes);
-        static::$debugNodes[] = $element->getOriginNode();
 
-        return $this->pattern('debug', $nodeId);
+        return $this->pattern(
+            'debug',
+            $this->formatter->storeDebugNode($node)
+        );
     }
 
     /**

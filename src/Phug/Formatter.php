@@ -3,6 +3,7 @@
 namespace Phug;
 
 // Elements
+use Phug\Debug\Exception;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -19,6 +20,7 @@ use Phug\Formatter\Format\TransitionalFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\Formatter\FormatInterface;
 // Utils
+use Phug\Parser\NodeInterface;
 use Phug\Util\ModulesContainerInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\LevelTrait;
@@ -41,6 +43,11 @@ class Formatter implements ModulesContainerInterface, OptionInterface
      * @var DependencyInjection
      */
     private $dependencies;
+
+    /**
+     * @var array
+     */
+    private static $debugNodes = [];
 
     /**
      * Creates a new formatter instance.
@@ -90,6 +97,83 @@ class Formatter implements ModulesContainerInterface, OptionInterface
         $this->format = $formatClassName;
 
         $this->initDependencies();
+    }
+
+    /**
+     * Store a node in a debug list and return the allocated index for it.
+     *
+     * @param NodeInterface $node
+     *
+     * @return int
+     */
+    public function storeDebugNode(NodeInterface $node)
+    {
+        $id = count(static::$debugNodes);
+        static::$debugNodes[] = $node;
+
+        return $id;
+    }
+
+    /**
+     * Throw a formatted error linked to pug source.
+     *
+     * @param \Throwable $error
+     * @param string     $code
+     *
+     * @throws \Throwable
+     */
+    public static function throwError($error, $code)
+    {
+        /** @var \Throwable $error */
+        $source = explode("\n", $code, $error->getLine());
+        array_pop($source);
+        $source = implode("\n", $source);
+        $pos = mb_strrpos($source, 'PUG_DEBUG:');
+        if ($pos === false) {
+            throw $error;
+        }
+        $nodeId = intval(mb_substr($source, $pos + 10, 32));
+        if (!isset(static::$debugNodes[$nodeId])) {
+            throw $error;
+        }
+        /** @var NodeInterface $node */
+        $node = static::$debugNodes[$nodeId];
+
+        throw new Exception(
+            $error->getMessage(),
+            $error->getCode(),
+            $error,
+            $node->getFile(),
+            $node->getLine(),
+            $node->getOffset()
+        );
+    }
+
+    /**
+     * Wrap the code if needed in an error handler.
+     *
+     * @param string $code
+     *
+     * @return string
+     */
+    public function wrapInErrorHandler($code)
+    {
+        if ($this->getOption('debug')) {
+            $code = $this->handleCode('$__pug_error = null; try {').
+                $code.
+                $this->handleCode(
+                    '} catch (\Throwable $error) {'.
+                    '$__pug_error = $error;'.
+                    '} catch (\Exception $error) {'.
+                    '$__pug_error = $error;'.
+                    '}'.
+                    'if ($__pug_error) { '.static::class.'::throwError($__pug_error, '.
+                    var_export($code, true).
+                    '); }'
+                );
+        }
+
+        return $code;
     }
 
     /**
@@ -279,6 +363,6 @@ class Formatter implements ModulesContainerInterface, OptionInterface
 
         $format->setFormatter($this);
 
-        return $format($element);
+        return $this->wrapInErrorHandler($format($element));
     }
 }
