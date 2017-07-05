@@ -17,8 +17,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::<public>
      * @covers \Phug\Formatter::storeDebugNode
-     * @covers \Phug\Formatter::throwError
-     * @covers \Phug\Formatter::wrapInErrorHandler
+     * @covers \Phug\Formatter::getDebugError
      */
     public function testFormat()
     {
@@ -47,8 +46,8 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
         ob_start();
         try {
             eval('?>'.$php);
-        } catch (Exception $e) {
-            $error = $e;
+        } catch (\Exception $e) {
+            $error = $formatter->getDebugError($e, $php);
         }
         ob_end_clean();
 

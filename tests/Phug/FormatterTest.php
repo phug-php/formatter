@@ -2,6 +2,7 @@
 
 namespace Phug\Test;
 
+use InvalidArgumentException;
 use Phug\DependencyException;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
@@ -15,6 +16,7 @@ use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
+use RuntimeException;
 
 /**
  * @coversDefaultClass \Phug\Formatter
@@ -32,15 +34,17 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::__construct
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Passed format class
-     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
-     * @expectedExceptionMessage must implement
-     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     * @covers ::__construct
      */
     public function testConstructorException()
     {
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Passed format class'.
+            ' Phug\Formatter\Element\CodeElement'.
+            ' must implement'.
+            ' Phug\Formatter\FormatInterface'
+        );
         $formatter = new Formatter([
             'formats' => [
                 'html' => CodeElement::class,
@@ -60,29 +64,33 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::setFormatHandler
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Passed format class
-     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
-     * @expectedExceptionMessage must implement
-     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     * @covers ::setFormatHandler
      */
     public function testSetFormatHandlerException()
     {
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'Passed format class'.
+            ' Phug\Formatter\Element\CodeElement'.
+            ' must implement'.
+            ' Phug\Formatter\FormatInterface'
+        );
         $formatter = new Formatter();
         $formatter->setFormatHandler('foo', CodeElement::class);
     }
 
     /**
-     * @covers                   ::__construct
-     * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Passed default format class
-     * @expectedExceptionMessage Phug\Formatter\Element\CodeElement
-     * @expectedExceptionMessage must implement
-     * @expectedExceptionMessage Phug\Formatter\FormaterInterface
+     * @covers ::__construct
      */
     public function testDefaultFormatException()
     {
+        $this->setExpectedException(
+            RuntimeException::class,
+            'Passed default format class'.
+            ' Phug\Formatter\Element\CodeElement'.
+            ' must implement'.
+            ' Phug\Formatter\FormatInterface'
+        );
         new Formatter([
             'default_format' => CodeElement::class,
         ]);

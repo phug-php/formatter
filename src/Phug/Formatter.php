@@ -47,7 +47,7 @@ class Formatter implements ModulesContainerInterface, OptionInterface
     /**
      * @var array
      */
-    private static $debugNodes = [];
+    private $debugNodes = [];
 
     /**
      * Creates a new formatter instance.
@@ -108,21 +108,21 @@ class Formatter implements ModulesContainerInterface, OptionInterface
      */
     public function storeDebugNode(NodeInterface $node)
     {
-        $id = count(static::$debugNodes);
-        static::$debugNodes[] = $node;
+        $id = count($this->debugNodes);
+        $this->debugNodes[] = $node;
 
         return $id;
     }
 
     /**
-     * Throw a formatted error linked to pug source.
+     * Return a formatted error linked to pug source.
      *
      * @param \Throwable $error
      * @param string     $code
      *
      * @throws \Throwable
      */
-    public static function throwError($error, $code)
+    public function getDebugError($error, $code)
     {
         /** @var \Throwable $error */
         $source = explode("\n", $code, $error->getLine());
@@ -133,13 +133,13 @@ class Formatter implements ModulesContainerInterface, OptionInterface
             throw $error;
         }
         $nodeId = intval(mb_substr($source, $pos + 10, 32));
-        if (!isset(static::$debugNodes[$nodeId])) {
+        if (!isset($this->debugNodes[$nodeId])) {
             throw $error;
         }
         /** @var NodeInterface $node */
-        $node = static::$debugNodes[$nodeId];
+        $node = $this->debugNodes[$nodeId];
 
-        throw new Exception(
+        return new Exception(
             $error->getMessage(),
             $error->getCode(),
             $error,
@@ -147,33 +147,6 @@ class Formatter implements ModulesContainerInterface, OptionInterface
             $node->getLine(),
             $node->getOffset()
         );
-    }
-
-    /**
-     * Wrap the code if needed in an error handler.
-     *
-     * @param string $code
-     *
-     * @return string
-     */
-    public function wrapInErrorHandler($code)
-    {
-        if ($this->getOption('debug')) {
-            $code = $this->handleCode('$__pug_error = null; try {').
-                $code.
-                $this->handleCode(
-                    '} catch (\Throwable $error) {'.
-                    '$__pug_error = $error;'.
-                    '} catch (\Exception $error) {'.
-                    '$__pug_error = $error;'.
-                    '}'.
-                    'if ($__pug_error) { '.static::class.'::throwError($__pug_error, '.
-                    var_export($code, true).
-                    '); }'
-                );
-        }
-
-        return $code;
     }
 
     /**
@@ -363,6 +336,6 @@ class Formatter implements ModulesContainerInterface, OptionInterface
 
         $format->setFormatter($this);
 
-        return $this->wrapInErrorHandler($format($element));
+        return $format($element);
     }
 }
