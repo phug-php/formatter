@@ -21,7 +21,7 @@ class Exception extends \Exception
      */
     protected $pugOffset;
 
-    public function __construct($message, $code, Throwable $previous, $file, $line, $offset)
+    public function __construct($message, $code, $previous, $file, $line, $offset)
     {
         $this->pugFile = $file;
         $this->pugLine = $line;
