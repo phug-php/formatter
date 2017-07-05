@@ -2,8 +2,6 @@
 
 namespace Phug\Debug;
 
-use Throwable;
-
 class Exception extends \Exception
 {
     /**
