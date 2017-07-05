@@ -4,6 +4,7 @@ namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\UnorderedArguments;
 
 class VariableElement extends AbstractElement
@@ -24,6 +25,7 @@ class VariableElement extends AbstractElement
 
         $variable = $arguments->optional(CodeElement::class);
         $expression = $arguments->optional(ExpressionElement::class);
+        $originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
@@ -37,7 +39,7 @@ class VariableElement extends AbstractElement
             $this->setExpression($expression);
         }
 
-        parent::__construct($parent, $children);
+        parent::__construct($originNode, $parent, $children);
     }
 
     public function setVariable(CodeElement $variable)

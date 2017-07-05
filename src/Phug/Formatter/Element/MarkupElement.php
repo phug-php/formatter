@@ -6,6 +6,7 @@ use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
 use Phug\Formatter\MarkupInterface;
 use Phug\Formatter\Partial\MarkupTrait;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
 use Phug\Util\UnorderedArguments;
@@ -31,13 +32,14 @@ class MarkupElement extends AbstractElement implements MarkupInterface
             $name = $arguments->optional(ExpressionElement::class);
         }
         $this->autoClosed = $arguments->optional('boolean');
+        $originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $attributes = $arguments->optional(SplObjectStorage::class);
         $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
 
-        parent::__construct($parent, $children);
+        parent::__construct($originNode, $parent, $children);
 
         $this->setName($name);
         if ($attributes) {

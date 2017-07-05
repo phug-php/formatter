@@ -4,6 +4,7 @@ namespace Phug\Formatter;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\Element\ExpressionElement;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\ValueTrait;
 use Phug\Util\UnorderedArguments;
 
@@ -19,12 +20,13 @@ abstract class AbstractValueElement extends AbstractElement
         if (is_null($value)) {
             $value = $arguments->optional(ExpressionElement::class);
         }
+        $originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
 
-        parent::__construct($parent, $children);
+        parent::__construct($originNode, $parent, $children);
 
         if (!is_null($value)) {
             $this->setValue($value);

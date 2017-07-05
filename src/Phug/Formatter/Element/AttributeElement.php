@@ -4,6 +4,7 @@ namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractValueElement;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\NameTrait;
 use Phug\Util\UnorderedArguments;
 
@@ -18,12 +19,13 @@ class AttributeElement extends AbstractValueElement
 
         $arguments = new UnorderedArguments(array_slice(func_get_args(), 2));
 
+        $originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
 
-        parent::__construct($parent, $children);
+        parent::__construct($originNode, $parent, $children);
     }
 
     public function setValue($value)

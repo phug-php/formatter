@@ -4,14 +4,21 @@ namespace Phug\Formatter;
 
 use Phug\Ast\Node;
 use Phug\Ast\NodeInterface;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\UnorderedArguments;
 
 abstract class AbstractElement extends Node implements ElementInterface
 {
+    /**
+     * @var ParserNode
+     */
+    private $originNode;
+
     public function __construct()
     {
         $arguments = new UnorderedArguments(func_get_args());
 
+        $this->originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
@@ -39,5 +46,13 @@ abstract class AbstractElement extends Node implements ElementInterface
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * @return ParserNode
+     */
+    public function getOriginNode()
+    {
+        return $this->originNode;
     }
 }

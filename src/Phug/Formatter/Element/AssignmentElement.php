@@ -5,6 +5,7 @@ namespace Phug\Formatter\Element;
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
 use Phug\Formatter\MarkupInterface;
+use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
 use Phug\Util\UnorderedArguments;
@@ -31,12 +32,13 @@ class AssignmentElement extends AbstractElement
             $this->setMarkup($markup);
         }
 
+        $originNode = $arguments->optional(ParserNode::class);
         $parent = $arguments->optional(NodeInterface::class);
         $children = $arguments->optional('array');
 
         $arguments->noMoreDefinedArguments();
 
-        parent::__construct($parent, $children);
+        parent::__construct($originNode, $parent, $children);
     }
 
     /**
