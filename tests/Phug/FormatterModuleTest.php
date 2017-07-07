@@ -2,9 +2,6 @@
 
 namespace Phug\Test;
 
-use Phug\Formatter;
-use Phug\FormatterModule;
-
 /**
  * @coversDefaultClass Phug\FormatterModule
  */

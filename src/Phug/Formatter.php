@@ -113,10 +113,11 @@ class Formatter implements ModuleContainerInterface
      * Return a formatted error linked to pug source.
      *
      * @param \Throwable $error
-     * @param string $code
+     * @param string     $code
+     *
+     * @throws \Throwable
      *
      * @return Exception
-     * @throws \Throwable
      */
     public function getDebugError($error, $code)
     {
@@ -303,14 +304,13 @@ class Formatter implements ModuleContainerInterface
      * Entry point of the Formatter, typically waiting for a DocumentElement and
      * a format, to return a string with HTML and PHP nested.
      *
-     * @param ElementInterface $element
+     * @param ElementInterface     $element
      * @param FormatInterface|null $format
      *
      * @return string
      */
     public function format(ElementInterface $element, $format = null)
     {
-
         if ($element instanceof DoctypeElement) {
             $formats = $this->getOption('formats');
             $doctype = $element->getValue();
@@ -328,7 +328,6 @@ class Formatter implements ModuleContainerInterface
 
     public function getModuleBaseClassName()
     {
-
         return FormatterModuleInterface::class;
     }
 }
