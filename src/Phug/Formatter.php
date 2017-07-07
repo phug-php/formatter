@@ -21,18 +21,14 @@ use Phug\Formatter\Format\XmlFormat;
 use Phug\Formatter\FormatInterface;
 // Utils
 use Phug\Parser\NodeInterface;
-use Phug\Util\ModulesContainerInterface;
-use Phug\Util\OptionInterface;
+use Phug\Util\ModuleContainerInterface;
 use Phug\Util\Partial\LevelTrait;
-use Phug\Util\Partial\ModuleTrait;
-use Phug\Util\Partial\OptionTrait;
-use Phug\Util\UnorderedArguments;
+use Phug\Util\Partial\ModuleContainerTrait;
 
-class Formatter implements ModulesContainerInterface, OptionInterface
+class Formatter implements ModuleContainerInterface
 {
     use LevelTrait;
-    use ModuleTrait;
-    use OptionTrait;
+    use ModuleContainerTrait;
 
     /**
      * @var FormatInterface|string
@@ -77,7 +73,6 @@ class Formatter implements ModulesContainerInterface, OptionInterface
             'modules'              => [],
         ], $options ?: []);
 
-        $this->setExpectedModuleType(FormatterModuleInterface::class);
         $this->addModules($this->getOption('modules'));
 
         $formatClassName = $this->getOption('default_format');
@@ -118,8 +113,9 @@ class Formatter implements ModulesContainerInterface, OptionInterface
      * Return a formatted error linked to pug source.
      *
      * @param \Throwable $error
-     * @param string     $code
+     * @param string $code
      *
+     * @return Exception
      * @throws \Throwable
      */
     public function getDebugError($error, $code)
@@ -143,7 +139,7 @@ class Formatter implements ModulesContainerInterface, OptionInterface
             $error->getMessage(),
             $error->getCode(),
             $error,
-            $node->getFile(),
+            $node->getFile(), //TODO: getFile is not exported in NodeInterface
             $node->getLine(),
             $node->getOffset()
         );
@@ -307,21 +303,13 @@ class Formatter implements ModulesContainerInterface, OptionInterface
      * Entry point of the Formatter, typically waiting for a DocumentElement and
      * a format, to return a string with HTML and PHP nested.
      *
-     * @param ElementInterface $element the element to format such as a DocumentElement
-     * @param FormatInterface  $format  format instance or format class name to use to format like HtmlFormat
-     *
-     * @throws FormatterException
+     * @param ElementInterface $element
+     * @param FormatInterface|null $format
      *
      * @return string
      */
-    public function format()
+    public function format(ElementInterface $element, $format = null)
     {
-        $arguments = new UnorderedArguments(func_get_args());
-
-        $element = $arguments->required(ElementInterface::class);
-        $format = $arguments->optional(FormatInterface::class);
-
-        $arguments->noMoreArguments();
 
         if ($element instanceof DoctypeElement) {
             $formats = $this->getOption('formats');
@@ -333,9 +321,14 @@ class Formatter implements ModulesContainerInterface, OptionInterface
         }
 
         $format = $this->getFormatInstance($format);
-
         $format->setFormatter($this);
 
         return $format($element);
+    }
+
+    public function getModuleBaseClassName()
+    {
+
+        return FormatterModuleInterface::class;
     }
 }

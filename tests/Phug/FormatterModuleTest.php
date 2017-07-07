@@ -15,14 +15,5 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
      */
     public function testModule()
     {
-        $copy = null;
-        $module = new FormatterModule();
-        $module->onPlug(function ($_formatter) use (&$copy) {
-            $copy = $_formatter;
-        });
-        $formatter = new Formatter([
-            'modules' => [$module],
-        ]);
-        self::assertSame($formatter, $copy);
     }
 }

@@ -222,17 +222,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::format
-     * @expectedException        \InvalidArgumentException
-     * @expectedExceptionMessage Arguments miss one of the Phug\Formatter\ElementInterface type
-     */
-    public function testFormatWithWrongArgument()
-    {
-        $formatter = new Formatter();
-        $formatter->format(HtmlFormat::class, HtmlFormat::class);
-    }
-
-    /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      */
