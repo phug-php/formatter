@@ -145,7 +145,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
                 function (AssignmentElement $element) {
                     $markup = $element->getMarkup();
                     foreach ($markup->getAssignmentsByName('data') as $dataAssignment) {
-                        $attributesAssignment = new AssignmentElement('attributes', $markup);
+                        $attributesAssignment = new AssignmentElement('attributes', null, $markup);
                         /**
                          * @var AssignmentElement $dataAssignment
                          */

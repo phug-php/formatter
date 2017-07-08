@@ -34,11 +34,12 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
             'source.pug'
         );
         $document = new DocumentElement();
-        new ExpressionElement(
-            new MarkupElement('body', new MarkupElement('html', $document)),
-            $node,
-            '12 / 0'
-        );
+        $document->appendChild($htmlEl = new MarkupElement('html'));
+        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+        $bodyEl->appendChild(new ExpressionElement(
+            '12 / 0',
+            $node
+        ));
         $php = $formatter->format($document);
         $php = $formatter->formatDependencies().$php;
 

@@ -3,24 +3,24 @@
 namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
+use Phug\Formatter\AbstractElement;
 use Phug\Parser\NodeInterface as ParserNode;
-use Phug\Util\Partial\NameTrait;
+use Phug\Util\Partial\ValueTrait;
 
-class AttributeElement extends AbstractValueElement
+abstract class AbstractValueElement extends AbstractElement
 {
-    use NameTrait;
+    use ValueTrait;
 
     /**
-     * AttributeElement constructor.
-     * @param string $name
+     * AbstractValueElement constructor.
+     *
      * @param string|ExpressionElement $value
      * @param ParserNode|null $originNode
      * @param NodeInterface|null $parent
      * @param array|null $children
      */
     public function __construct(
-        $name,
-        $value,
+        $value = null,
         ParserNode $originNode = null,
         NodeInterface $parent = null,
         array $children = null
@@ -28,15 +28,8 @@ class AttributeElement extends AbstractValueElement
     
         parent::__construct($originNode, $parent, $children);
 
-        $this->setName($name);
-        $this->setValue($value);
-    }
-
-    public function setValue($value)
-    {
-        parent::setValue($value);
-        if ($value instanceof ExpressionElement) {
-            $value->linkTo($this);
+        if ($value !== null) {
+            $this->setValue($value);
         }
     }
 }

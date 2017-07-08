@@ -14,15 +14,17 @@ abstract class AbstractElement extends Node implements ElementInterface
      */
     private $originNode;
 
-    public function __construct()
+    /**
+     * AbstractElement constructor.
+     *
+     * @param ParserNode|null $originNode
+     * @param NodeInterface|null $parent
+     * @param array|null $children
+     */
+    public function __construct(ParserNode $originNode = null, NodeInterface $parent = null, array $children = null)
     {
-        $arguments = new UnorderedArguments(func_get_args());
 
-        $this->originNode = $arguments->optional(ParserNode::class);
-        $parent = $arguments->optional(NodeInterface::class);
-        $children = $arguments->optional('array');
-
-        $arguments->noMoreDefinedArguments();
+        $this->originNode = $originNode;
 
         parent::__construct($parent, $children);
     }

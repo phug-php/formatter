@@ -4,7 +4,7 @@ namespace Phug\Formatter\Format;
 
 use Phug\Formatter;
 use Phug\Formatter\AbstractFormat;
-use Phug\Formatter\AbstractValueElement;
+use Phug\Formatter\Element\AbstractValueElement;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;

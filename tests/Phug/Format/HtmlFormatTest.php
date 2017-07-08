@@ -335,7 +335,8 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $textarea->appendChild(new MarkupElement('div'));
         $document->appendChild($textarea);
         $section = new MarkupElement('section');
-        $section->appendChild(new MarkupElement('div', [new MarkupElement('div')]));
+        $section->appendChild($divEl = new MarkupElement('div'));
+        $divEl->appendChild(new MarkupElement('div'));
         $document->appendChild($section);
         $formatter = new Formatter([
             'pretty' => '  ',

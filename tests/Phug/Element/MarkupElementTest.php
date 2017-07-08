@@ -27,7 +27,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         $attributes = new SplObjectStorage();
         $source = new AttributeElement('src', '/foo/bar.png');
         $attributes->attach($source);
-        $img = new MarkupElement('img', null, false, $attributes);
+        $img = new MarkupElement('img', false, $attributes);
         $altValue = new CodeElement('$alt');
         $alt = new AttributeElement('alt', $altValue);
         $img->getAttributes()->attach($alt);
@@ -76,8 +76,8 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
     public function testAssignments()
     {
         $img = new MarkupElement('img');
-        $foo = new AssignmentElement('foo', $img);
-        $bar = new AssignmentElement('bar', $img);
+        $foo = new AssignmentElement('foo', null, $img);
+        $bar = new AssignmentElement('bar', null, $img);
 
         self::assertSame(0, $img->getAssignments()->count());
 

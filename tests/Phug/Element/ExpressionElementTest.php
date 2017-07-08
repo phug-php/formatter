@@ -9,7 +9,7 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
- * @coversDefaultClass \Phug\Formatter\AbstractValueElement
+ * @coversDefaultClass \Phug\Formatter\Element\AbstractValueElement
  */
 class ExpressionElementTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +30,7 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
 
         $paragraph = new MarkupElement('p');
         $paragraph->getAttributes()->attach(
-            new AttributeElement('foo', new ExpressionElement('true'))
+            $attrEl = new AttributeElement('foo', new ExpressionElement('true'))
         );
         $paragraph->appendChild(new ExpressionElement('true'));
         ob_start();

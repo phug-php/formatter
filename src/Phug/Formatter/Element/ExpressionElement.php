@@ -2,7 +2,6 @@
 
 namespace Phug\Formatter\Element;
 
-use Phug\Formatter\AbstractValueElement;
 use Phug\Formatter\Partial\TransformableTrait;
 use Phug\Util\Partial\CheckTrait;
 use Phug\Util\Partial\EscapeTrait;

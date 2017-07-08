@@ -1,12 +1,14 @@
 <?php
 
-namespace Phug\Formatter\Partial;
+namespace Phug\Formatter\Element;
 
-use Phug\Formatter\Element\AssignmentElement;
+use Phug\Formatter\AbstractElement;
+use Phug\Formatter\MarkupInterface;
 use SplObjectStorage;
 
-trait MarkupTrait
+abstract class AbstractMarkupElement extends AbstractElement implements MarkupInterface
 {
+
     private $assignments;
 
     /**
@@ -73,7 +75,7 @@ trait MarkupTrait
      *
      * @param $name
      *
-     * @return array{AssignmentElement]
+     * @return AssignmentElement[]
      */
     public function getAssignmentsByName($name)
     {

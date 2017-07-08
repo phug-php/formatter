@@ -2,13 +2,8 @@
 
 namespace Phug\Formatter\Element;
 
-use Phug\Formatter\AbstractElement;
-use Phug\Formatter\MarkupInterface;
-use Phug\Formatter\Partial\MarkupTrait;
-
-class DocumentElement extends AbstractElement implements MarkupInterface
+class DocumentElement extends AbstractMarkupElement
 {
-    use MarkupTrait;
 
     public function getName()
     {
