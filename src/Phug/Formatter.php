@@ -312,7 +312,6 @@ class Formatter implements ModuleContainerInterface
      */
     public function format(ElementInterface $element, $format = null)
     {
-
         if ($element instanceof DoctypeElement) {
             $formats = $this->getOption('formats');
             $doctype = $element->getValue();

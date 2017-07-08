@@ -17,10 +17,8 @@ class TestModule extends AbstractFormatterModule
     {
         return [
             FormatterEvent::FORMAT => function (FormatEvent $e) {
-
                 $el = $e->getElement();
                 if ($el instanceof MarkupElement && $el->getName() === 'some-element') {
-
                     $wrapper = new MarkupElement('wrapper');
                     $wrapper->appendChild($el);
 
@@ -44,7 +42,6 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
      */
     public function testModule()
     {
-
         $formatter = new Formatter();
 
         $el = new MarkupElement('some-element');
