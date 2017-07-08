@@ -19,12 +19,13 @@ class MarkupElement extends AbstractMarkupElement
 
     /**
      * MarkupElement constructor.
-     * @param string $name
-     * @param bool $autoClosed
+     *
+     * @param string                 $name
+     * @param bool                   $autoClosed
      * @param \SplObjectStorage|null $attributes
-     * @param ParserNode|null $originNode
-     * @param NodeInterface|null $parent
-     * @param array|null $children
+     * @param ParserNode|null        $originNode
+     * @param NodeInterface|null     $parent
+     * @param array|null             $children
      */
     public function __construct(
         $name,
@@ -34,7 +35,6 @@ class MarkupElement extends AbstractMarkupElement
         NodeInterface $parent = null,
         array $children = null
     ) {
-    
         parent::__construct($originNode, $parent, $children);
 
         $this->setName($name);
@@ -52,8 +52,6 @@ class MarkupElement extends AbstractMarkupElement
                 return $attribute->getValue();
             }
         }
-
-        return null;
     }
 
     /**

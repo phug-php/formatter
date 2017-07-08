@@ -12,11 +12,12 @@ class AttributeElement extends AbstractValueElement
 
     /**
      * AttributeElement constructor.
-     * @param string $name
+     *
+     * @param string                   $name
      * @param string|ExpressionElement $value
-     * @param ParserNode|null $originNode
-     * @param NodeInterface|null $parent
-     * @param array|null $children
+     * @param ParserNode|null          $originNode
+     * @param NodeInterface|null       $parent
+     * @param array|null               $children
      */
     public function __construct(
         $name,
@@ -25,7 +26,6 @@ class AttributeElement extends AbstractValueElement
         NodeInterface $parent = null,
         array $children = null
     ) {
-    
         parent::__construct($originNode, $parent, $children);
 
         $this->setName($name);
