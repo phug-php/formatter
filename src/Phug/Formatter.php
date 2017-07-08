@@ -9,6 +9,7 @@ use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\ElementInterface;
 // Formats
+use Phug\Formatter\Event\FormatEvent;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
 use Phug\Formatter\Format\HtmlFormat;
@@ -311,6 +312,7 @@ class Formatter implements ModuleContainerInterface
      */
     public function format(ElementInterface $element, $format = null)
     {
+
         if ($element instanceof DoctypeElement) {
             $formats = $this->getOption('formats');
             $doctype = $element->getValue();
@@ -322,6 +324,16 @@ class Formatter implements ModuleContainerInterface
 
         $format = $this->getFormatInstance($format);
         $format->setFormatter($this);
+
+        $e = new FormatEvent($element, $format);
+        $this->trigger($e);
+
+        $element = $e->getElement();
+        $format = $e->getFormat();
+
+        if (!$element) {
+            return '';
+        }
 
         return $format($element);
     }
