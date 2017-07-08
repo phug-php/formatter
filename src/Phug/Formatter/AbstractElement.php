@@ -5,7 +5,6 @@ namespace Phug\Formatter;
 use Phug\Ast\Node;
 use Phug\Ast\NodeInterface;
 use Phug\Parser\NodeInterface as ParserNode;
-use Phug\Util\UnorderedArguments;
 
 abstract class AbstractElement extends Node implements ElementInterface
 {
@@ -17,13 +16,12 @@ abstract class AbstractElement extends Node implements ElementInterface
     /**
      * AbstractElement constructor.
      *
-     * @param ParserNode|null $originNode
+     * @param ParserNode|null    $originNode
      * @param NodeInterface|null $parent
-     * @param array|null $children
+     * @param array|null         $children
      */
     public function __construct(ParserNode $originNode = null, NodeInterface $parent = null, array $children = null)
     {
-
         $this->originNode = $originNode;
 
         parent::__construct($parent, $children);

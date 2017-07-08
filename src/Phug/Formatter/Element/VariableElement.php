@@ -20,11 +20,12 @@ class VariableElement extends AbstractElement
 
     /**
      * VariableElement constructor.
-     * @param CodeElement|null $variable
+     *
+     * @param CodeElement|null       $variable
      * @param ExpressionElement|null $expression
-     * @param ParserNode|null $originNode
-     * @param NodeInterface|null $parent
-     * @param array|null $children
+     * @param ParserNode|null        $originNode
+     * @param NodeInterface|null     $parent
+     * @param array|null             $children
      */
     public function __construct(
         CodeElement $variable = null,
@@ -33,7 +34,6 @@ class VariableElement extends AbstractElement
         NodeInterface $parent = null,
         array $children = null
     ) {
-    
         parent::__construct($originNode, $parent, $children);
 
         if ($variable) {
