@@ -8,7 +8,6 @@ use SplObjectStorage;
 
 abstract class AbstractMarkupElement extends AbstractElement implements MarkupInterface
 {
-
     private $assignments;
 
     /**

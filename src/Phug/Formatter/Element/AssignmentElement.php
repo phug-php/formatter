@@ -14,15 +14,15 @@ class AssignmentElement extends AbstractElement
     use AttributeTrait;
     use NameTrait;
 
-
     /**
      * AssignmentElement constructor.
-     * @param string $name
+     *
+     * @param string                 $name
      * @param \SplObjectStorage|null $attributes
-     * @param MarkupInterface|null $markup
-     * @param ParserNode|null $originNode
-     * @param NodeInterface|null $parent
-     * @param array|null $children
+     * @param MarkupInterface|null   $markup
+     * @param ParserNode|null        $originNode
+     * @param NodeInterface|null     $parent
+     * @param array|null             $children
      */
     public function __construct(
         $name,
@@ -32,7 +32,6 @@ class AssignmentElement extends AbstractElement
         NodeInterface $parent = null,
         array $children = null
     ) {
-    
         parent::__construct($originNode, $parent, $children);
 
         $this->setName($name);
