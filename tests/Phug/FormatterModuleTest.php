@@ -33,7 +33,7 @@ class TestModule extends AbstractFormatterModule
 }
 
 /**
- * @coversDefaultClass Phug\FormatterModule
+ * @coversDefaultClass Phug\AbstractFormatterModule
  */
 class FormatterModuleTest extends \PHPUnit_Framework_TestCase
 {
