@@ -2,21 +2,21 @@
 
 namespace Phug\Formatter\Event;
 
-use Phug\Formatter\FormatInterface;
-use Phug\FormatterEvent;
 use Phug\Event;
 use Phug\Formatter\ElementInterface;
+use Phug\Formatter\FormatInterface;
+use Phug\FormatterEvent;
 
 class FormatEvent extends Event
 {
-
     private $element;
     private $format;
 
     /**
      * FormatEvent constructor.
+     *
      * @param ElementInterface $element
-     * @param FormatInterface $format
+     * @param FormatInterface  $format
      */
     public function __construct(ElementInterface $element, FormatInterface $format)
     {
