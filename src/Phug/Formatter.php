@@ -141,7 +141,7 @@ class Formatter implements ModuleContainerInterface
             $error->getMessage(),
             $error->getCode(),
             $error,
-            $node->getFile(), //TODO: getFile is not exported in NodeInterface
+            $node->getFile(),
             $node->getLine(),
             $node->getOffset()
         );
