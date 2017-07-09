@@ -14,7 +14,6 @@ use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
 use Phug\Formatter\Partial\AssignmentHelpersTrait;
-use Phug\FormatterException;
 use SplObjectStorage;
 
 class XmlFormat extends AbstractFormat
@@ -115,8 +114,11 @@ class XmlFormat extends AbstractFormat
                 );
             });
             if (count($visibleChildren) > 0) {
-                throw new FormatterException($element->getName().' is a self closing element: '.
-                    '<'.$element->getName().'/> but contains nested content.');
+                $this->throwException(
+                    $element->getName().' is a self closing element: '.
+                    '<'.$element->getName().'/> but contains nested content.',
+                    $element
+                );
             }
         }
 
@@ -272,8 +274,9 @@ class XmlFormat extends AbstractFormat
         array_walk(
             $assignments,
             function (AssignmentElement $assignment) {
-                throw new FormatterException(
-                    'Unable to handle '.$assignment->getName().' assignment'
+                $this->throwException(
+                    'Unable to handle '.$assignment->getName().' assignment',
+                    $assignment
                 );
             }
         );

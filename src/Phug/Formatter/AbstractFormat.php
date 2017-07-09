@@ -15,6 +15,7 @@ use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
 use Phug\Formatter\Partial\PatternTrait;
+use Phug\FormatterException;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 
@@ -564,5 +565,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatDocumentElement(DocumentElement $document)
     {
         return $this->formatElementChildren($document, 0);
+    }
+
+    protected function throwException($message, ElementInterface $element = null)
+    {
+        $exception = new FormatterException($message);
+        if ($element && ($node = $element->getOriginNode())) {
+            $exception->setPugLine($node->getLine());
+            $exception->setPugOffset($node->getOffset());
+        }
+
+        throw $exception;
     }
 }
