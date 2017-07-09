@@ -115,12 +115,13 @@ class Formatter implements ModuleContainerInterface
      *
      * @param \Throwable $error
      * @param string     $code
+     * @param string     $renderingFile
      *
      * @throws \Throwable
      *
      * @return Exception
      */
-    public function getDebugError($error, $code)
+    public function getDebugError($error, $code, $renderingFile = null)
     {
         /** @var \Throwable $error */
         $source = explode("\n", $code, $error->getLine());
@@ -136,6 +137,8 @@ class Formatter implements ModuleContainerInterface
         }
         /** @var NodeInterface $node */
         $node = $this->debugNodes[$nodeId];
+        $file = $node->getFile();
+        // @TODO: implement $renderingFile detection for accurate traces
 
         return new Exception(
             $error->getMessage(),
