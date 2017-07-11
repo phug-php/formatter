@@ -645,8 +645,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $formatter = new Formatter([
             'dependencies_storage'        => 'dep',
-            'on_dependency_storage' => function (Formatter\Event\DependencyStorageEvent $event) {
-
+            'on_dependency_storage'       => function (Formatter\Event\DependencyStorageEvent $event) {
                 $event->setDependencyStorage(mb_substr(ltrim($event->getDependencyStorage()), 1));
             },
         ]);
