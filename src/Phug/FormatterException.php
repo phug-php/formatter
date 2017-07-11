@@ -2,14 +2,11 @@
 
 namespace Phug;
 
-use Phug\Util\Partial\PugFileLocationTrait;
-use Phug\Util\PugFileLocationInterface;
-use RuntimeException;
+use Phug\Util\Exception\LocatedException;
 
 /**
  * Represents an exception that is thrown during tree-manipulation processes.
  */
-class FormatterException extends RuntimeException implements PugFileLocationInterface
+class FormatterException extends LocatedException
 {
-    use PugFileLocationTrait;
 }

@@ -16,6 +16,9 @@ use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
+use Phug\Parser\Node\ExpressionNode;
+use Phug\Util\Exception\LocatedException;
+use Phug\Util\SourceLocation;
 use RuntimeException;
 
 /**
@@ -599,7 +602,6 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::initDependencies
      * @covers ::formatDependencies
      * @covers ::getDependencies
      * @covers ::getDependencyStorage
@@ -617,7 +619,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(1, $formatter->getDependencies()->countRequiredDependencies());
 
-        $formatter->initDependencies();
+        $formatter = new Formatter(['dependencies_storage' => 'dep']);
 
         self::assertSame(0, $formatter->getDependencies()->countRequiredDependencies());
 
@@ -643,11 +645,48 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $formatter = new Formatter([
             'dependencies_storage'        => 'dep',
-            'dependencies_storage_getter' => function ($php) {
-                return mb_substr(ltrim($php), 1);
+            'on_dependency_storage' => function (Formatter\Event\DependencyStorageEvent $event) {
+
+                $event->setDependencyStorage(mb_substr(ltrim($event->getDependencyStorage()), 1));
             },
         ]);
 
         self::assertSame('dep[\'foo\']', $formatter->getDependencyStorage('foo'));
+    }
+
+    /**
+     * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::getDebugError
+     */
+    public function testDebugError()
+    {
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $node = new ExpressionNode(null, new SourceLocation('source.pug', 3, 15));
+        $document = new DocumentElement();
+        $document->appendChild($htmlEl = new MarkupElement('html'));
+        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+        $bodyEl->appendChild(new ExpressionElement(
+            '12 / 0',
+            $node
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        $error = null;
+        ob_start();
+        try {
+            eval('?>'.$php);
+        } catch (\Exception $e) {
+            /** @var LocatedException $error */
+            $error = $formatter->getDebugError($e, $php);
+        }
+        ob_end_clean();
+
+        self::assertInstanceOf(LocatedException::class, $error);
+        self::assertSame(3, $error->getLocation()->getLine());
+        self::assertSame(15, $error->getLocation()->getOffset());
+        self::assertSame('source.pug', $error->getLocation()->getPath());
     }
 }

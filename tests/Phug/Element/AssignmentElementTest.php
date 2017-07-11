@@ -76,7 +76,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         $img->getAttributes()->attach(new AttributeElement('style', 'height: 100px; z-index: 9;'));
 
         ob_start();
-        $php = $formatter->initDependencies()->format($img);
+        $php = $formatter->format($img);
         eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();

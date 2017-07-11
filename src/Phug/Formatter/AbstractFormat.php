@@ -18,6 +18,7 @@ use Phug\Formatter\Partial\PatternTrait;
 use Phug\FormatterException;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
+use Phug\Util\SourceLocation;
 
 abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
@@ -546,7 +547,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $content = '';
         $previous = null;
         foreach ($element->getChildren() as $child) {
+            if (!($child instanceof ElementInterface)) {
+                continue;
+            }
+
             $childContent = $this->formatter->format($child);
+
             if ($child instanceof CodeElement &&
                 $previous instanceof CodeElement &&
                 $previous->isCodeBlock()
@@ -554,6 +560,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $content = mb_substr($content, 0, -2);
                 $childContent = preg_replace('/^<\?(?:php)?\s/', '', $childContent);
             }
+
             $content .= $childContent;
             $previous = $child;
         }
@@ -569,12 +576,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function throwException($message, ElementInterface $element = null)
     {
-        $exception = new FormatterException($message);
-        if ($element && ($node = $element->getOriginNode())) {
-            $exception->setPugLine($node->getLine());
-            $exception->setPugOffset($node->getOffset());
-        }
 
-        throw $exception;
+        $location = ($node = $element->getOriginNode()) && ($loc = $node->getSourceLocation())
+            ? clone $loc
+            : new SourceLocation(null, 0, 0);
+
+        throw new FormatterException($location, $message);
     }
 }

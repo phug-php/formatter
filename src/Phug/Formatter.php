@@ -3,12 +3,12 @@
 namespace Phug;
 
 // Elements
-use Phug\Debug\Exception;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\ElementInterface;
 // Formats
+use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
@@ -22,9 +22,11 @@ use Phug\Formatter\Format\XmlFormat;
 use Phug\Formatter\FormatInterface;
 // Utils
 use Phug\Parser\NodeInterface;
+use Phug\Util\Exception\LocatedException;
 use Phug\Util\ModuleContainerInterface;
 use Phug\Util\Partial\LevelTrait;
 use Phug\Util\Partial\ModuleContainerTrait;
+use Phug\Util\SourceLocation;
 
 class Formatter implements ModuleContainerInterface
 {
@@ -72,9 +74,12 @@ class Formatter implements ModuleContainerInterface
                 'xml'          => XmlFormat::class,
             ],
             'modules'              => [],
+
+            'on_format'        => null,
+            'on_dependency_storage' => null,
         ], $options ?: []);
 
-        $this->addModules($this->getOption('modules'));
+        $this->dependencies = new DependencyInjection();
 
         $formatClassName = $this->getOption('default_format');
 
@@ -92,7 +97,15 @@ class Formatter implements ModuleContainerInterface
 
         $this->format = $formatClassName;
 
-        $this->initDependencies();
+        if ($onFormat = $this->getOption('on_format')) {
+            $this->attach(FormatterEvent::FORMAT, $onFormat);
+        }
+
+        if ($onDependencyStorage = $this->getOption('on_dependency_storage')) {
+            $this->attach(FormatterEvent::DEPENDENCY_STORAGE, $onDependencyStorage);
+        }
+
+        $this->addModules($this->getOption('modules'));
     }
 
     /**
@@ -119,7 +132,7 @@ class Formatter implements ModuleContainerInterface
      *
      * @throws \Throwable
      *
-     * @return Exception
+     * @return LocatedException
      */
     public function getDebugError($error, $code, $renderingFile = null)
     {
@@ -137,16 +150,21 @@ class Formatter implements ModuleContainerInterface
         }
         /** @var NodeInterface $node */
         $node = $this->debugNodes[$nodeId];
-        $file = $node->getFile();
+        $nodeLocation = $node->getSourceLocation();
+        $location = new SourceLocation(
+            $renderingFile ?: $nodeLocation->getPath(),
+            $nodeLocation->getLine(),
+            $nodeLocation->getOffset(),
+            $nodeLocation->getOffsetLength()
+        );
+
         // @TODO: implement $renderingFile detection for accurate traces
 
-        return new Exception(
+        return new LocatedException(
+            $location,
             $error->getMessage(),
             $error->getCode(),
-            $error,
-            $node->getFile(),
-            $node->getLine(),
-            $node->getOffset()
+            $error
         );
     }
 
@@ -254,18 +272,6 @@ class Formatter implements ModuleContainerInterface
 
     /**
      * Create/reset the dependency injector.
-     *
-     * @return $this
-     */
-    public function initDependencies()
-    {
-        $this->dependencies = new DependencyInjection();
-
-        return $this;
-    }
-
-    /**
-     * Create/reset the dependency injector.
      */
     public function formatDependencies()
     {
@@ -296,12 +302,11 @@ class Formatter implements ModuleContainerInterface
     public function getDependencyStorage($name)
     {
         $dependencyStorage = $this->dependencies->getStorageItem($name, $this->getOption('dependencies_storage'));
-        $getter = $this->getOption('dependencies_storage_getter');
-        if ($getter) {
-            $dependencyStorage = $getter($dependencyStorage);
-        }
 
-        return $dependencyStorage;
+        $event = new DependencyStorageEvent($dependencyStorage);
+        $this->trigger($event);
+
+        return $event->getDependencyStorage();
     }
 
     /**
@@ -327,11 +332,11 @@ class Formatter implements ModuleContainerInterface
         $format = $this->getFormatInstance($format);
         $format->setFormatter($this);
 
-        $e = new FormatEvent($element, $format);
-        $this->trigger($e);
+        $event = new FormatEvent($element, $format);
+        $this->trigger($event);
 
-        $element = $e->getElement();
-        $format = $e->getFormat();
+        $element = $event->getElement();
+        $format = $event->getFormat();
 
         if (!$element) {
             return '';
