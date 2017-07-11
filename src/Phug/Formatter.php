@@ -75,7 +75,7 @@ class Formatter implements ModuleContainerInterface
             ],
             'modules'              => [],
 
-            'on_format'        => null,
+            'on_format'             => null,
             'on_dependency_storage' => null,
         ], $options ?: []);
 

@@ -576,7 +576,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function throwException($message, ElementInterface $element = null)
     {
-
         $location = ($node = $element->getOriginNode()) && ($loc = $node->getSourceLocation())
             ? clone $loc
             : new SourceLocation(null, 0, 0);
