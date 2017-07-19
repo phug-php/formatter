@@ -123,6 +123,27 @@ class Formatter implements ModuleContainerInterface
         return $id;
     }
 
+    private function getSourceLine($error)
+    {
+        /** @var \Throwable $error */
+        foreach (array_merge([
+            'file' => $error->getFile(),
+            'line' => $error->getLine(),
+        ], $error->getTrace()) as $step) {
+            if (!isset($step['file'])) {
+                continue;
+            }
+            $file = fopen($step['file'], 'r');
+            while ($contents = fread($file, 1024)) {
+                if (mb_strrpos($contents, 'PUG_DEBUG:') !== false) {
+                    return $step['line'];
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Return a formatted error linked to pug source.
      *
@@ -136,8 +157,12 @@ class Formatter implements ModuleContainerInterface
      */
     public function getDebugError($error, $code, $renderingFile = null)
     {
+        $line = $this->getSourceLine($error);
         /** @var \Throwable $error */
-        $source = explode("\n", $code, $error->getLine());
+        if (is_null($line)) {
+            return $error;
+        }
+        $source = explode("\n", $code, $line);
         array_pop($source);
         $source = implode("\n", $source);
         $pos = mb_strrpos($source, 'PUG_DEBUG:');
@@ -157,8 +182,6 @@ class Formatter implements ModuleContainerInterface
             $nodeLocation->getOffset(),
             $nodeLocation->getOffsetLength()
         );
-
-        // @TODO: implement $renderingFile detection for accurate traces
 
         return new LocatedException(
             $location,
