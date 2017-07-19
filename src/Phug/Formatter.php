@@ -141,7 +141,7 @@ class Formatter implements ModuleContainerInterface
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -153,13 +153,13 @@ class Formatter implements ModuleContainerInterface
      *
      * @throws \Throwable
      *
-     * @return LocatedException
+     * @return LocatedException|\Throwable
      */
     public function getDebugError($error, $code, $renderingFile = null)
     {
-        $line = $this->getSourceLine($error);
         /** @var \Throwable $error */
-        if (is_null($line)) {
+        $line = $this->getSourceLine($error);
+        if ($line === false) {
             return $error;
         }
         $source = explode("\n", $code, $line);
