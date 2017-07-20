@@ -130,10 +130,19 @@ class Formatter implements ModuleContainerInterface
             'file' => $error->getFile(),
             'line' => $error->getLine(),
         ], $error->getTrace()) as $step) {
+            if (
+                isset($step['args'], $step['args'][4], $step['args'][4]['php']) &&
+                mb_strrpos($step['args'][4]['php'], 'PUG_DEBUG:') !== false
+            ) {
+                return $step['line'];
+            }
             if (!isset($step['file'])) {
                 continue;
             }
-            $file = fopen($step['file'], 'r');
+            $file = @fopen($step['file'], 'r');
+            if ($file === false) {
+                continue;
+            }
             while ($contents = fread($file, 1024)) {
                 if (mb_strrpos($contents, 'PUG_DEBUG:') !== false) {
                     return $step['line'];

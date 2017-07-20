@@ -655,6 +655,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::getSourceLine
      * @covers \Phug\Formatter::getDebugError
      */
     public function testDebugError()
