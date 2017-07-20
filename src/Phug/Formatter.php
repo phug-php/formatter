@@ -130,8 +130,7 @@ class Formatter implements ModuleContainerInterface
             'file' => $error->getFile(),
             'line' => $error->getLine(),
         ], $error->getTrace()) as $step) {
-            if (
-                isset($step['args'], $step['args'][4], $step['args'][4]['php']) &&
+            if (isset($step['args'], $step['args'][4], $step['args'][4]['php']) &&
                 mb_strrpos($step['args'][4]['php'], 'PUG_DEBUG:') !== false
             ) {
                 return $step['line'];
