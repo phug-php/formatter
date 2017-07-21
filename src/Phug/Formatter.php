@@ -55,9 +55,9 @@ class Formatter implements ModuleContainerInterface
      *
      * @param array|null $options the options array
      */
-    public function __construct(array $options = null)
+    public function __construct($options = null)
     {
-        $this->setOptionsRecursive([
+        $this->setOptionsDefaults($options ?: [], [
             'debug'                       => false,
             'dependencies_storage'        => 'pugModule',
             'dependencies_storage_getter' => null,
@@ -73,11 +73,11 @@ class Formatter implements ModuleContainerInterface
                 'transitional' => TransitionalFormat::class,
                 'xml'          => XmlFormat::class,
             ],
-            'modules'              => [],
+            'formatter_modules'     => [],
 
             'on_format'             => null,
             'on_dependency_storage' => null,
-        ], $options ?: []);
+        ]);
 
         $this->dependencies = new DependencyInjection();
 
@@ -105,7 +105,7 @@ class Formatter implements ModuleContainerInterface
             $this->attach(FormatterEvent::DEPENDENCY_STORAGE, $onDependencyStorage);
         }
 
-        $this->addModules($this->getOption('modules'));
+        $this->addModules($this->getOption('formatter_modules'));
     }
 
     /**
@@ -126,16 +126,20 @@ class Formatter implements ModuleContainerInterface
     private function getSourceLine($error)
     {
         /** @var \Throwable $error */
-        foreach (array_merge([
-            'file' => $error->getFile(),
-            'line' => $error->getLine(),
-        ], $error->getTrace()) as $step) {
-            if (isset($step['args'], $step['args'][4], $step['args'][4]['php']) &&
-                mb_strrpos($step['args'][4]['php'], 'PUG_DEBUG:') !== false
-            ) {
-                return $step['line'];
+        foreach ($error->getTrace() as $step) {
+            foreach (['php', '__pug_php'] as $key) {
+                if (isset($step['args'], $step['args'][4], $step['args'][4][$key]) &&
+                    mb_strrpos($step['args'][4][$key], 'PUG_DEBUG:') !== false
+                ) {
+                    if (isset($step['line'])) {
+                        return $step['line'];
+                    }
+                    if (isset($step['args'][3])) {
+                        return $step['args'][3];
+                    }
+                }
             }
-            if (!isset($step['file'])) {
+            if (!isset($step['file']) || !isset($step['line'])) {
                 continue;
             }
             $file = @fopen($step['file'], 'r');
@@ -157,13 +161,13 @@ class Formatter implements ModuleContainerInterface
      *
      * @param \Throwable $error
      * @param string     $code
-     * @param string     $renderingFile
+     * @param string     $path
      *
      * @throws \Throwable
      *
      * @return LocatedException|\Throwable
      */
-    public function getDebugError($error, $code, $renderingFile = null)
+    public function getDebugError($error, $code, $path = null)
     {
         /** @var \Throwable $error */
         $line = $this->getSourceLine($error);
@@ -185,7 +189,7 @@ class Formatter implements ModuleContainerInterface
         $node = $this->debugNodes[$nodeId];
         $nodeLocation = $node->getSourceLocation();
         $location = new SourceLocation(
-            $renderingFile ?: $nodeLocation->getPath(),
+            $nodeLocation->getPath() ?: $path,
             $nodeLocation->getLine(),
             $nodeLocation->getOffset(),
             $nodeLocation->getOffsetLength()

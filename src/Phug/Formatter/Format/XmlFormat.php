@@ -31,14 +31,13 @@ class XmlFormat extends AbstractFormat
 
     public function __construct(Formatter $formatter = null)
     {
-        $this->setOptions([
-            'assignment_handlers'   => [],
-            'attribute_assignments' => [],
-        ]);
-
         parent::__construct($formatter);
 
         $this
+            ->setOptionsDefaults([
+                'assignment_handlers'   => [],
+                'attribute_assignments' => [],
+            ])
             ->registerHelper('available_attribute_assignments', [])
             ->addPatterns([
                 'open_pair_tag'             => static::OPEN_PAIR_TAG,
