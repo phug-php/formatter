@@ -99,7 +99,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
         }
         $this
-            ->setFormatter($formatter)
             ->setOptionsRecursive([
                 'debug'               => true,
                 'pattern'             => function ($pattern) {
@@ -130,7 +129,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'php_token_handlers' => [
                     T_VARIABLE => [$this, 'handleVariable'],
                 ],
-            ], $this->formatter->getOptions() ?: [])
+            ])
+            ->setFormatter($formatter)
             ->registerHelper('pattern', $this->getOption('pattern'))
             ->addPatterns($this->getOption('patterns'));
     }
@@ -145,40 +145,42 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $this->formatter = $formatter;
         $format = $this;
 
-        return $this->registerHelper(
-            'dependencies_storage',
-            $formatter->getOption('dependencies_storage')
-        )->registerHelper(
-            'helper_prefix',
-            static::class.'::'
-        )->provideHelper(
-            'get_helper',
-            [
+        return $this
+            ->setOptionsRecursive($formatter->getOptions())
+            ->registerHelper(
                 'dependencies_storage',
+                $formatter->getOption('dependencies_storage')
+            )->registerHelper(
                 'helper_prefix',
-                function ($dependenciesStorage, $prefix) use ($format) {
-                    return function ($name) use ($dependenciesStorage, $prefix, $format) {
-                        if (!isset($$dependenciesStorage)) {
-                            return $format->getHelper($name);
-                        }
+                static::class.'::'
+            )->provideHelper(
+                'get_helper',
+                [
+                    'dependencies_storage',
+                    'helper_prefix',
+                    function ($dependenciesStorage, $prefix) use ($format) {
+                        return function ($name) use ($dependenciesStorage, $prefix, $format) {
+                            if (!isset($$dependenciesStorage)) {
+                                return $format->getHelper($name);
+                            }
 
-                        $storage = $$dependenciesStorage;
+                            $storage = $$dependenciesStorage;
 
-                        if (!array_key_exists($prefix.$name, $storage) &&
-                            !isset($storage[$prefix.$name])
-                        ) {
-                            throw new \Exception(
-                                var_export($name, true).
-                                ' dependency not found in the namespace: '.
-                                var_export($prefix, true)
-                            );
-                        }
+                            if (!array_key_exists($prefix.$name, $storage) &&
+                                !isset($storage[$prefix.$name])
+                            ) {
+                                throw new \Exception(
+                                    var_export($name, true).
+                                    ' dependency not found in the namespace: '.
+                                    var_export($prefix, true)
+                                );
+                            }
 
-                        return $storage[$prefix.$name];
-                    };
-                },
-            ]
-        );
+                            return $storage[$prefix.$name];
+                        };
+                    },
+                ]
+            );
     }
 
     protected function getDebugInfo($element)

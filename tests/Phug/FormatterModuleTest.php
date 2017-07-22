@@ -48,7 +48,7 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame('<some-element></some-element>', $formatter->format($el, HtmlFormat::class));
 
-        $formatter = new Formatter(['modules' => [TestModule::class]]);
+        $formatter = new Formatter(['formatter_modules' => [TestModule::class]]);
         self::assertSame('<wrapper><renamed-element><?php $a + 1 ?></renamed-element></wrapper>', $formatter->format($el, HtmlFormat::class));
     }
 }

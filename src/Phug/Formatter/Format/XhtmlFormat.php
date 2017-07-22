@@ -15,7 +15,7 @@ abstract class XhtmlFormat extends XmlFormat
 
     public function __construct(Formatter $formatter = null)
     {
-        $this->setOptions([
+        $this->setOptionsRecursive([
             'white_space_sensitive_tags' => [
                 'pre',
                 'textarea',

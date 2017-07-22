@@ -55,9 +55,9 @@ class Formatter implements ModuleContainerInterface
      *
      * @param array|null $options the options array
      */
-    public function __construct(array $options = null)
+    public function __construct($options = null)
     {
-        $this->setOptionsRecursive([
+        $this->setOptionsDefaults($options ?: [], [
             'debug'                       => false,
             'dependencies_storage'        => 'pugModule',
             'dependencies_storage_getter' => null,
@@ -73,11 +73,11 @@ class Formatter implements ModuleContainerInterface
                 'transitional' => TransitionalFormat::class,
                 'xml'          => XmlFormat::class,
             ],
-            'modules'              => [],
+            'formatter_modules'     => [],
 
             'on_format'             => null,
             'on_dependency_storage' => null,
-        ], $options ?: []);
+        ]);
 
         $this->dependencies = new DependencyInjection();
 
@@ -105,7 +105,7 @@ class Formatter implements ModuleContainerInterface
             $this->attach(FormatterEvent::DEPENDENCY_STORAGE, $onDependencyStorage);
         }
 
-        $this->addModules($this->getOption('modules'));
+        $this->addModules($this->getOption('formatter_modules'));
     }
 
     /**
@@ -123,29 +123,47 @@ class Formatter implements ModuleContainerInterface
         return $id;
     }
 
+    private function fileContains($file, $needle)
+    {
+        $handler = @fopen($file, 'r');
+        if (!$handler) {
+            return false;
+        }
+        $previousChunk = '';
+        while ($chunk = fread($file, 512)) {
+            if (mb_strrpos($previousChunk.$chunk, $needle) !== false) {
+                fclose($file);
+
+                return true;
+            }
+            $previousChunk = $chunk;
+        }
+        fclose($file);
+
+        return false;
+    }
+
     private function getSourceLine($error)
     {
         /** @var \Throwable $error */
-        foreach (array_merge([
+        foreach (array_merge([[
             'file' => $error->getFile(),
             'line' => $error->getLine(),
-        ], $error->getTrace()) as $step) {
-            if (isset($step['args'], $step['args'][4], $step['args'][4]['php']) &&
-                mb_strrpos($step['args'][4]['php'], 'PUG_DEBUG:') !== false
-            ) {
-                return $step['line'];
-            }
-            if (!isset($step['file'])) {
-                continue;
-            }
-            $file = @fopen($step['file'], 'r');
-            if ($file === false) {
-                continue;
-            }
-            while ($contents = fread($file, 1024)) {
-                if (mb_strrpos($contents, 'PUG_DEBUG:') !== false) {
-                    return $step['line'];
+        ]], $error->getTrace()) as $step) {
+            foreach (['php', '__pug_php'] as $key) {
+                if (isset($step['args'], $step['args'][4], $step['args'][4][$key]) &&
+                    mb_strrpos($step['args'][4][$key], 'PUG_DEBUG:') !== false
+                ) {
+                    if (isset($step['line'])) {
+                        return $step['line'];
+                    }
+                    if (isset($step['args'][3])) {
+                        return $step['args'][3];
+                    }
                 }
+            }
+            if (isset($step['file'], $step['line']) && $this->fileContains($step['file'], 'PUG_DEBUG:')) {
+                return $step['line'];
             }
         }
 
@@ -157,13 +175,13 @@ class Formatter implements ModuleContainerInterface
      *
      * @param \Throwable $error
      * @param string     $code
-     * @param string     $renderingFile
+     * @param string     $path
      *
      * @throws \Throwable
      *
      * @return LocatedException|\Throwable
      */
-    public function getDebugError($error, $code, $renderingFile = null)
+    public function getDebugError($error, $code, $path = null)
     {
         /** @var \Throwable $error */
         $line = $this->getSourceLine($error);
@@ -185,7 +203,7 @@ class Formatter implements ModuleContainerInterface
         $node = $this->debugNodes[$nodeId];
         $nodeLocation = $node->getSourceLocation();
         $location = new SourceLocation(
-            $renderingFile ?: $nodeLocation->getPath(),
+            $nodeLocation->getPath() ?: $path,
             $nodeLocation->getLine(),
             $nodeLocation->getOffset(),
             $nodeLocation->getOffsetLength()
