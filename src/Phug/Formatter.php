@@ -133,6 +133,7 @@ class Formatter implements ModuleContainerInterface
         while ($chunk = fread($file, 512)) {
             if (mb_strrpos($previousChunk.$chunk, $needle) !== false) {
                 fclose($file);
+
                 return true;
             }
             $previousChunk = $chunk;
