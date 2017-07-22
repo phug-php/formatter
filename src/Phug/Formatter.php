@@ -142,11 +142,9 @@ class Formatter implements ModuleContainerInterface
                     }
                 }
             }
-            if (!isset($step['file']) || !isset($step['line'])) {
-                continue;
-            }
-            $file = @fopen($step['file'], 'r');
-            if ($file === false) {
+            if (!isset($step['file'], $step['line']) ||
+                ($file = @fopen($step['file'], 'r')) === false
+            ) {
                 continue;
             }
             while ($contents = fread($file, 1024)) {
@@ -154,6 +152,7 @@ class Formatter implements ModuleContainerInterface
                     return $step['line'];
                 }
             }
+            fclose($file);
         }
 
         return false;
