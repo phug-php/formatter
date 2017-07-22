@@ -130,15 +130,15 @@ class Formatter implements ModuleContainerInterface
             return false;
         }
         $previousChunk = '';
-        while ($chunk = fread($file, 512)) {
+        while ($chunk = fread($handler, 512)) {
             if (mb_strrpos($previousChunk.$chunk, $needle) !== false) {
-                fclose($file);
+                fclose($handler);
 
                 return true;
             }
             $previousChunk = $chunk;
         }
-        fclose($file);
+        fclose($handler);
 
         return false;
     }
