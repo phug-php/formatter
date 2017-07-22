@@ -123,6 +123,25 @@ class Formatter implements ModuleContainerInterface
         return $id;
     }
 
+    private function fileContains($file, $needle)
+    {
+        $handler = @fopen($file, 'r');
+        if (!$handler) {
+            return false;
+        }
+        $previousChunk = '';
+        while ($chunk = fread($file, 512)) {
+            if (mb_strrpos($previousChunk . $chunk, $needle) !== false) {
+                fclose($file);
+                return true;
+            }
+            $previousChunk = $chunk;
+        }
+        fclose($file);
+
+        return false;
+    }
+
     private function getSourceLine($error)
     {
         /** @var \Throwable $error */
@@ -142,17 +161,9 @@ class Formatter implements ModuleContainerInterface
                     }
                 }
             }
-            if (!isset($step['file'], $step['line']) ||
-                ($file = @fopen($step['file'], 'r')) === false
-            ) {
-                continue;
+            if (isset($step['file'], $step['line']) && $this->fileContains($step['file'], 'PUG_DEBUG:')) {
+                return $step['line'];
             }
-            while ($contents = fread($file, 1024)) {
-                if (mb_strrpos($contents, 'PUG_DEBUG:') !== false) {
-                    return $step['line'];
-                }
-            }
-            fclose($file);
         }
 
         return false;
