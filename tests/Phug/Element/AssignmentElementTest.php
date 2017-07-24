@@ -224,9 +224,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter::formatAttributesList
-     * @covers \Phug\Formatter\Format\AbstractFormat::testFormatAttributesList
-     * @covers \Phug\Formatter\Format\AbstractFormat::arrayToPairsExports
-     * @covers \Phug\Formatter\Format\AbstractFormat::formatPairAsArrayItem
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributesList
+     * @covers \Phug\Formatter\AbstractFormat::arrayToPairsExports
+     * @covers \Phug\Formatter\AbstractFormat::formatPairAsArrayItem
      */
     public function testFormatAttributesList()
     {
