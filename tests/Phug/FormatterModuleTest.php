@@ -4,9 +4,7 @@ namespace Phug\Test;
 
 use Phug\AbstractFormatterModule;
 use Phug\Formatter;
-use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\CodeElement;
-use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
