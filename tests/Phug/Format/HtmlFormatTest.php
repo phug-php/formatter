@@ -42,6 +42,16 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::escapeHtml
+     */
+    public function testDependencies()
+    {
+        $formatter = new HtmlFormat();
+
+        self::assertSame('&lt;', $formatter->escapeHtml('<'));
+    }
+
+    /**
      * @covers ::<public>
      */
     public function testCustomFormatHandler()

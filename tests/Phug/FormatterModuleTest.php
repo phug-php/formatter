@@ -4,10 +4,14 @@ namespace Phug\Test;
 
 use Phug\AbstractFormatterModule;
 use Phug\Formatter;
+use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterEvent;
 
 //@codingStandardsIgnoreStart
@@ -39,6 +43,9 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Event\FormatEvent::__construct
+     * @covers \Phug\Formatter\Event\FormatEvent::getElement
+     * @covers \Phug\Formatter\Event\FormatEvent::setElement
      */
     public function testModule()
     {
@@ -50,6 +57,54 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
 
         $formatter = new Formatter(['formatter_modules' => [TestModule::class]]);
         self::assertSame('<wrapper><renamed-element><?php $a + 1 ?></renamed-element></wrapper>', $formatter->format($el, HtmlFormat::class));
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter\Event\FormatEvent::__construct
+     * @covers \Phug\Formatter\Event\FormatEvent::getFormat
+     * @covers \Phug\Formatter\Event\FormatEvent::setFormat
+     */
+    public function testFormatEvent()
+    {
+        $formatter = new Formatter([
+            'on_format' => function (FormatEvent $e) {
+                if ($e->getFormat() instanceof HtmlFormat) {
+                    $e->setFormat(new XmlFormat());
+                }
+            },
+        ]);
+
+        $el = new MarkupElement('input');
+
+        self::assertSame('<input></input>', $formatter->format($el, HtmlFormat::class));
+
+        $formatter = new Formatter();
+
+        $el = new MarkupElement('input');
+
+        self::assertSame('<input>', $formatter->format($el, HtmlFormat::class));
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter\Event\DependencyStorageEvent::<public>
+     */
+    public function testDependencyStorageEvent()
+    {
+        $formatter = new Formatter([
+            'on_dependency_storage' => function (DependencyStorageEvent $e) {
+                $e->setDependencyStorage(str_replace(
+                    'foo',
+                    'bar',
+                    $e->getDependencyStorage()
+                ));
+            },
+        ]);
+
+        self::assertSame('$pugModule[\'bar\']', $formatter->getDependencyStorage('foo'));
     }
 }
 //@codingStandardsIgnoreEnd

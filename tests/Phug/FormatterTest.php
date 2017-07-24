@@ -654,10 +654,12 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter::__construct
      * @covers \Phug\Formatter::storeDebugNode
      * @covers \Phug\Formatter::fileContains
      * @covers \Phug\Formatter::getSourceLine
      * @covers \Phug\Formatter::getDebugError
+     * @covers \Phug\Formatter::getDebugInfo
      */
     public function testDebugError()
     {
