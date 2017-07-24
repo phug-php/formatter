@@ -111,6 +111,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers                   \Phug\Formatter\AbstractFormat::throwException
      * @covers                   \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage Unable to handle class assignment
@@ -223,7 +224,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter::formatAttributesList
-     * @covers \Phug\Formatter\Format\AbstractFormat::formatAttributesList
+     * @covers \Phug\Formatter\Format\AbstractFormat::testFormatAttributesList
      * @covers \Phug\Formatter\Format\AbstractFormat::arrayToPairsExports
      * @covers \Phug\Formatter\Format\AbstractFormat::formatPairAsArrayItem
      */

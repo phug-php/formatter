@@ -711,6 +711,10 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $php = $formatter->format($document);
         $php = $formatter->formatDependencies().$php;
 
+        if (defined('HHVM_VERSION')) {
+            return;
+        }
+
         $error = null;
         ob_start();
         call_user_func(function ($code) use (&$error, $helper, $formatter) {

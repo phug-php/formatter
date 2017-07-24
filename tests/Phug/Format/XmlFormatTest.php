@@ -15,6 +15,7 @@ use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\XmlFormat;
+use Phug\Parser\Node\TextNode;
 use SplObjectStorage;
 
 /**
@@ -94,6 +95,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild($call);
         $document->appendChild($if);
+        $document->appendChild(new TextNode()); // Should be ignored
         $document->appendChild($else);
         $xmlFormat = new XmlFormat(new Formatter([
             'default_format'   => XmlFormat::class,
