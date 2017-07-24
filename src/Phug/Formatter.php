@@ -145,11 +145,27 @@ class Formatter implements ModuleContainerInterface
 
     private function getSourceLine($error)
     {
+        $previous = null;
+        $line = null;
         /** @var \Throwable $error */
         foreach (array_merge([[
             'file' => $error->getFile(),
             'line' => $error->getLine(),
         ]], $error->getTrace()) as $step) {
+            var_dump($step);
+            if (isset($step['function']) && $step['function'] === 'eval') {
+                $line = $previous;
+                continue;
+            }
+            $previous = isset($step['line']) ? $step['line'] : 1;
+            if (!is_null($line)) {
+                if (isset($step['args'], $step['args'][0]) &&
+                    mb_strrpos($step['args'][0], 'PUG_DEBUG:') !== false
+                ) {
+                    return $line;
+                }
+                $line = null;
+            }
             foreach (['php', '__pug_php'] as $key) {
                 if (isset($step['args'], $step['args'][4], $step['args'][4][$key]) &&
                     mb_strrpos($step['args'][4][$key], 'PUG_DEBUG:') !== false

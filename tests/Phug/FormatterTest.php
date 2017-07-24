@@ -654,21 +654,55 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group i
      * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::fileContains
      * @covers \Phug\Formatter::getSourceLine
      * @covers \Phug\Formatter::getDebugError
      */
     public function testDebugError()
     {
+//        $formatter = new Formatter([
+//            'debug' => true,
+//        ]);
+//        $node = new ExpressionNode(null, new SourceLocation('source.pug', 3, 15));
+//        $document = new DocumentElement();
+//        $document->appendChild($htmlEl = new MarkupElement('html'));
+//        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+//        $bodyEl->appendChild(new ExpressionElement(
+//            '12 / 0',
+//            $node
+//        ));
+//        $php = $formatter->format($document);
+//        $php = $formatter->formatDependencies().$php;
+//
+//        $error = null;
+//        ob_start();
+//        try {
+/*            eval('?>'.$php);*/
+//        } catch (\Exception $e) {
+//            /** @var LocatedException $error */
+//            $error = $formatter->getDebugError($e, $php);
+//        }
+//        ob_end_clean();
+//
+//        self::assertInstanceOf(LocatedException::class, $error);
+//        self::assertSame(3, $error->getLocation()->getLine());
+//        self::assertSame(15, $error->getLocation()->getOffset());
+//        self::assertSame('source.pug', $error->getLocation()->getPath());
+
         $formatter = new Formatter([
             'debug' => true,
         ]);
-        $node = new ExpressionNode(null, new SourceLocation('source.pug', 3, 15));
+        $helper = function () {
+            return 12 / 0;
+        };
+        $node = new ExpressionNode(null, new SourceLocation(null, 7, 9));
         $document = new DocumentElement();
         $document->appendChild($htmlEl = new MarkupElement('html'));
         $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
         $bodyEl->appendChild(new ExpressionElement(
-            '12 / 0',
+            '$helper()',
             $node
         ));
         $php = $formatter->format($document);
@@ -676,17 +710,19 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $error = null;
         ob_start();
-        try {
-            eval('?>'.$php);
-        } catch (\Exception $e) {
-            /** @var LocatedException $error */
-            $error = $formatter->getDebugError($e, $php);
-        }
+        call_user_func(function ($code) use (&$error, $helper, $formatter) {
+            try {
+                eval($code);
+            } catch (\Exception $e) {
+                /** @var LocatedException $error */
+                $error = $formatter->getDebugError($e, $code);
+            }
+        }, '?>'.$php);
         ob_end_clean();
 
         self::assertInstanceOf(LocatedException::class, $error);
-        self::assertSame(3, $error->getLocation()->getLine());
-        self::assertSame(15, $error->getLocation()->getOffset());
-        self::assertSame('source.pug', $error->getLocation()->getPath());
+        self::assertSame(7, $error->getLocation()->getLine());
+        self::assertSame(9, $error->getLocation()->getOffset());
+        self::assertSame(null, $error->getLocation()->getPath());
     }
 }
