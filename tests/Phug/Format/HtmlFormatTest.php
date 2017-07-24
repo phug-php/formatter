@@ -48,7 +48,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $formatter = new HtmlFormat();
 
-        self::assertSame('&lt;', $formatter->escapeHtml('<'));
+        self::assertSame('htmlspecialchars("<")', $formatter->escapeHtml('"<"'));
     }
 
     /**
