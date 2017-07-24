@@ -27,6 +27,8 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStyleAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneStyleAttributeAssignment
+     * @covers \Phug\Formatter\AbstractFormat::formatPairAsArrayItem
+     * @covers \Phug\Formatter\AbstractFormat::attributesAssignmentsFromPairs
      * @covers \Phug\Formatter\Format\XmlFormat::addAttributeAssignment
      * @covers \Phug\Formatter\Format\XmlFormat::requireHelper
      * @covers \Phug\Formatter\Format\XmlFormat::formatMarkupElement
@@ -217,5 +219,26 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             ') ? var_export($_pug_temp, true) : $_pug_temp) ?> />',
             $formatter->format($img)
         );
+    }
+
+    /**
+     * @covers \Phug\Formatter::formatAttributesList
+     * @covers \Phug\Formatter\Format\AbstractFormat::formatAttributesList
+     * @covers \Phug\Formatter\Format\AbstractFormat::arrayToPairsExports
+     * @covers \Phug\Formatter\Format\AbstractFormat::formatPairAsArrayItem
+     */
+    public function testFormatAttributesList()
+    {
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+        $list = $formatter->formatAttributesList([
+            new AttributeElement('name', new ExpressionElement('["class" => "top bottom"]')),
+        ]);
+
+        self::assertInstanceOf(ExpressionElement::class, $list);
+        self::assertSame('$pugModule['.
+            '\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat::merge_attributes\']'.
+            '([\'name\' => ["class" => "top bottom"]])', $list->getValue());
     }
 }

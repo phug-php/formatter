@@ -152,7 +152,6 @@ class Formatter implements ModuleContainerInterface
             'file' => $error->getFile(),
             'line' => $error->getLine(),
         ]], $error->getTrace()) as $step) {
-            var_dump($step);
             if (isset($step['function']) && $step['function'] === 'eval') {
                 $line = $previous;
                 continue;
