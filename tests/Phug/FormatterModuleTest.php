@@ -18,16 +18,16 @@ class TestModule extends AbstractFormatterModule
     public function getEventListeners()
     {
         return [
-            FormatterEvent::FORMAT => function (FormatEvent $e) {
-                $el = $e->getElement();
-                if ($el instanceof MarkupElement && $el->getName() === 'some-element') {
+            FormatterEvent::FORMAT => function (FormatEvent $event) {
+                $element = $event->getElement();
+                if ($element instanceof MarkupElement && $element->getName() === 'some-element') {
                     $wrapper = new MarkupElement('wrapper');
-                    $wrapper->appendChild($el);
+                    $wrapper->appendChild($element);
 
-                    $el->setName('renamed-element'); //Notice that we'd create an endless loop if we wouldn't rename it
-                    $el->appendChild(new CodeElement('$a + 1'));
+                    $element->setName('renamed-element'); //Notice that we'd create an endless loop if we wouldn't rename it
+                    $element->appendChild(new CodeElement('$a + 1'));
 
-                    $e->setElement($wrapper);
+                    $event->setElement($wrapper);
                 }
             },
         ];
@@ -67,9 +67,9 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
     public function testFormatEvent()
     {
         $formatter = new Formatter([
-            'on_format' => function (FormatEvent $e) {
-                if ($e->getFormat() instanceof HtmlFormat) {
-                    $e->setFormat(new XmlFormat());
+            'on_format' => function (FormatEvent $event) {
+                if ($event->getFormat() instanceof HtmlFormat) {
+                    $event->setFormat(new XmlFormat());
                 }
             },
         ]);
@@ -93,11 +93,11 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
     public function testDependencyStorageEvent()
     {
         $formatter = new Formatter([
-            'on_dependency_storage' => function (DependencyStorageEvent $e) {
-                $e->setDependencyStorage(str_replace(
+            'on_dependency_storage' => function (DependencyStorageEvent $event) {
+                $event->setDependencyStorage(str_replace(
                     'foo',
                     'bar',
-                    $e->getDependencyStorage()
+                    $event->getDependencyStorage()
                 ));
             },
         ]);

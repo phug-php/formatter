@@ -628,8 +628,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $message = null;
         try {
             $formatter->getDependencies()->setAsRequired('bar');
-        } catch (DependencyException $e) {
-            $message = $e->getMessage();
+        } catch (DependencyException $exception) {
+            $message = $exception->getMessage();
         }
 
         self::assertSame('bar dependency not found.', $message);
@@ -683,9 +683,9 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         ob_start();
         try {
             eval('?>'.$php);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             /** @var LocatedException $error */
-            $error = $formatter->getDebugError($e, $php);
+            $error = $formatter->getDebugError($exception, $php);
         }
         ob_end_clean();
 
@@ -720,9 +720,9 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         call_user_func(function ($code) use (&$error, $helper, $formatter) {
             try {
                 eval($code);
-            } catch (\Exception $e) {
+            } catch (\Exception $exception) {
                 /** @var LocatedException $error */
-                $error = $formatter->getDebugError($e, $code);
+                $error = $formatter->getDebugError($exception, $code);
             }
         }, '?>'.$php);
         ob_end_clean();
