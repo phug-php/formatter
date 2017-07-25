@@ -16,6 +16,7 @@ use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
+use Phug\FormatterModuleInterface;
 use Phug\Parser\Node\ExpressionNode;
 use Phug\Util\Exception\LocatedException;
 use Phug\Util\SourceLocation;
@@ -731,5 +732,32 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(7, $error->getLocation()->getLine());
         self::assertSame(9, $error->getLocation()->getOffset());
         self::assertSame(null, $error->getLocation()->getPath());
+
+        $error = null;
+        $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.'test-'.mt_rand(0, 9999999);
+        file_put_contents($file, $php);
+        ob_start();
+        call_user_func(function () use ($file, &$error, $helper, $formatter) {
+            try {
+                include $file;
+            } catch (\Exception $exception) {
+                /** @var LocatedException $error */
+                $error = $formatter->getDebugError($exception, file_get_contents($file));
+            }
+        });
+        ob_end_clean();
+
+        self::assertInstanceOf(LocatedException::class, $error);
+        self::assertSame(7, $error->getLocation()->getLine());
+        self::assertSame(9, $error->getLocation()->getOffset());
+        self::assertSame(null, $error->getLocation()->getPath());
+    }
+
+    /**
+     * @covers ::getModuleBaseClassName
+     */
+    public function testGetModuleBaseClassName()
+    {
+        self::assertSame(FormatterModuleInterface::class, (new Formatter())->getModuleBaseClassName());
     }
 }
