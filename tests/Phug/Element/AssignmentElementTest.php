@@ -22,6 +22,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignments
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneAttributeAssignment
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideMergeAttributes
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributesAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
@@ -70,6 +71,30 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             '['.
                 '"class" => ["baz", "foo", "foobar"],'.
                 '"style" => ["width" => "200px", "display" => "block"]'.
+            ']'
+        ));
+        $assignment = new AssignmentElement('attributes', $data, $img);
+        $img->getAssignments()->attach($assignment);
+        $img->getAttributes()->attach(new AttributeElement('class', 'foo bar'));
+        $img->getAttributes()->attach(new AttributeElement('style', 'height: 100px; z-index: 9;'));
+
+        ob_start();
+        $php = $formatter->format($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<img class="baz foo foobar bar" style="width:200px;display:block;height: 100px; z-index: 9;" />',
+            $actual
+        );
+
+        $img = new MarkupElement('img');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement(
+            '['.
+            '"class" => ["baz", "foo", "foobar"],'.
+            '"style" => "{&quot;width&quot;:&quot;200px&quot;,&quot;display&quot;:&quot;block&quot;}"'.
             ']'
         ));
         $assignment = new AssignmentElement('attributes', $data, $img);
