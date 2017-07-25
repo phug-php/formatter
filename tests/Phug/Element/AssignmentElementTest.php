@@ -113,6 +113,18 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             $actual
         );
 
+        $helper = (new HtmlFormat())->getHelper('merge_attributes');
+        $attributes = $helper([
+            'class' => ['baz', 'foo', 'foobar'],
+            'style' => '{&quot;width&quot;:&quot;200px&quot;,&quot;display&quot;:&quot;block&quot;}',
+        ], [
+            'class' => 'foo bar',
+            'style' => 'height: 100px; z-index: 9;',
+        ]);
+
+        self::assertSame('width:200px;display:block;height: 100px; z-index: 9;', $attributes['style']);
+        self::assertSame('baz foo foobar bar', $attributes['class']);
+
         $input = new MarkupElement('input');
         $attribute = new AttributeElement('class', new TextElement('foo'));
         $input->getAttributes()->attach($attribute);
