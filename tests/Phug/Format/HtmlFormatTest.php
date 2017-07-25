@@ -12,6 +12,10 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\FormatterException;
+use Phug\Lexer\Token\TagToken;
+use Phug\Parser\Node\ElementNode;
+use Phug\Util\SourceLocation;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Format\HtmlFormat
@@ -195,6 +199,32 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input->appendChild(new MarkupElement('i'));
         $htmlFormat = new HtmlFormat(new Formatter());
         $htmlFormat($input);
+    }
+
+    /**
+     * @covers \Phug\Formatter\AbstractFormat::throwException
+     * @covers \Phug\Formatter\Format\XmlFormat::isSelfClosingTag
+     */
+    public function testChildrenInSelfClosingTagLocation()
+    {
+        $input = new MarkupElement(
+            'input',
+            false,
+            null,
+            new ElementNode(new TagToken(), new SourceLocation('foo', 1, 2))
+        );
+        $input->appendChild(new MarkupElement('i'));
+        $htmlFormat = new HtmlFormat(new Formatter());
+        $location = null;
+        try {
+            $htmlFormat($input);
+        } catch (FormatterException $exception) {
+            $location = $exception->getLocation();
+        }
+
+        self::assertSame('foo', $location->getPath());
+        self::assertSame(1, $location->getLine());
+        self::assertSame(2, $location->getOffset());
     }
 
     /**

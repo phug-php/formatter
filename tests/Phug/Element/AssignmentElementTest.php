@@ -232,6 +232,9 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
     {
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,
+            'patterns'       => [
+                'dynamic_attribute' => '%s',
+            ],
         ]);
         $list = $formatter->formatAttributesList([
             new AttributeElement('name', new ExpressionElement('["class" => "top bottom"]')),
@@ -241,5 +244,16 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame('$pugModule['.
             '\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat::merge_attributes\']'.
             '([\'name\' => ["class" => "top bottom"]])', $list->getValue());
+
+        $expression = new ExpressionElement('$var');
+        $expression->escape();
+        $list = $formatter->formatAttributesList([
+            new AttributeElement('name', $expression),
+        ]);
+
+        self::assertInstanceOf(ExpressionElement::class, $list);
+        self::assertSame('$pugModule['.
+            '\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat::merge_attributes\']'.
+            '([\'name\' => htmlspecialchars($var)])', $list->getValue());
     }
 }
