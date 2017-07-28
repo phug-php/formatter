@@ -186,6 +186,26 @@ class Formatter implements ModuleContainerInterface
     }
 
     /**
+     * @param int $nodeId
+     *
+     * @return bool
+     */
+    public function debugIdExists($nodeId)
+    {
+        return isset($this->debugNodes[$nodeId]);
+    }
+
+    /**
+     * @param int $nodeId
+     *
+     * @return NodeInterface
+     */
+    public function getNodeFromDebugId($nodeId)
+    {
+        return $this->debugNodes[$nodeId];
+    }
+
+    /**
      * Return a formatted error linked to pug source.
      *
      * @param \Throwable $error
@@ -211,11 +231,10 @@ class Formatter implements ModuleContainerInterface
             throw $error;
         }
         $nodeId = intval(mb_substr($source, $pos + 10, 32));
-        if (!isset($this->debugNodes[$nodeId])) {
+        if (!$this->debugIdExists($nodeId)) {
             throw $error;
         }
-        /** @var NodeInterface $node */
-        $node = $this->debugNodes[$nodeId];
+        $node = $this->getNodeFromDebugId($nodeId);
         $nodeLocation = $node->getSourceLocation();
         $location = new SourceLocation(
             $nodeLocation->getPath() ?: $path,
