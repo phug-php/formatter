@@ -16,6 +16,7 @@ use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
 use Phug\Formatter\Partial\PatternTrait;
 use Phug\FormatterException;
+use Phug\Parser\NodeInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 use Phug\Util\SourceLocation;
@@ -192,6 +193,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return '';
         }
 
+        /* @var NodeInterface $node */
+
         return $this->pattern(
             'debug',
             $this->formatter->storeDebugNode($node)
@@ -199,17 +202,19 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     }
 
     /**
+     * @param string|ElementInterface $element
+     * @param bool                    $noDebug
      * @param $element
      *
      * @return string
      */
-    public function format($element)
+    public function format($element, $noDebug = false)
     {
         if (is_string($element)) {
             return $element;
         }
 
-        $debug = $this->getOption('debug');
+        $debug = $this->getOption('debug') && !$noDebug;
         foreach ($this->getOption('element_handlers') as $className => $handler) {
             if (is_a($element, $className)) {
                 return ($debug ? $this->getDebugInfo($element) : '').$handler($element);
@@ -371,7 +376,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             return $code;
         }
 
-        return var_export(strval($this->format($value)), true);
+        return var_export(strval($this->format($value, true)), true);
     }
 
     protected function formatPairAsArrayItem($name, $value)
