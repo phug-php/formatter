@@ -663,6 +663,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter::getNodeFromDebugId
      * @covers \Phug\Formatter::getDebugError
      * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter\AbstractFormat::getDebugComment
      * @covers \Phug\Formatter\AbstractFormat::getDebugInfo
      * @covers \Phug\Formatter\AbstractElement::getOriginNode
      */

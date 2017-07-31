@@ -60,6 +60,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
      */
     protected $formatter;
 
+    /**
+     * @var string
+     */
+    private $debugCommentPattern = null;
+
     public function __construct(Formatter $formatter = null)
     {
         $patterns = [
@@ -82,13 +87,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'custom_doctype'         => static::CUSTOM_DOCTYPE,
             'debug_comment'          => static::DEBUG_COMMENT,
             'debug'                  => function ($nodeId) {
-                return $this->pattern(
-                    'php_handle_code',
-                    $this->pattern(
-                        'debug_comment',
-                        $nodeId
-                    )
-                );
+                return $this->handleCode($this->getDebugComment($nodeId));
             },
         ];
         $formatter = $formatter ?: new Formatter();
@@ -134,6 +133,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             ->setFormatter($formatter)
             ->registerHelper('pattern', $this->getOption('pattern'))
             ->addPatterns($this->getOption('patterns'));
+
+        $this->debugCommentPattern = trim($this->getDebugComment(''));
     }
 
     /**
@@ -182,6 +183,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     },
                 ]
             );
+    }
+
+    public function getDebugComment($nodeId)
+    {
+        return $this->pattern(
+            'debug_comment',
+            $nodeId
+        );
     }
 
     protected function getDebugInfo($element)
@@ -553,6 +562,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $this->formatter->setLevel($indentLevel + $indentStep);
         $content = '';
         $previous = null;
+        $commentPattern = $this->getOption('debug') ? $this->debugCommentPattern : null;
         foreach ($element->getChildren() as $child) {
             if (!($child instanceof ElementInterface)) {
                 continue;
@@ -565,7 +575,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $previous->isCodeBlock()
             ) {
                 $content = mb_substr($content, 0, -2);
-                $childContent = preg_replace('/^<\?(?:php)?\s/', '', $childContent);
+                $childContent = preg_replace('/^<\\?(?:php)?\\s/', '', $childContent);
+                if ($commentPattern &&
+                    mb_strpos($childContent, $commentPattern) !== false &&
+                    preg_match('/\\}\\s*$/', $content)
+                ) {
+                    $content = preg_replace(
+                        '/\\}\\s*$/',
+                        preg_replace('/\\?><\\?php(?:php)?/', '\\\\0', $childContent, 1),
+                        $content
+                    );
+                    $childContent = '';
+                }
             }
 
             $content .= $childContent;

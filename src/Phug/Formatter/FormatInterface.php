@@ -15,6 +15,8 @@ interface FormatInterface
 
     public function formatCode($code, $checked, $noTransformation = false);
 
+    public function getDebugComment($nodeId);
+
     public function setFormatter(Formatter $formatter);
 
     public function removeElementHandler($className);
