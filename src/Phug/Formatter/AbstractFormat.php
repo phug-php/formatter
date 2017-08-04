@@ -200,17 +200,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         /* @var NodeInterface $node */
         $node = null;
 
-        if (
-            !(
-                $element instanceof ElementInterface &&
-                ($node = $element->getOriginNode())
-            ) ||
-            $node instanceof WhenNode ||
-            (
-                $node instanceof ConditionalNode &&
-                $node->getName() === 'else'
-            )
-        ) {
+        if (!(
+            $element instanceof ElementInterface &&
+            ($node = $element->getOriginNode())
+        ) ||
+        $node instanceof WhenNode || (
+            $node instanceof ConditionalNode &&
+            $node->getName() === 'else'
+        )) {
             return '';
         }
 
