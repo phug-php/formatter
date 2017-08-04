@@ -117,10 +117,10 @@ class Formatter implements ModuleContainerInterface
      */
     public function storeDebugNode(NodeInterface $node)
     {
-        $id = count($this->debugNodes);
+        $nodeId = count($this->debugNodes);
         $this->debugNodes[] = $node;
 
-        return $id;
+        return $nodeId;
     }
 
     private function fileContains($file, $needle)
