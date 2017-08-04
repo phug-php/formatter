@@ -16,6 +16,8 @@ use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
 use Phug\Formatter\Partial\PatternTrait;
 use Phug\FormatterException;
+use Phug\Parser\Node\ConditionalNode;
+use Phug\Parser\Node\WhenNode;
 use Phug\Parser\NodeInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
@@ -195,14 +197,19 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function getDebugInfo($element)
     {
+        /* @var NodeInterface $node */
+        $node = null;
+
         if (!(
             $element instanceof ElementInterface &&
             ($node = $element->getOriginNode())
+        ) ||
+        $node instanceof WhenNode || (
+            $node instanceof ConditionalNode &&
+            $node->getName() === 'else'
         )) {
             return '';
         }
-
-        /* @var NodeInterface $node */
 
         return $this->pattern(
             'debug',
@@ -466,6 +473,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     ? $this->pattern('php_nested_html', $this->formatElementChildren($code, 0))
                     : ''
             );
+        } elseif ($code->hasChildren()) {
+            $php = preg_replace('/\s*\{\s*\}\s*$/', '', $php).
+                $this->pattern('php_nested_html', $this->formatElementChildren($code, 0));
         }
 
         return $this->handleCode($php);
@@ -577,7 +587,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $content = mb_substr($content, 0, -2);
                 $childContent = preg_replace('/^<\\?(?:php)?\\s/', '', $childContent);
                 if ($commentPattern &&
-                    mb_strpos($childContent, $commentPattern) !== false &&
+                    ($pos = mb_strpos($childContent, $commentPattern)) !== false && (
+                        ($end = mb_strpos($childContent, '?>')) === false ||
+                        $pos < $end
+                    ) &&
                     preg_match('/\\}\\s*$/', $content)
                 ) {
                     $content = preg_replace(

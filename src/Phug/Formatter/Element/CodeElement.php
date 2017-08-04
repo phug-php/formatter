@@ -70,11 +70,11 @@ class CodeElement extends AbstractValueElement
     {
         $tokens = $this->getValueTokens();
 
-        return $this->hasChildren() ||
-            (
+        return (
+            $this->hasChildren() || (
                 $this->isCodeBlockOpening() &&
-                !$this->hasBlockContent() &&
-                !in_array(end($tokens), [';', '{'])
-            );
+                !$this->hasBlockContent()
+            )
+        ) && !in_array(end($tokens), [';', '{']);
     }
 }
