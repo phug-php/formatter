@@ -233,7 +233,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $debug = $this->getOption('debug') && !$noDebug;
         foreach ($this->getOption('element_handlers') as $className => $handler) {
             if (is_a($element, $className)) {
-                return ($debug ? $this->getDebugInfo($element) : '').$handler($element);
+                $elementCode = $handler($element);
+                $debugCode = $debug ? $this->getDebugInfo($element) : '';
+                $glue = in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"])
+                        ? "\n"
+                        : '';
+
+                return $debugCode.$glue.$elementCode;
             }
         }
 
