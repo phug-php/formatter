@@ -235,7 +235,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             if (is_a($element, $className)) {
                 $elementCode = $handler($element);
                 $debugCode = $debug ? $this->getDebugInfo($element) : '';
-                $glue = in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"])
+                $glue = mb_strlen($debugCode) && in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"])
                         ? "\n"
                         : '';
 
