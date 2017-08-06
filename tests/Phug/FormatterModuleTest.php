@@ -60,6 +60,7 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::<public>
      * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter::format
      * @covers \Phug\Formatter\Event\FormatEvent::__construct
      * @covers \Phug\Formatter\Event\FormatEvent::getFormat
      * @covers \Phug\Formatter\Event\FormatEvent::setFormat
@@ -83,6 +84,18 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
         $el = new MarkupElement('input');
 
         self::assertSame('<input>', $formatter->format($el, HtmlFormat::class));
+
+        $formatter = new Formatter([
+            'on_format' => function (FormatEvent $event) {
+                $event->setElement(null);
+            },
+        ]);
+        $format = new HtmlFormat($formatter);
+
+        self::assertSame(
+            '',
+            $formatter->format(new MarkupElement('input'), $format)
+        );
     }
 
     /**

@@ -17,7 +17,9 @@ use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterModuleInterface;
+use Phug\Parser\Node\CodeNode;
 use Phug\Parser\Node\ExpressionNode;
+use Phug\Parser\Node\TextNode;
 use Phug\Util\Exception\LocatedException;
 use Phug\Util\SourceLocation;
 use RuntimeException;
@@ -564,6 +566,131 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             '<?php if (5 == 5) {} ?>',
             $formatter->format($if, $format)
+        );
+
+        $document = new DocumentElement();
+        $if = new CodeElement('if (5 == 5) {');
+        $if->appendChild(new MarkupElement('div'));
+        $document->appendChild($if);
+        $document->appendChild(new CodeElement('}'));
+        $format = new HtmlFormat($formatter);
+
+        self::assertSame(
+            '<?php if (5 == 5) { ?><div></div><?php } ?>',
+            str_replace('  ', ' ', $formatter->format($document, $format))
+        );
+    }
+
+    /**
+     * @group debug
+     * @covers \Phug\Formatter\AbstractFormat::format
+     * @covers \Phug\Formatter\AbstractFormat::formatElementChildren
+     * @covers \Phug\Formatter::getSourceLine
+     * @covers \Phug\Formatter::getDebugError
+     * @covers \Phug\Formatter::fileContains
+     */
+    public function testFormatCodeWithDebug()
+    {
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $document = new DocumentElement();
+        $createCodeElement = function ($content, $line) {
+            $location = new SourceLocation('source.pug', $line, 0);
+            $node = new CodeNode(null, $location);
+            $node->setValue($content);
+
+            return new CodeElement($content, $node);
+        };
+        $if = $createCodeElement('if (5 == 5)', 3);
+        $if->appendChild($createCodeElement('$a = 5', 5));
+        $else = $createCodeElement('else', 7);
+        $else->appendChild($createCodeElement('$a = "?"', 9));
+        $document->appendChild($if);
+        $document->appendChild($else);
+        $format = new HtmlFormat($formatter);
+
+        self::assertTrue($format->getOption('debug'));
+        self::assertSame(
+            implode('', [
+                "<?php \n// PUG_DEBUG".":1\n ?>",
+                '<?php if (5 == 5) { ?>',
+                "<?php \n// PUG_DEBUG".":0\n ?>",
+                '<?php $a = 5 ?>',
+                "<?php \n// PUG_DEBUG".":3\n",
+                ' }  else { ?>',
+                "<?php \n// PUG_DEBUG".":2\n ?>",
+                '<?php $a = "?" ?>',
+                '<?php } ?>',
+            ]),
+            $formatter->format($document, $format)
+        );
+        $exception = new \Exception();
+        $error = $formatter->getDebugError($exception, 1);
+
+        self::assertSame($error, $exception);
+
+        include_once __DIR__.'/OpenThrowable.php';
+        $exception = new OpenThrowable();
+        $exception->setLine(5);
+        $error = $formatter->getDebugError($exception, 1);
+
+        self::assertSame($error, $exception);
+
+        $formatter = new Formatter();
+        $format = new HtmlFormat($formatter);
+        $code = new CodeElement("\n".$format->getDebugComment(9999)."\n");
+
+        self::assertSame(
+            "<?php \n// PUG_DEBUG".":9999\n ?>",
+            $formatter->format($code, $format)
+        );
+
+        $exception = new OpenThrowable();
+        $exception->setLine(2);
+        $error = $formatter->getDebugError($exception, 1);
+
+        self::assertSame($error, $exception);
+
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $document = new DocumentElement();
+        $createCodeElement = function ($content, $line) {
+            $location = new SourceLocation('source.pug', $line, 0);
+            $node = new CodeNode(null, $location);
+            $node->setValue($content);
+
+            return new CodeElement($content, $node);
+        };
+        $if = $createCodeElement('if (5 == 5)', 3);
+        $if->appendChild($createCodeElement('$a = 5', 5));
+        $else = $createCodeElement('else', 7);
+        $location = new SourceLocation('source.pug', 9, 0);
+        $node = new TextNode(null, $location);
+        $node->setValue("\nfoo\n");
+        $else->appendChild(new TextElement("\nfoo\n", $node));
+        $else->appendChild($createCodeElement('$a = "?"', 11));
+        $document->appendChild($if);
+        $document->appendChild($else);
+        $format = new HtmlFormat($formatter);
+
+        self::assertTrue($format->getOption('debug'));
+        self::assertSame(
+            implode('', [
+                "<?php \n// PUG_DEBUG".":1\n ?>",
+                '<?php if (5 == 5) { ?>',
+                "<?php \n// PUG_DEBUG".":0\n ?>",
+                '<?php $a = 5 ?>',
+                "<?php \n// PUG_DEBUG".":4\n",
+                ' }  else { ?>',
+                "<?php \n// PUG_DEBUG".":2\n ?>\n",
+                "\nfoo\n",
+                "<?php \n// PUG_DEBUG".":3\n ?>",
+                '<?php $a = "?" ?>',
+                '<?php } ?>',
+            ]),
+            $formatter->format($document, $format)
         );
     }
 
