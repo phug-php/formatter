@@ -87,14 +87,14 @@ trait HandleVariable
                 T_XOR_EQUAL,
             ],
         ] as $direction => $exclusions) {
-            $id = null;
+            $tokenId = null;
             for ($i = 1; isset($tokens[$index + $direction * $i]); $i++) {
-                $id = $tokens[$index + $direction * $i];
-                if (is_array($id)) {
-                    $id = $id[0];
+                $tokenId = $tokens[$index + $direction * $i];
+                if (is_array($tokenId)) {
+                    $tokenId = $tokenId[0];
                 }
                 // Ignore the following tokens
-                if (in_array($id, [
+                if (in_array($tokenId, [
                     T_COMMENT,
                     T_DOC_COMMENT,
                     T_WHITESPACE,
@@ -104,7 +104,7 @@ trait HandleVariable
                 break;
             }
 
-            if (in_array($id, $exclusions)) {
+            if (in_array($tokenId, $exclusions)) {
                 return true;
             }
         }

@@ -331,23 +331,23 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $tokens = array_slice(token_get_all('<?php '.$code), 1);
 
         foreach ($tokens as $index => $token) {
-            $id = $token;
+            $tokenId = $token;
             $text = $token;
-            if (!is_string($id)) {
-                list($id, $text) = $token;
+            if (!is_string($tokenId)) {
+                list($tokenId, $text) = $token;
             }
-            if (!isset($phpTokenHandler[$id])) {
+            if (!isset($phpTokenHandler[$tokenId])) {
                 yield $text;
 
                 continue;
             }
-            if (is_string($phpTokenHandler[$id])) {
-                yield sprintf($phpTokenHandler[$id], $text);
+            if (is_string($phpTokenHandler[$tokenId])) {
+                yield sprintf($phpTokenHandler[$tokenId], $text);
 
                 continue;
             }
 
-            yield $phpTokenHandler[$id]($text, $index, $tokens, $checked);
+            yield $phpTokenHandler[$tokenId]($text, $index, $tokens, $checked);
         }
     }
 
