@@ -754,6 +754,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame('', $formatter->formatDependencies());
 
         $message = null;
+
         try {
             $formatter->getDependencies()->setAsRequired('bar');
         } catch (DependencyException $exception) {
@@ -812,6 +813,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $error = null;
         ob_start();
+
         try {
             eval('?>'.$php);
         } catch (\Exception $exception) {
