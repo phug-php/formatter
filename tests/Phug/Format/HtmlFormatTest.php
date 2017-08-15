@@ -216,6 +216,7 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input->appendChild(new MarkupElement('i'));
         $htmlFormat = new HtmlFormat(new Formatter());
         $location = null;
+
         try {
             $htmlFormat($input);
         } catch (FormatterException $exception) {
