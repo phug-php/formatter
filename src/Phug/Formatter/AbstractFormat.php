@@ -601,7 +601,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 ) {
                     $content = preg_replace(
                         '/\\}\\s*$/',
-                        preg_replace('/\\?><\\?php(?:php)?/', '\\\\0', $childContent, 1),
+                        preg_replace('/\\?><\\?php(?:php)?(\s+\\?><\\?php(?:php)?)*/', '\\\\0', $childContent, 1),
                         $content
                     );
                     $childContent = '';
