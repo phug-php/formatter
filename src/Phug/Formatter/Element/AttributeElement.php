@@ -5,10 +5,12 @@ namespace Phug\Formatter\Element;
 use Phug\Ast\NodeInterface;
 use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\NameTrait;
+use Phug\Util\Partial\VariadicTrait;
 
 class AttributeElement extends AbstractValueElement
 {
     use NameTrait;
+    use VariadicTrait;
 
     /**
      * AttributeElement constructor.

@@ -4,7 +4,7 @@ namespace Phug\Formatter\Element;
 
 use Phug\Ast\NodeInterface;
 use Phug\Formatter\AbstractElement;
-use Phug\Formatter\MarkupInterface;
+use Phug\Formatter\AssignmentContainerInterface;
 use Phug\Parser\NodeInterface as ParserNode;
 use Phug\Util\Partial\AttributeTrait;
 use Phug\Util\Partial\NameTrait;
@@ -17,17 +17,17 @@ class AssignmentElement extends AbstractElement
     /**
      * AssignmentElement constructor.
      *
-     * @param string                 $name
-     * @param \SplObjectStorage|null $attributes
-     * @param MarkupInterface|null   $markup
-     * @param ParserNode|null        $originNode
-     * @param NodeInterface|null     $parent
-     * @param array|null             $children
+     * @param string                            $name
+     * @param \SplObjectStorage|null            $attributes
+     * @param AssignmentContainerInterface|null $markup
+     * @param ParserNode|null                   $originNode
+     * @param NodeInterface|null                $parent
+     * @param array|null                        $children
      */
     public function __construct(
         $name,
         \SplObjectStorage $attributes = null,
-        MarkupInterface $markup = null,
+        AssignmentContainerInterface $container = null,
         ParserNode $originNode = null,
         NodeInterface $parent = null,
         array $children = null
@@ -40,32 +40,32 @@ class AssignmentElement extends AbstractElement
             $this->getAttributes()->addAll($attributes);
         }
 
-        if ($markup) {
-            $this->setMarkup($markup);
+        if ($container) {
+            $this->setContainer($container);
         }
     }
 
     /**
-     * @var MarkupElement
+     * @var AssignmentContainerInterface
      */
-    private $markup;
+    private $container;
 
     /**
      * Set markup subject.
      *
-     * @param MarkupInterface $markup
+     * @param AssignmentContainerInterface $markup
      */
-    public function setMarkup(MarkupInterface $markup)
+    public function setContainer(AssignmentContainerInterface $container)
     {
-        $this->markup = $markup;
+        $this->container = $container;
     }
 
     /**
-     * @return MarkupElement
+     * @return AssignmentContainerInterface
      */
-    public function getMarkup()
+    public function getContainer()
     {
-        return $this->markup;
+        return $this->container;
     }
 
     /**
@@ -73,6 +73,6 @@ class AssignmentElement extends AbstractElement
      */
     public function detach()
     {
-        return $this->markup->removedAssignment($this);
+        return $this->container->removedAssignment($this);
     }
 }

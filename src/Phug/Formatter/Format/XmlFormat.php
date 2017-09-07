@@ -237,7 +237,7 @@ class XmlFormat extends AbstractFormat
             }
         );
 
-        $markup = $element->getMarkup();
+        $markup = $element->getContainer();
 
         $arguments = [];
         $attributes = $markup->getAssignmentsByName('attributes');

@@ -183,7 +183,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
             'default_format'      => XmlFormat::class,
             'assignment_handlers' => [
                 function (AssignmentElement $element) {
-                    $markup = $element->getMarkup();
+                    $markup = $element->getContainer();
                     foreach ($markup->getAssignmentsByName('data') as $dataAssignment) {
                         $attributesAssignment = new AssignmentElement('attributes', null, $markup);
                         /**

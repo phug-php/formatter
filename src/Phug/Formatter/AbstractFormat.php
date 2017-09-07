@@ -11,10 +11,14 @@ use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\MixinCallElement;
+use Phug\Formatter\Element\MixinElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
+use Phug\Formatter\Partial\MixinHelpersTrait;
 use Phug\Formatter\Partial\PatternTrait;
+use Phug\Formatter\Util\PhpUnwrap;
 use Phug\FormatterException;
 use Phug\Parser\Node\ConditionalNode;
 use Phug\Parser\Node\WhenNode;
@@ -22,6 +26,7 @@ use Phug\Parser\NodeInterface;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 use Phug\Util\SourceLocation;
+use SplObjectStorage;
 
 abstract class AbstractFormat implements FormatInterface, OptionInterface
 {
@@ -125,6 +130,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     DoctypeElement::class    => [$this, 'formatDoctypeElement'],
                     DocumentElement::class   => [$this, 'formatDocumentElement'],
                     MarkupElement::class     => [$this, 'formatMarkupElement'],
+                    MixinCallElement::class  => [$this, 'formatMixinCallElement'],
+                    MixinElement::class      => [$this, 'formatMixinElement'],
                     TextElement::class       => [$this, 'formatTextElement'],
                     VariableElement::class   => [$this, 'formatVariableElement'],
                 ],
@@ -570,6 +577,154 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $pattern = $type ? 'custom_doctype' : 'doctype';
 
         return $this->pattern($pattern, $type).$this->getNewLine();
+    }
+
+    protected function getMixinAttributes(SplObjectStorage $source)
+    {
+        $attributes = [];
+        foreach ($source as $attribute) {
+            /** @var AttributeElement $attribute */
+            $defaultValue = '';
+            if ($attribute->getValue()) {
+                $defaultValue = ', '.$this->formatCode($attribute->getValue(), true);
+            }
+            $attributes[] = '['.
+                ($attribute->isVariadic() ? 'true' : 'false').', '.
+                var_export(strval($attribute->getName()), true).
+                $defaultValue.
+                ']';
+        }
+
+        return '['.implode(', ', $attributes).']';
+    }
+
+    protected function formatMixinElement(MixinElement $mixin)
+    {
+        $mixinName = $mixin->getName();
+        $name = is_string($mixinName)
+            ? var_export($mixinName, true)
+            : $this->formatter->formatCode($mixinName->getValue());
+        $attributes = $this->getMixinAttributes($mixin->getAttributes());
+        $children = new PhpUnwrap($this->formatElementChildren($mixin), $this->formatter);
+
+        return $this->handleCode(implode("\n", [
+            'if (!isset($__pug_mixins)) {',
+            '    $__pug_mixins = [];',
+            '}',
+            '$__pug_mixins['.$name.'] = function ('.
+                '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
+            ') use (&$pug_mixins, &$pugModule) {',
+            '    foreach ($__pug_mixin_vars as $key => &$value) {',
+            '        $$key = &$value;',
+            '    }',
+            '    $__pug_values = [];',
+            '    foreach ($__pug_arguments as $__pug_argument) {',
+            '        if ($__pug_argument[0]) {',
+            '            foreach ($__pug_argument[1] as $__pug_value) {',
+            '                $__pug_values[] = $__pug_value;',
+            '            }',
+            '            continue;',
+            '        }',
+            '        $__pug_values[] = $__pug_argument[1];',
+            '    }',
+            '    foreach ('.$attributes.' as $__pug_argument) {',
+            '        if ($__pug_argument[0]) {',
+            '            ${$__pug_argument[1]} = $__pug_values;',
+            '            break;',
+            '        }',
+            '        ${$__pug_argument[1]} = array_shift($__pug_values);',
+            '        if (in_null(${$__pug_argument[1]}) && isset($__pug_argument[2])) {',
+            '            ${$__pug_argument[1]} = $__pug_argument[2];',
+            '        }',
+            '    }',
+            '    '.$children,
+            '};',
+        ]));
+    }
+
+    protected function formatMixinCallElement(MixinCallElement $mixinCall)
+    {
+        $children = new PhpUnwrap($this->formatElementChildren($mixinCall), $this->formatter);
+        $mixinName = $mixinCall->getName();
+        $name = is_string($mixinName)
+            ? var_export($mixinName, true)
+            : $this->formatter->formatCode($mixinName->getValue());
+        $arguments = [];
+        $attributes = [];
+        foreach ($mixinCall->getAttributes() as $attribute) {
+            /* @var AttributeElement $attribute */
+            if (is_null($attribute->getName())) {
+                $arguments[] = '['.
+                    ($attribute->isVariadic() ? 'true' : 'false').', '.
+                    $this->formatCode($attribute->getValue(), true).
+                    ']';
+
+                continue;
+            }
+
+            array_push($attributes, $attribute);
+        }
+        $attributesExpression = count($attributes)
+            ? $this->formatter->formatAttributesList($attributes)
+            : new ExpressionElement('[]', $mixinCall->getOriginNode());
+        $attributesExpression->preventFromTransformation();
+        $mergeAttributes = [];
+        foreach ($mixinCall->getAssignments() as $assignment) {
+            if ($assignment->getName() === 'attributes') {
+                foreach ($assignment->getAttributes() as $attribute) {
+                    /* @var AttributeElement $attribute */
+                    $mergeAttributes[] = $this->formatter->formatCode($attribute->getValue());
+                }
+            }
+        }
+        if (count($mergeAttributes)) {
+            $attributesExpression->setValue(sprintf(
+                'array_merge(%s, %s)',
+                $attributesExpression->getValue(),
+                implode(', ', $mergeAttributes)
+            ));
+        }
+        $variable = '$__pug_mixins['.$name.']';
+
+        return $this->handleCode(implode("\n", [
+            'if (!isset($__pug_mixins)) {',
+            '    $__pug_mixins = [];',
+            '}',
+            '$__pug_mixin_vars = [];',
+            'foreach (array_keys(get_defined_vars()) as $key) {',
+            '    if (mb_substr($key, 0, 6) === \'__pug_\') {',
+            '        continue;',
+            '    }',
+            '    $ref = &$GLOBALS[$key];',
+            '    $value = &$$key;',
+            '    if($ref !== $value){',
+            '        $__pug_mixin_vars[$key] = &$value;',
+
+            '        continue;',
+            '    }',
+            '    $savedValue = $value;',
+            '    $value = ($value === true) ? false : true;',
+            '    $isGlobalReference = ($value === $ref);',
+            '    $value = $savedValue;',
+
+            '    if (!$isGlobalReference) {',
+            '        $__pug_mixin_vars[$key] = &$value;',
+            '    }',
+            '}',
+            'isset('.$variable.') && '.$variable.'('.implode(', ', [
+                // $attributes
+                $this->formatCode($attributesExpression->getValue(), true),
+                // $__pug_arguments
+                '['.implode(', ', $arguments).']',
+                // $__pug_mixin_vars
+                '$__pug_mixin_vars',
+                // $__pug_children
+                'function ($__pug_children_vars) use (&$pug_mixins, &$pugModule) {'."\n".
+                '    extract($__pug_children_vars);'."\n".
+                '    '.$children."\n".
+                '}',
+            ]).');',
+        ]));
     }
 
     protected function formatElementChildren(ElementInterface $element, $indentStep = 1)
