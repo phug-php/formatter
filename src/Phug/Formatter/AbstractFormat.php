@@ -585,7 +585,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             /** @var AttributeElement $attribute */
             $defaultValue = '';
             if ($attribute->getValue()) {
-                $defaultValue = ', '.$this->formatCode($attribute->getValue(), true);
+                $value = $attribute->getValue();
+                if ($value instanceof ExpressionElement) {
+                    $value = $value->getValue();
+                }
+                $defaultValue = ', '.$this->formatCode($value, true);
             }
             $attributes[] = '['.
                 ($attribute->isVariadic() ? 'true' : 'false').', '.
@@ -612,7 +616,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '}',
             '$__pug_mixins['.$name.'] = function ('.
                 '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
-            ') use (&$pug_mixins, &$pugModule) {',
+            ') use (&$__pug_mixins, &$pugModule) {',
             '    foreach ($__pug_mixin_vars as $key => &$value) {',
             '        $$key = &$value;',
             '    }',
@@ -627,13 +631,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '        $__pug_values[] = $__pug_argument[1];',
             '    }',
             '    foreach ('.$attributes.' as $__pug_argument) {',
+            '        $__pug_name = ltrim($__pug_argument[1], "$");',
             '        if ($__pug_argument[0]) {',
-            '            ${$__pug_argument[1]} = $__pug_values;',
+            '            ${$__pug_name} = $__pug_values;',
             '            break;',
             '        }',
-            '        ${$__pug_argument[1]} = array_shift($__pug_values);',
-            '        if (in_null(${$__pug_argument[1]}) && isset($__pug_argument[2])) {',
-            '            ${$__pug_argument[1]} = $__pug_argument[2];',
+            '        ${$__pug_name} = array_shift($__pug_values);',
+            '        if (is_null(${$__pug_name}) && isset($__pug_argument[2])) {',
+            '            ${$__pug_name} = $__pug_argument[2];',
             '        }',
             '    }',
             '    '.$children,
@@ -653,9 +658,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         foreach ($mixinCall->getAttributes() as $attribute) {
             /* @var AttributeElement $attribute */
             if (is_null($attribute->getName())) {
+                $value = $attribute->getValue();
+                if ($value instanceof ExpressionElement) {
+                    $value = $value->getValue();
+                }
                 $arguments[] = '['.
                     ($attribute->isVariadic() ? 'true' : 'false').', '.
-                    $this->formatCode($attribute->getValue(), true).
+                    $this->formatCode($value, true).
                     ']';
 
                 continue;
@@ -710,6 +719,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '        $__pug_mixin_vars[$key] = &$value;',
             '    }',
             '}',
+            'if (!isset($__pug_children)) {',
+            '    $__pug_children = null;',
+            '}',
             'isset('.$variable.') && '.$variable.'('.implode(', ', [
                 // $attributes
                 $this->formatCode($attributesExpression->getValue(), true),
@@ -718,8 +730,22 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 // $__pug_mixin_vars
                 '$__pug_mixin_vars',
                 // $__pug_children
-                'function ($__pug_children_vars) use (&$pug_mixins, &$pugModule) {'."\n".
-                '    extract($__pug_children_vars);'."\n".
+                'function ($__pug_children_vars) use ('.
+                    '&$__pug_mixins, '.
+                    '$__pug_children, '.
+                    '&$'.$this->getOption('dependencies_storage').', '.
+                ') {'."\n".
+                '    foreach (array_keys($__pug_children_vars) as $key) {'."\n".
+                '        if (mb_substr($key, 0, 6) === \'__pug_\') {'."\n".
+                '            continue;'."\n".
+                '        }'."\n".
+                '        $ref = &$GLOBALS[$key];'."\n".
+                '        $value = &$__pug_children_vars[$key];'."\n".
+                '        if($ref !== $value){'."\n".
+                '            $$key = &$value;'."\n".
+                '            continue;'."\n".
+                '        }'."\n".
+                '    }'."\n".
                 '    '.$children."\n".
                 '}',
             ]).');',
