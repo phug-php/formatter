@@ -126,14 +126,15 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         $mixinCall->setName('undef');
         $document->appendChild($mixinCall);
 
-        $formatter = new Formatter(array(
+        $formatter = new Formatter([
             'debug' => true,
-        ));
+        ]);
         $php = $formatter->format($document);
         $php = $formatter->formatDependencies().$php;
         $message = null;
 
         ob_start();
+
         try {
             call_user_func(function ($__php) {
                 eval('?>'.$__php);
@@ -157,9 +158,9 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         $document->appendChild($mixinCall);
         $document->appendChild(new TextElement('next'));
 
-        $formatter = new Formatter(array(
+        $formatter = new Formatter([
             'debug' => false,
-        ));
+        ]);
         $php = $formatter->format($document);
         $php = $formatter->formatDependencies().$php;
 
