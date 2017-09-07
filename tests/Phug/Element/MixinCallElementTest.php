@@ -19,6 +19,7 @@ use SplObjectStorage;
 class MixinCallElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
      * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      * @covers ::<public>
      */

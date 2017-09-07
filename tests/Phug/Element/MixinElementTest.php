@@ -14,6 +14,8 @@ use Phug\Formatter\Element\MixinElement;
 class MixinElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatMixinElement
      * @covers ::<public>
      */
