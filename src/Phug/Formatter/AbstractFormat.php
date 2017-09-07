@@ -16,7 +16,6 @@ use Phug\Formatter\Element\MixinElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Element\VariableElement;
 use Phug\Formatter\Partial\HandleVariable;
-use Phug\Formatter\Partial\MixinHelpersTrait;
 use Phug\Formatter\Partial\PatternTrait;
 use Phug\Formatter\Util\PhpUnwrap;
 use Phug\FormatterException;
