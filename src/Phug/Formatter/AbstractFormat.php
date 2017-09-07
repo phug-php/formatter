@@ -692,7 +692,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 implode(', ', $mergeAttributes)
             ));
         }
-        $variable = '$__pug_mixins['.$name.']';
+        $variable = '$__pug_mixins[$__pug_mixin_name]';
+        $debug = $this->getOption('debug');
 
         return $this->handleCode(implode("\n", [
             'if (!isset($__pug_mixins)) {',
@@ -722,7 +723,15 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'if (!isset($__pug_children)) {',
             '    $__pug_children = null;',
             '}',
-            'isset('.$variable.') && '.$variable.'('.implode(', ', [
+            '$__pug_mixin_name = '.$name.';',
+            $debug
+                ? 'if (!isset('.$variable.')) {'."\n".
+                '    throw new \InvalidArgumentException('.
+                        '"Unknown $__pug_mixin_name mixin called."'.
+                    ');'."\n".
+                '}'."\n"
+                : 'isset('.$variable.') && ',
+            $variable.'('.implode(', ', [
                 // $attributes
                 $this->formatCode($attributesExpression->getValue(), true),
                 // $__pug_arguments

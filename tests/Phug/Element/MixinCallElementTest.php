@@ -11,6 +11,7 @@ use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\MixinElement;
+use Phug\Formatter\Element\TextElement;
 use SplObjectStorage;
 
 /**
@@ -68,5 +69,107 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         ob_end_clean();
 
         self::assertSame('<div bar="bar" foo="Foo">Hello</div>', $html);
+    }
+
+    /**
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
+     * @covers ::<public>
+     */
+    public function testDefaultValue()
+    {
+        $document = new DocumentElement();
+
+        $mixin = new MixinElement();
+        $mixin->setName('test');
+        $mixin->getAttributes()->attach(new AttributeElement(
+            'foo',
+            new ExpressionElement('"Foo"')
+        ));
+        $mixin->getAttributes()->attach(new AttributeElement(
+            'bar',
+            new ExpressionElement('"Bar"')
+        ));
+        $div = new MarkupElement('div');
+        $div->appendChild(new ExpressionElement('$foo'));
+        $div->appendChild(new ExpressionElement('$bar'));
+        $mixin->appendChild($div);
+        $document->appendChild($mixin);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('test');
+        $attributes = new AttributeElement(null, new ExpressionElement('"Baz"'));
+        $mixinCall->getAttributes()->attach($attributes);
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        call_user_func(function ($__php) {
+            eval('?>'.$__php);
+        }, $php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<div>BazBar</div>', $html);
+    }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testUnknownMixinDebugOn()
+    {
+        $document = new DocumentElement();
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('undef');
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter(array(
+            'debug' => true,
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+        $message = null;
+
+        ob_start();
+        try {
+            call_user_func(function ($__php) {
+                eval('?>'.$__php);
+            }, $php);
+        } catch (\InvalidArgumentException $exception) {
+            $message = $exception->getMessage();
+        }
+        ob_end_clean();
+
+        self::assertSame('Unknown undef mixin called.', $message);
+    }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testUnknownMixinDebugOff()
+    {
+        $document = new DocumentElement();
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('undef');
+        $document->appendChild($mixinCall);
+        $document->appendChild(new TextElement('next'));
+
+        $formatter = new Formatter(array(
+            'debug' => false,
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        call_user_func(function ($__php) {
+            eval('?>'.$__php);
+        }, $php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('next', $html);
     }
 }
