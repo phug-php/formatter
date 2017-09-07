@@ -3,6 +3,7 @@
 namespace Phug\Formatter;
 
 use Phug\Formatter;
+use Phug\Formatter\Element\AbstractValueElement;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
@@ -578,6 +579,17 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return $this->pattern($pattern, $type).$this->getNewLine();
     }
 
+    protected function formatMixinAttributeValue($value)
+    {
+        if ($value instanceof TextElement) {
+            $value = var_export($value->getValue(), true);
+        } elseif ($value instanceof AbstractValueElement) {
+            $value = $value->getValue();
+        }
+
+        return $value;
+    }
+
     protected function getMixinAttributes(SplObjectStorage $source)
     {
         $attributes = [];
@@ -585,10 +597,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             /** @var AttributeElement $attribute */
             $defaultValue = '';
             if ($attribute->getValue()) {
-                $value = $attribute->getValue();
-                if ($value instanceof ExpressionElement) {
-                    $value = $value->getValue();
-                }
+                $value = $this->formatMixinAttributeValue($attribute->getValue());
                 $defaultValue = ', '.$this->formatCode($value, true);
             }
             $attributes[] = '['.
@@ -658,10 +667,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         foreach ($mixinCall->getAttributes() as $attribute) {
             /* @var AttributeElement $attribute */
             if (is_null($attribute->getName())) {
-                $value = $attribute->getValue();
-                if ($value instanceof ExpressionElement) {
-                    $value = $value->getValue();
-                }
+                $value = $this->formatMixinAttributeValue($attribute->getValue());
                 $arguments[] = '['.
                     ($attribute->isVariadic() ? 'true' : 'false').', '.
                     $this->formatCode($value, true).
@@ -681,7 +687,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             if ($assignment->getName() === 'attributes') {
                 foreach ($assignment->getAttributes() as $attribute) {
                     /* @var AttributeElement $attribute */
-                    $mergeAttributes[] = $this->formatter->formatCode($attribute->getValue());
+                    $value = $this->formatMixinAttributeValue($attribute->getValue());
+                    $mergeAttributes[] = $this->formatter->formatCode($value);
                 }
             }
         }
