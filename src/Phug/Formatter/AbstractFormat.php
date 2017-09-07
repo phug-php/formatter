@@ -616,7 +616,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '}',
             '$__pug_mixins['.$name.'] = function ('.
                 '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
-            ') use (&$__pug_mixins, &$pugModule) {',
+            ') use (&$__pug_mixins, &$'.$this->getOption('dependencies_storage').') {',
             '    foreach ($__pug_mixin_vars as $key => &$value) {',
             '        $$key = &$value;',
             '    }',
@@ -733,7 +733,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'function ($__pug_children_vars) use ('.
                     '&$__pug_mixins, '.
                     '$__pug_children, '.
-                    '&$'.$this->getOption('dependencies_storage').', '.
+                    '&$'.$this->getOption('dependencies_storage').
                 ') {'."\n".
                 '    foreach (array_keys($__pug_children_vars) as $key) {'."\n".
                 '        if (mb_substr($key, 0, 6) === \'__pug_\') {'."\n".
