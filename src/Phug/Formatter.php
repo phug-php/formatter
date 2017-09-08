@@ -44,6 +44,16 @@ class Formatter implements ModuleContainerInterface
     private $dependencies;
 
     /**
+     * @var DependencyInjection
+     */
+    private $mixins;
+
+    /**
+     * @var bool
+     */
+    private $mixinsAllRequired = false;
+
+    /**
      * @var array
      */
     private $debugNodes = [];
@@ -80,6 +90,7 @@ class Formatter implements ModuleContainerInterface
         ]);
 
         $this->dependencies = new DependencyInjection();
+        $this->mixins = new DependencyInjection();
 
         $formatClassName = $this->getOption('default_format');
 
@@ -354,19 +365,59 @@ class Formatter implements ModuleContainerInterface
     }
 
     /**
+     * @return DependencyInjection
+     */
+    public function getMixins()
+    {
+        return $this->mixins;
+    }
+
+    /**
+     * @return $this
+     */
+    public function requireAllMixins()
+    {
+        $this->mixinsAllRequired = true;
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function requireMixin($name)
+    {
+        if ($this->mixins->has($name)) {
+            $this->mixins->setAsRequired($name);
+        }
+
+        return $this;
+    }
+
+    /**
      * Create/reset the dependency injector.
      */
     public function formatDependencies()
     {
-        if ($this->dependencies->countRequiredDependencies() === 0) {
-            return '';
+        $dependencies = '';
+
+        if ($this->dependencies->countRequiredDependencies() > 0) {
+            $dependenciesExport = $this->dependencies->export(
+                $this->getOption('dependencies_storage')
+            );
+
+            $dependencies = $this->format(new CodeElement(trim($dependenciesExport)));
         }
 
-        $dependenciesExport = $this->dependencies->export(
-            $this->getOption('dependencies_storage')
-        );
+        foreach ($this->mixins->getRequirementsStates() as $key => $value) {
+           if ($value || $this->mixinsAllRequired) {
+               $dependencies .= $this->mixins->get($key);
+           }
+        }
 
-        return $this->format(new CodeElement(trim($dependenciesExport)));
+        return $dependencies;
     }
 
     /**

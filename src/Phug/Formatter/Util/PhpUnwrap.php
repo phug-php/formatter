@@ -21,7 +21,7 @@ class PhpUnwrap
             ? mb_substr($code, 6)
             : '?>'.$code;
         $code = preg_match('/\s\?>$/', $code) && strpos($code, '<?=') === false
-            ? mb_substr($code, 0, -3)
+            ? mb_substr($code, 0, -3).';'
             : $code.'<?php';
 
         $this->code = $code;

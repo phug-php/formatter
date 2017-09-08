@@ -616,10 +616,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $name = is_string($mixinName)
             ? var_export($mixinName, true)
             : $this->formatter->formatCode($mixinName->getValue());
+        $id = is_string($mixinName)
+            ? $mixinName
+            : uniqid($name.'_');
         $attributes = $this->getMixinAttributes($mixin->getAttributes());
         $children = new PhpUnwrap($this->formatElementChildren($mixin), $this->formatter);
 
-        return $this->handleCode(implode("\n", [
+        $this->formatter->getMixins()->register($id, $this->handleCode(implode("\n", [
             'if (!isset($__pug_mixins)) {',
             '    $__pug_mixins = [];',
             '}',
@@ -652,7 +655,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '    }',
             '    '.$children,
             '};',
-        ]));
+        ])));
+
+        return '';
     }
 
     protected function formatMixinCallElement(MixinCallElement $mixinCall)
@@ -662,6 +667,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $name = is_string($mixinName)
             ? var_export($mixinName, true)
             : $this->formatter->formatCode($mixinName->getValue());
+        is_string($mixinName)
+            ? $this->formatter->requireMixin($mixinName)
+            : $this->formatter->requireAllMixins();
         $arguments = [];
         $attributes = [];
         foreach ($mixinCall->getAttributes() as $attribute) {

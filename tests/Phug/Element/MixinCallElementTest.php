@@ -20,7 +20,12 @@ use SplObjectStorage;
 class MixinCallElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
      * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
      * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      * @covers ::<public>
      */
@@ -72,7 +77,12 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
      * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      * @covers ::<public>
      */
@@ -117,7 +127,59 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      * @covers ::<public>
+     */
+    public function testDynamicCall()
+    {
+        $document = new DocumentElement();
+
+        $mixin = new MixinElement();
+        $mixin->setName('test');
+        $mixin->getAttributes()->attach(new AttributeElement(
+            'foo',
+            new TextElement('Foo')
+        ));
+        $mixin->getAttributes()->attach(new AttributeElement(
+            'bar',
+            new TextElement('Bar')
+        ));
+        $div = new MarkupElement('div');
+        $div->appendChild(new ExpressionElement('$foo'));
+        $div->appendChild(new ExpressionElement('$bar'));
+        $mixin->appendChild($div);
+        $document->appendChild($mixin);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName(new ExpressionElement('$mixinName'));
+        $attributes = new AttributeElement(null, new ExpressionElement('"Baz"'));
+        $mixinCall->getAttributes()->attach($attributes);
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        call_user_func(function ($__php) {
+            $mixinName = 'test';
+            eval('?>'.$__php);
+        }, $php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<div>BazBar</div>', $html);
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      */
     public function testUnknownMixinDebugOn()
     {
@@ -149,6 +211,7 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
      */
     public function testUnknownMixinDebugOff()
     {
@@ -172,5 +235,32 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         ob_end_clean();
 
         self::assertSame('next', $html);
+    }
+
+    /**
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     */
+    public function testPhpUnwrap()
+    {
+        $document = new DocumentElement();
+        $mixin = new MixinElement();
+        $mixin->setName('foo');
+        $mixin->appendChild(new CodeElement('echo 1'));
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $document->appendChild($mixin);
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        eval('?>'.$php);
+        ob_get_clean();
+
+        self::assertRegExp('/echo\s1;\s+\}/', $php);
     }
 }
