@@ -50,6 +50,11 @@ class Formatter implements ModuleContainerInterface
     private $mixins;
 
     /**
+     * @var array
+     */
+    private $mixinsPreCalled = [];
+
+    /**
      * @var SplObjectStorage
      */
     private $destructors;
@@ -404,9 +409,9 @@ class Formatter implements ModuleContainerInterface
      */
     public function requireMixin($name)
     {
-        if ($this->mixins->has($name)) {
-            $this->mixins->setAsRequired($name);
-        }
+        $this->mixins->has($name)
+            ? $this->mixins->setAsRequired($name)
+            : array_push($this->mixinsPreCalled, $name);
 
         return $this;
     }
@@ -427,7 +432,7 @@ class Formatter implements ModuleContainerInterface
         }
 
         foreach ($this->mixins->getRequirementsStates() as $key => $value) {
-            if ($value || $this->mixinsAllRequired) {
+            if ($value || $this->mixinsAllRequired || in_array($key, $this->mixinsPreCalled)) {
                 $dependencies .= $this->mixins->get($key);
             }
         }
