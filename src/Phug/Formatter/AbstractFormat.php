@@ -621,13 +621,13 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             : uniqid($name.'_');
         $attributes = $this->getMixinAttributes($mixin->getAttributes());
         $children = new PhpUnwrap($this->formatElementChildren($mixin), $this->formatter);
-
-        $this->formatter->getMixins()->register($id, $this->handleCode(implode("\n", [
+        $variable = '$__pug_mixins['.$name.']';
+        $mixinCode = $this->handleCode(implode("\n", [
             'if (!isset($__pug_mixins)) {',
             '    $__pug_mixins = [];',
             '}',
-            '$__pug_mixins['.$name.'] = function ('.
-                '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
+            $variable.' = function ('.
+            '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
             ') use (&$__pug_mixins, &$'.$this->getOption('dependencies_storage').') {',
             '    foreach ($__pug_mixin_vars as $key => &$value) {',
             '        $$key = &$value;',
@@ -655,9 +655,29 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '    }',
             '    '.$children,
             '};',
-        ])));
+        ]));
 
-        return '';
+        $mixins = $this->formatter->getMixins();
+
+        if (!$mixins->has($id)) {
+            $this->formatter->getMixins()->register($id, $mixinCode);
+
+            return '';
+        }
+
+        if ($mixin->hasParent()) {
+            $saveVariable = '$__pug_save_'.mt_rand(0, 9999999);
+            $mixinCode = $this->handleCode($saveVariable.'='.$variable).$mixinCode;
+            $parent = $mixin->getParent();
+            $destructors = $this->formatter->getDestructors();
+            $parentDestructors = $destructors->offsetExists($parent)
+                ? $destructors->offsetGet($parent)
+                : [];
+            $parentDestructors[] = new CodeElement($variable.'='.$saveVariable);
+            $destructors->offsetSet($parent, $parentDestructors);
+        }
+
+        return $mixinCode;
     }
 
     protected function formatMixinCallElement(MixinCallElement $mixinCall)
@@ -776,6 +796,21 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         ]));
     }
 
+    protected function getChildrenIterator(ElementInterface $element)
+    {
+        foreach ($element->getChildren() as $child) {
+            yield $child;
+        }
+
+        $destructors = $this->formatter->getDestructors();
+
+        if ($destructors->offsetExists($element)) {
+            foreach ($destructors->offsetGet($element) as $child) {
+                yield $child;
+            }
+        }
+    }
+
     protected function formatElementChildren(ElementInterface $element, $indentStep = 1)
     {
         $indentLevel = $this->formatter->getLevel();
@@ -783,7 +818,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $content = '';
         $previous = null;
         $commentPattern = $this->getOption('debug') ? $this->debugCommentPattern : null;
-        foreach ($element->getChildren() as $child) {
+        foreach ($this->getChildrenIterator($element) as $child) {
             if (!($child instanceof ElementInterface)) {
                 continue;
             }

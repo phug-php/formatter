@@ -27,6 +27,7 @@ use Phug\Util\ModuleContainerInterface;
 use Phug\Util\Partial\LevelTrait;
 use Phug\Util\Partial\ModuleContainerTrait;
 use Phug\Util\SourceLocation;
+use SplObjectStorage;
 
 class Formatter implements ModuleContainerInterface
 {
@@ -47,6 +48,11 @@ class Formatter implements ModuleContainerInterface
      * @var DependencyInjection
      */
     private $mixins;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $destructors;
 
     /**
      * @var bool
@@ -91,6 +97,7 @@ class Formatter implements ModuleContainerInterface
 
         $this->dependencies = new DependencyInjection();
         $this->mixins = new DependencyInjection();
+        $this->destructors = new SplObjectStorage();
 
         $formatClassName = $this->getOption('default_format');
 
@@ -362,6 +369,14 @@ class Formatter implements ModuleContainerInterface
             : $formats[$doctype];
 
         return $this;
+    }
+
+    /**
+     * @return SplObjectStorage
+     */
+    public function getDestructors()
+    {
+        return $this->destructors;
     }
 
     /**

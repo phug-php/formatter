@@ -238,6 +238,8 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter::getDestructors
+     * @covers \Phug\Formatter\AbstractFormat::getChildrenIterator
      * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
      */
     public function testPhpUnwrap()
@@ -262,5 +264,68 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         ob_get_clean();
 
         self::assertRegExp('/echo\s1;\s+\}/', $php);
+    }
+
+    /**
+     * @group i
+     * @covers ::<public>
+     * @covers \Phug\Formatter::getDestructors
+     * @covers \Phug\Formatter\AbstractFormat::getChildrenIterator
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinElement
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
+     */
+    public function testScope()
+    {
+        $document = new DocumentElement();
+        $mixin = new MixinElement();
+        $mixin->setName('foo');
+        $mixin->appendChild(new CodeElement('echo 1'));
+        $document->appendChild($mixin);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $document->appendChild($mixinCall);
+        $mixin = new MixinElement();
+        $mixin->setName('bar');
+        $mixin->appendChild(new CodeElement('echo "A"'));
+        $document->appendChild($mixin);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('bar');
+        $document->appendChild($mixinCall);
+
+        $div = new MarkupElement('div');
+        $mixin = new MixinElement();
+        $mixin->setName('foo');
+        $mixin->appendChild(new CodeElement('echo 2'));
+        $div->appendChild($mixin);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $div->appendChild($mixinCall);
+        $mixin = new MixinElement();
+        $mixin->setName('bar');
+        $mixin->appendChild(new CodeElement('echo "B"'));
+        $div->appendChild($mixin);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('bar');
+        $div->appendChild($mixinCall);
+        $document->appendChild($div);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $document->appendChild($mixinCall);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('bar');
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        eval('?>'.$php);
+        $html = ob_get_contents();
+        ob_get_clean();
+
+        self::assertSame('1A<div>2B</div>1A', $html);
     }
 }
