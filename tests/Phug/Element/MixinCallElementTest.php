@@ -267,7 +267,6 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers ::<public>
      * @covers \Phug\Formatter::getDestructors
      * @covers \Phug\Formatter\AbstractFormat::getChildrenIterator
