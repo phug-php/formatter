@@ -412,9 +412,9 @@ class Formatter implements ModuleContainerInterface
         }
 
         foreach ($this->mixins->getRequirementsStates() as $key => $value) {
-           if ($value || $this->mixinsAllRequired) {
-               $dependencies .= $this->mixins->get($key);
-           }
+            if ($value || $this->mixinsAllRequired) {
+                $dependencies .= $this->mixins->get($key);
+            }
         }
 
         return $dependencies;
