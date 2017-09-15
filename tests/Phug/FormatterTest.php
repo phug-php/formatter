@@ -455,6 +455,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractFormat::removePhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::setPhpTokenHandler
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
+     * @covers \Phug\Formatter\Partial\PatternTrait::setPattern
+     * @covers \Phug\Formatter\Partial\PatternTrait::setPatterns
      * @covers \Phug\Formatter\Partial\HandleVariable::isInFunctionParams
      * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
      * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
@@ -530,6 +532,28 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertSame(
             'hello',
             $actual
+        );
+
+        $format = new HtmlFormat($formatter);
+        $format->setPatterns([
+            'expression_in_text' => '%s',
+        ]);
+        $format->setPhpTokenHandler(T_VARIABLE, 'handle_variable(%s)');
+        $foo = new ExpressionElement('$foo');
+
+        self::assertSame(
+            '<?= handle_variable($foo) ?>',
+            $formatter->format($foo, $format)
+        );
+
+        $format = new HtmlFormat($formatter);
+        $format->setPattern('expression_in_text', '%s');
+        $format->setPhpTokenHandler(T_VARIABLE, 'handle_variable(%s)');
+        $foo = new ExpressionElement('$foo');
+
+        self::assertSame(
+            '<?= handle_variable($foo) ?>',
+            $formatter->format($foo, $format)
         );
 
         $formatter->setOption(['patterns', 'expression_in_text'], '%s');

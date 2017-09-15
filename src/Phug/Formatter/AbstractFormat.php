@@ -2,8 +2,6 @@
 
 namespace Phug\Formatter;
 
-use Phug\EventManagerInterface;
-use Phug\EventManagerTrait;
 use Phug\Formatter;
 use Phug\Formatter\Element\AbstractValueElement;
 use Phug\Formatter\Element\AssignmentElement;

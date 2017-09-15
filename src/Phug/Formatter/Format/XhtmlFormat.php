@@ -69,7 +69,7 @@ abstract class XhtmlFormat extends XmlFormat
             'doctype_dtd_url'  => static::DOCTYPE_DTD_URL,
         ]);
 
-        $this->addPattern('doctype', $this->pattern(
+        $this->setPattern('doctype', $this->pattern(
             'doctype',
             $this->pattern('doctype_language'),
             $this->pattern('doctype_dtd'),

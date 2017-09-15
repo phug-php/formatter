@@ -27,7 +27,7 @@ trait PatternTrait
      *
      * @return PatternTrait
      */
-    public function addPattern($name, $pattern)
+    public function setPattern($name, $pattern)
     {
         if (is_array($pattern)) {
             return $this->provideHelper($this->patternName($name), $pattern);
@@ -50,6 +50,21 @@ trait PatternTrait
     }
 
     /**
+     * @param $name
+     * @param $pattern
+     *
+     * @return PatternTrait
+     */
+    public function addPattern($name, $pattern)
+    {
+        if (!$this->hasPattern($name)) {
+            $this->setPattern($name, $pattern);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param $patterns
      *
      * @return $this
@@ -58,6 +73,20 @@ trait PatternTrait
     {
         foreach ($patterns as $name => $pattern) {
             $this->addPattern($name, $pattern);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $patterns
+     *
+     * @return $this
+     */
+    public function setPatterns($patterns)
+    {
+        foreach ($patterns as $name => $pattern) {
+            $this->setPattern($name, $pattern);
         }
 
         return $this;
