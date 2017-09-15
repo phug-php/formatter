@@ -459,9 +459,10 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Phug\Formatter\AbstractFormat::patternName
-     * @covers \Phug\Formatter\AbstractFormat::addPattern
-     * @covers \Phug\Formatter\AbstractFormat::exportHelper
+     * @covers \Phug\Formatter\Partial\PatternTrait::patternName
+     * @covers \Phug\Formatter\Partial\PatternTrait::addPattern
+     * @covers \Phug\Formatter\Partial\PatternTrait::setPattern
+     * @covers \Phug\Formatter\Partial\PatternTrait::exportHelper
      */
     public function testAddPattern()
     {
