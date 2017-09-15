@@ -10,6 +10,7 @@ use Phug\Formatter\ElementInterface;
 // Formats
 use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
+use Phug\Formatter\Event\NewFormatEvent;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
 use Phug\Formatter\Format\HtmlFormat;
@@ -97,6 +98,7 @@ class Formatter implements ModuleContainerInterface
             'formatter_modules'     => [],
 
             'on_format'             => null,
+            'on_new_format'         => null,
             'on_dependency_storage' => null,
         ]);
 
@@ -122,6 +124,10 @@ class Formatter implements ModuleContainerInterface
 
         if ($onFormat = $this->getOption('on_format')) {
             $this->attach(FormatterEvent::FORMAT, $onFormat);
+        }
+
+        if ($onNewFormat = $this->getOption('on_new_format')) {
+            $this->attach(FormatterEvent::NEW_FORMAT, $onNewFormat);
         }
 
         if ($onDependencyStorage = $this->getOption('on_dependency_storage')) {
@@ -318,6 +324,11 @@ class Formatter implements ModuleContainerInterface
 
         if (!($format instanceof FormatInterface)) {
             $format = new $format($this);
+
+            $event = new NewFormatEvent($this, $format);
+            $this->trigger($event);
+
+            $format = $event->getFormat();
         }
 
         return $format;

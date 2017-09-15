@@ -4,10 +4,13 @@ namespace Phug\Test;
 
 use Phug\AbstractFormatterModule;
 use Phug\Formatter;
+use Phug\Formatter\Element\AssignmentElement;
+use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
+use Phug\Formatter\Event\NewFormatEvent;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterEvent;
@@ -116,6 +119,63 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
         ]);
 
         self::assertSame('$pugModule[\'bar\']', $formatter->getDependencyStorage('foo'));
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter\Event\NewFormatEvent::<public>
+     */
+    public function testNewFormatEvent()
+    {
+        $copyFormatter = null;
+        $formatter = new Formatter([
+            'on_new_format' => function (NewFormatEvent $event) use (&$copyFormatter) {
+                $copyFormatter = $event->getFormatter();
+                $newFormat = clone $event->getFormat();
+                $newFormat
+                    ->registerHelper('class_attribute_name', 'className')
+                    ->provideHelper('attributes_assignment', [
+                        'merge_attributes',
+                        'class_attribute_name',
+                        'pattern',
+                        'pattern.attribute_pattern',
+                        'pattern.boolean_attribute_pattern',
+                        function ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
+                            return function () use ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
+                                $attributes = call_user_func_array($mergeAttributes, func_get_args());
+                                $code = '';
+                                foreach ($attributes as $name => $value) {
+                                    if ($value) {
+                                        if ($name === 'class') {
+                                            $name = $classAttribute;
+                                        }
+                                        $code .= $value === true
+                                            ? $pattern($booleanPattern, $name, $name)
+                                            : $pattern($attributePattern, $name, $value);
+                                    }
+                                }
+
+                                return $code;
+                            };
+                        },
+                    ]);
+                $event->setFormat($newFormat);
+            },
+        ]);
+        $div = new MarkupElement('div');
+        $div->getAttributes()->attach(new AttributeElement('class', 'foo'));
+        $div->getAssignments()->attach(new AssignmentElement('attributes', new \SplObjectStorage(), $div, null));
+        $php = $formatter->format($div);
+        $php = $formatter->formatDependencies().$php;
+        ob_start();
+        eval('?>'.$php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<div className="foo"></div>', $html);
+        self::assertSame($formatter, $copyFormatter);
     }
 }
 //@codingStandardsIgnoreEnd
