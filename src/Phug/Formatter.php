@@ -41,6 +41,11 @@ class Formatter implements ModuleContainerInterface
     private $format;
 
     /**
+     * @var array
+     */
+    private $formats;
+
+    /**
      * @var DependencyInjection
      */
     private $dependencies;
@@ -323,12 +328,13 @@ class Formatter implements ModuleContainerInterface
         $format = $format ?: $this->format;
 
         if (!($format instanceof FormatInterface)) {
-            $format = new $format($this);
+            if (!isset($this->formats[$format])) {
+                $event = new NewFormatEvent($this, new $format($this));
+                $this->trigger($event);
+                $this->formats[$format] = $event->getFormat();
+            }
 
-            $event = new NewFormatEvent($this, $format);
-            $this->trigger($event);
-
-            $format = $event->getFormat();
+            $format = $this->formats[$format];
         }
 
         return $format;
