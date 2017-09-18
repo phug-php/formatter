@@ -27,6 +27,7 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
     const BUFFER_VARIABLE = '$__value';
+    const BUFFER_NAME = '$__name';
     const TEST_VALUE = 'isset(%s)';
 
     public function __construct(Formatter $formatter = null)
@@ -48,6 +49,7 @@ class XmlFormat extends AbstractFormat
                 'save_value'                => static::SAVE_VALUE,
                 'test_value'                => static::TEST_VALUE,
                 'buffer_variable'           => static::BUFFER_VARIABLE,
+                'buffer_name'               => static::BUFFER_NAME,
             ])
             ->provideAttributeAssignments()
             ->provideAttributeAssignment()
@@ -177,6 +179,44 @@ class XmlFormat extends AbstractFormat
             }
             if (in_array(strtolower($value->getValue()), ['false', 'null', 'undefined'])) {
                 return '';
+            }
+            if (!$value->hasStaticMember('value')) {
+                $formattedName = null;
+                if ($name instanceof ExpressionElement) {
+                    $formattedName = $this->formatCode($name->getValue(), $name->isChecked());
+                }
+                $formattedName = $formattedName || $formattedName === '0'
+                    ? $formattedName
+                    : var_export($name, true);
+                $formattedValue = $this->formatCode($value->getValue(), $value->isChecked());
+                $booleanAttribute = var_export($this->pattern('boolean_attribute_pattern', '%s', '%s'), true);
+                $stringAttribute = var_export($this->pattern('attribute_pattern', '%s', '%s'), true);
+
+                return $this->pattern(
+                        'php_handle_code',
+                        $this->pattern(
+                            'save_value',
+                            $this->pattern('buffer_variable'),
+                            $formattedValue
+                        ).';'.
+                        $this->pattern(
+                            'save_value',
+                            $this->pattern('buffer_name'),
+                            $formattedName
+                        )
+                    ).
+                    $this->pattern(
+                        'php_display_code',
+                        '$__value === null || $__value === false ? "" : sprintf('.
+                        '$__value === true ? '.$booleanAttribute.' : '.$stringAttribute.','.
+                        '$__name,'.
+                        $this->pattern(
+                            'dynamic_attribute',
+                            '$__value === true ? $__name : $__value',
+                            '$__name'
+                        ).
+                        ')'
+                    );
             }
         }
 

@@ -58,4 +58,30 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
             $actual
         );
     }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testTrueDynamicValue()
+    {
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+
+        $paragraph = new MarkupElement('p');
+        $paragraph->getAttributes()->attach(
+            $attrEl = new AttributeElement('foo', new ExpressionElement('$foo'))
+        );
+        $paragraph->appendChild(new ExpressionElement('$foo'));
+        ob_start();
+        $foo = true;
+        eval('?>'.$formatter->format($paragraph));
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<p foo="foo">true</p>',
+            $actual
+        );
+    }
 }
