@@ -110,7 +110,7 @@ trait AssignmentHelpersTrait
                         $code = '';
                         foreach ($attributes as $originalName => $value) {
                             if ($value !== null && $value !== false && ($value !== '' || $originalName !== 'class')) {
-                                $name = isset($attributesMapping[$originalName])
+                                $name = isset($attrMapping[$originalName])
                                     ? $attrMapping[$originalName]
                                     : $originalName;
                                 if ($value === true) {
