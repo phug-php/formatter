@@ -104,47 +104,31 @@ trait AssignmentHelpersTrait
                 'pattern.boolean_attribute_pattern',
                 'stand_alone_class_attribute_assignment',
                 'stand_alone_style_attribute_assignment',
-                function (
-                    $attributesMapping,
-                    $mergeAttributes,
-                    $pattern,
-                    $attributePattern,
-                    $booleanPattern,
-                    $classAttribute,
-                    $styleAttribute
-                ) {
-                    return function () use (
-                        $attributesMapping,
-                        $mergeAttributes,
-                        $pattern,
-                        $attributePattern,
-                        $booleanPattern,
-                        $classAttribute,
-                        $styleAttribute
-                    ) {
-                        $attributes = call_user_func_array($mergeAttributes, func_get_args());
+                function ($attrMapping, $mergeAttr, $pattern, $attr, $bool, $classAttr, $styleAttr) {
+                    return function () use ($attrMapping, $mergeAttr, $pattern, $attr, $bool, $classAttr, $styleAttr) {
+                        $attributes = call_user_func_array($mergeAttr, func_get_args());
                         $code = '';
                         foreach ($attributes as $originalName => $value) {
                             if ($value !== null && $value !== false && ($value !== '' || $originalName !== 'class')) {
                                 $name = isset($attributesMapping[$originalName])
-                                    ? $attributesMapping[$originalName]
+                                    ? $attrMapping[$originalName]
                                     : $originalName;
                                 if ($value === true) {
-                                    $code .= $pattern($booleanPattern, $name, $name);
+                                    $code .= $pattern($bool, $name, $name);
 
                                     continue;
                                 }
 
                                 if (!is_string($value)) {
                                     $value = $originalName === 'class'
-                                        ? $classAttribute($value)
+                                        ? $classAttr($value)
                                         : ($originalName === 'style'
-                                            ? $styleAttribute($value)
+                                            ? $styleAttr($value)
                                             : json_encode($value)
                                         );
                                 }
 
-                                $code .= $pattern($attributePattern, $name, $value);
+                                $code .= $pattern($attr, $name, $value);
                             }
                         }
 
