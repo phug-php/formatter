@@ -94,12 +94,16 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $img = new MarkupElement('img');
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
-        $htmlFormat = new HtmlFormat(new Formatter());
+        $formatter = new Formatter();
+        $htmlFormat = new HtmlFormat($formatter);
 
-        self::assertSame(
-            '<img src="foo.png">',
-            $htmlFormat($img)
-        );
+        ob_start();
+        $php = $htmlFormat($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<img src="foo.png">', $actual);
     }
 
     /**
@@ -110,12 +114,16 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('true')));
-        $htmlFormat = new HtmlFormat(new Formatter());
+        $formatter = new Formatter();
+        $htmlFormat = new HtmlFormat($formatter);
 
-        self::assertSame(
-            '<input type="checkbox" checked>',
-            $htmlFormat($input)
-        );
+        ob_start();
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="checkbox" checked>', $actual);
     }
 
     /**
@@ -126,12 +134,16 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('null')));
-        $htmlFormat = new HtmlFormat(new Formatter());
+        $formatter = new Formatter();
+        $htmlFormat = new HtmlFormat($formatter);
 
-        self::assertSame(
-            '<input type="checkbox">',
-            $htmlFormat($input)
-        );
+        ob_start();
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="checkbox">', $actual);
     }
 
     /**
@@ -141,23 +153,17 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
-        $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('a_function(42)')));
-        $htmlFormat = new HtmlFormat(new Formatter());
+        $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('array_sum([24, 18])')));
+        $formatter = new Formatter();
+        $htmlFormat = new HtmlFormat($formatter);
 
-        self::assertSame(
-            preg_replace(
-                '/\\s*/',
-                '',
-                '<input type="text" value="<?= (is_array($_pug_temp = a_function(42)) || '.
-                '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
-                '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">'
-            ),
-            preg_replace(
-                '/\\s*/',
-                '',
-                $htmlFormat($input)
-            )
-        );
+        ob_start();
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="text" value="42">', $actual);
     }
 
     /**
@@ -168,23 +174,35 @@ class HtmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input');
         $input->getAttributes()->attach(new AttributeElement('type', 'text'));
         $input->getAttributes()->attach(new AttributeElement('value', new ExpressionElement('$foo')));
-        $htmlFormat = new HtmlFormat(new Formatter());
+        $formatter = new Formatter();
+        $htmlFormat = new HtmlFormat($formatter);
 
-        self::assertSame(
-            preg_replace(
-                '/\\s*/',
-                '',
-                '<input type="text" value="'.
-                '<?= (is_array($_pug_temp = (isset($foo) ? $foo : \'\')) || '.
-                '(is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")) '.
-                '? json_encode($_pug_temp) : strval($_pug_temp)) ?>">'
-            ),
-            preg_replace(
-                '/\\s*/',
-                '',
-                $htmlFormat($input)
-            )
-        );
+        ob_start();
+        $foo = 'bar';
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="text" value="bar">', $actual);
+
+        ob_start();
+        $foo = '';
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="text" value="">', $actual);
+
+        ob_start();
+        $foo = null;
+        $php = $htmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input type="text">', $actual);
     }
 
     /**

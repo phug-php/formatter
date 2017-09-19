@@ -172,49 +172,77 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', 'foo.png'));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<img src="foo.png" />',
-            $xmlFormat($img)
+            $actual
         );
 
         $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', ''));
         $img->getAttributes()->attach(new AttributeElement('class', ''));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<img src="" />',
-            $xmlFormat($img)
+            $actual
         );
 
         $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', ''));
         $img->getAttributes()->attach(new AttributeElement('class', new TextElement('')));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<img src="" />',
-            $xmlFormat($img)
+            $actual
         );
 
         $img = new MarkupElement('img', true);
         $img->getAttributes()->attach(new AttributeElement('src', ''));
         $img->getAttributes()->attach(new AttributeElement('class', new ExpressionElement('""')));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<img src="" />',
-            $xmlFormat($img)
+            $actual
         );
     }
 
@@ -242,9 +270,15 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild($input);
 
+        ob_start();
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
             '<input type="checkbox" checked="checked" />',
-            $xmlFormat($document)
+            $actual
         );
 
         $input = new MarkupElement('input', true);
@@ -399,13 +433,20 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $input = new MarkupElement('input', true);
         $input->getAttributes()->attach(new AttributeElement('type', 'checkbox'));
         $input->getAttributes()->attach(new AttributeElement('checked', new ExpressionElement('false')));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<input type="checkbox" />',
-            $xmlFormat($input)
+            $actual
         );
     }
 
@@ -421,13 +462,20 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     {
         $input = new MarkupElement('input', false);
         $input->appendChild(new MarkupElement('i', true));
-        $xmlFormat = new XmlFormat(new Formatter([
+        $formatter = new Formatter([
             'default_format' => XmlFormat::class,
-        ]));
+        ]);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
 
         self::assertSame(
             '<input><i /></input>',
-            $xmlFormat($input)
+            $actual
         );
     }
 

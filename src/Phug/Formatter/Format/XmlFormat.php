@@ -10,6 +10,7 @@ use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
@@ -27,6 +28,7 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
     const BUFFER_VARIABLE = '$__value';
+    const BUFFER_NAME = '$__name';
     const TEST_VALUE = 'isset(%s)';
 
     public function __construct(Formatter $formatter = null)
@@ -35,6 +37,7 @@ class XmlFormat extends AbstractFormat
 
         $this
             ->setOptionsDefaults([
+                'attributes_mapping'    => [],
                 'assignment_handlers'   => [],
                 'attribute_assignments' => [],
             ])
@@ -48,6 +51,7 @@ class XmlFormat extends AbstractFormat
                 'save_value'                => static::SAVE_VALUE,
                 'test_value'                => static::TEST_VALUE,
                 'buffer_variable'           => static::BUFFER_VARIABLE,
+                'buffer_name'               => static::BUFFER_NAME,
             ])
             ->provideAttributeAssignments()
             ->provideAttributeAssignment()
@@ -131,6 +135,25 @@ class XmlFormat extends AbstractFormat
 
     public function isWhiteSpaceSensitive(MarkupInterface $element)
     {
+        return false;
+    }
+
+    protected function hasNonStaticAttributes(MarkupInterface $element)
+    {
+        if ($element instanceof MarkupElement || $element instanceof MixinCallElement) {
+            foreach ($element->getAttributes() as $attribute) {
+                if ($attribute->hasStaticMember('value')) {
+                    continue;
+                }
+                if ($attribute->getValue() instanceof ExpressionElement &&
+                    $attribute->getValue()->hasStaticMember('value')) {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -287,22 +310,27 @@ class XmlFormat extends AbstractFormat
         return implode('', array_map([$this, 'format'], $newElements));
     }
 
-    protected function formatAttributes(MarkupElement $element)
+    protected function hasDuplicateAttributeNames(MarkupInterface $element)
     {
-        $code = '';
-        $names = [];
-        $needAttributeAssignment = false;
-        foreach ($element->getAttributes() as $attribute) {
-            $name = $attribute->getName();
-            if (($name instanceof ExpressionElement && !$name->hasStaticValue()) || in_array($name, $names)) {
-                $needAttributeAssignment = true;
-                break;
-            }
+        if ($element instanceof MarkupElement || $element instanceof MixinCallElement) {
+            $names = [];
+            foreach ($element->getAttributes() as $attribute) {
+                $name = $attribute->getName();
+                if (($name instanceof ExpressionElement && !$name->hasStaticValue()) || in_array($name, $names)) {
+                    return true;
+                }
 
-            $names[] = $name;
+                $names[] = $name;
+            }
         }
 
-        if ($needAttributeAssignment) {
+        return false;
+    }
+
+    protected function formatAttributes(MarkupElement $element)
+    {
+        if ($this->hasNonStaticAttributes($element) ||
+            $this->hasDuplicateAttributeNames($element)) {
             $attributeAssignment = $element->getAssignmentsByName('attributes');
             if (!count($attributeAssignment)) {
                 $data = new SplObjectStorage();
@@ -314,6 +342,8 @@ class XmlFormat extends AbstractFormat
         foreach ($element->getAssignments() as $assignment) {
             return $this->format($assignment);
         }
+
+        $code = '';
 
         foreach ($element->getAttributes() as $attribute) {
             $code .= $this->format($attribute);

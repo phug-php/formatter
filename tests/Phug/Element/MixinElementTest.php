@@ -4,9 +4,12 @@ namespace Phug\Test\Element;
 
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
+use Phug\Formatter\Element\CodeElement;
+use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinElement;
+use Phug\Formatter\Element\TextElement;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Element\MixinElement
@@ -126,5 +129,90 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         ob_end_clean();
 
         self::assertSame('<div>block</div>', $html);
+    }
+
+    /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinElement
+     * @covers ::<public>
+     */
+    public function testMixinElementReplace()
+    {
+        $formatter = new Formatter();
+
+        self::assertSame('replace', $formatter->getFormatInstance()->getOption('mixin_merge_mode'));
+
+        $document = new DocumentElement();
+        for ($i = 1; $i <= 2; $i++) {
+            $mixin = new MixinElement();
+            $mixin->setName('foo');
+            $p = new MarkupElement('p');
+            $p->appendChild(new TextElement('n°'.$i));
+            $mixin->appendChild($p);
+            $document->appendChild($mixin);
+        }
+        $document->appendChild(new CodeElement(
+            '$__pug_mixins["foo"]('.
+                '[], [], [], '.
+                'function () { echo "block"; }'.
+            ')'
+        ));
+        $php = $formatter->format($document);
+        $formatter->requireMixin('foo');
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        eval('?>'.$php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<p>n°2</p>', $html);
+    }
+
+    /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinElement
+     * @covers ::<public>
+     */
+    public function testMixinElementIgnore()
+    {
+        $document = new DocumentElement();
+        for ($i = 1; $i <= 2; $i++) {
+            $mixin = new MixinElement();
+            $mixin->setName('foo');
+            $div = new MarkupElement('p');
+            $div->appendChild(new TextElement('n°'.$i));
+            $mixin->appendChild($div);
+            $document->appendChild($mixin);
+        }
+        $document->appendChild(new CodeElement(
+            '$__pug_mixins["foo"]('.
+            '[], [], [], '.
+            'function () { echo "block"; }'.
+            ')'
+        ));
+        $formatter = new Formatter([
+            'mixin_merge_mode' => 'ignore',
+        ]);
+        $php = $formatter->format($document);
+        $formatter->requireMixin('foo');
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        eval('?>'.$php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<p>n°1</p>', $html);
     }
 }

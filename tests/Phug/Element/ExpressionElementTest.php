@@ -34,7 +34,8 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
         );
         $paragraph->appendChild(new ExpressionElement('true'));
         ob_start();
-        eval('?>'.$formatter->format($paragraph));
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -49,12 +50,40 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
         );
         $paragraph->appendChild(new ExpressionElement('false'));
         ob_start();
-        eval('?>'.$formatter->format($paragraph));
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
         self::assertSame(
             '<p>false</p>',
+            $actual
+        );
+    }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testTrueDynamicValue()
+    {
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+
+        $paragraph = new MarkupElement('p');
+        $paragraph->getAttributes()->attach(
+            $attrEl = new AttributeElement('foo', new ExpressionElement('$foo'))
+        );
+        $paragraph->appendChild(new ExpressionElement('$foo'));
+        ob_start();
+        $foo = true;
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<p foo="foo">true</p>',
             $actual
         );
     }

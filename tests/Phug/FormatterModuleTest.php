@@ -147,7 +147,7 @@ class FormatterModuleTest extends \PHPUnit_Framework_TestCase
                                 $attributes = call_user_func_array($mergeAttributes, func_get_args());
                                 $code = '';
                                 foreach ($attributes as $name => $value) {
-                                    if ($value) {
+                                    if ($value !== null && $value !== false && ($value !== '' || $name !== 'class')) {
                                         if ($name === 'class') {
                                             $name = $classAttribute;
                                         }

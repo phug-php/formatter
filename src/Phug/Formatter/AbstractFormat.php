@@ -138,6 +138,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'php_token_handlers' => [
                     T_VARIABLE => [$this, 'handleVariable'],
                 ],
+                'mixin_merge_mode'   => 'replace',
             ])
             ->setFormatter($formatter)
             ->registerHelper('pattern', $this->getOption('pattern'))
@@ -622,10 +623,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $attributes = $this->getMixinAttributes($mixin->getAttributes());
         $children = new PhpUnwrap($this->formatElementChildren($mixin), $this->formatter);
         $variable = '$__pug_mixins['.$name.']';
+        $mode = strtolower($this->getOption('mixin_merge_mode'));
         $mixinCode = $this->handleCode(implode("\n", [
             'if (!isset($__pug_mixins)) {',
             '    $__pug_mixins = [];',
             '}',
+            ($mode === 'ignore' ? '!isset('.$variable.') && ' : '').
             $variable.' = function ('.
             '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
             ') use (&$__pug_mixins, &$'.$this->getOption('dependencies_storage').') {',
