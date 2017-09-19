@@ -162,6 +162,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::hasDuplicateAttributeNames
+     * @covers ::hasNonStaticAttributes
+     * @covers ::formatAttributeElement
      * @covers ::formatMarkupElement
      * @covers ::formatAttributeElement
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName

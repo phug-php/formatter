@@ -110,6 +110,8 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::hasNonStaticAttributes
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeElement
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneAttributeAssignment
@@ -162,5 +164,60 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
         ob_end_clean();
 
         self::assertSame('<a style="color:white"></a>', $actual);
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::hasDuplicateAttributeNames
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeElement
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     */
+    public function testDuplicateAttribute()
+    {
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('foo', new ExpressionElement('"foo"')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        $php = $formatter->format($link);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<a foo="foo"></a>', $actual);
+
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('foo', new ExpressionElement('"foo"')));
+        $link->getAttributes()->attach(new AttributeElement('foo', new ExpressionElement('"bar"')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        $php = $formatter->format($link);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<a foo="bar"></a>', $actual);
+
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('foo', new ExpressionElement('$foo')));
+        $link->getAttributes()->attach(new AttributeElement('foo', new ExpressionElement('$bar')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        $php = $formatter->format($link);
+        $foo = 'foo';
+        $bar = 'bar';
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<a foo="bar"></a>', $actual);
     }
 }

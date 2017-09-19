@@ -55,6 +55,20 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
     {
         $format = new XmlFormat();
         $helper = $format->getHelper('attributes_assignment');
+
+        $code = $helper([
+            'a'     => 'b',
+            'c'     => 'a',
+            'class' => ['foo zoo', 'foo bar'],
+            'style' => ['min-width' => 'calc(100% - 50px)'],
+        ]);
+
+        self::assertSame(
+            ' a="b" c="a" class="foo zoo bar" '.
+            'style="min-width:calc(100% - 50px)"',
+            $code
+        );
+
         $code = $helper([
             'a'     => 'b',
             'c'     => 'a',

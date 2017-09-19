@@ -151,6 +151,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\AbstractFormat::handleTokens
      * @covers \Phug\Formatter\AbstractFormat::formatCodeElement
      * @covers \Phug\Formatter\Element\MarkupElement::__construct
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInKeywordParams
      * @covers \Phug\Formatter\Partial\HandleVariable::isInFunctionParams
      * @covers \Phug\Formatter\Partial\HandleVariable::isInInterpolation
      * @covers \Phug\Formatter\Partial\HandleVariable::isInExclusionContext
@@ -225,6 +226,11 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 
         self::assertSame('', $return);
+
+        $exp = new ExpressionElement('foreach ($tabs as $key => $tab)');
+        $code = $formatter->format($exp);
+
+        self::assertRegExp('/as\s\$key\s=>\s\$tab/', $code);
     }
 
     /**
