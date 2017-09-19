@@ -102,10 +102,8 @@ trait AssignmentHelpersTrait
                 'pattern',
                 'pattern.attribute_pattern',
                 'pattern.boolean_attribute_pattern',
-                'stand_alone_class_attribute_assignment',
-                'stand_alone_style_attribute_assignment',
-                function ($attrMapping, $mergeAttr, $pattern, $attr, $bool, $classAttr, $styleAttr) {
-                    return function () use ($attrMapping, $mergeAttr, $pattern, $attr, $bool, $classAttr, $styleAttr) {
+                function ($attrMapping, $mergeAttr, $pattern, $attr, $bool) {
+                    return function () use ($attrMapping, $mergeAttr, $pattern, $attr, $bool) {
                         $attributes = call_user_func_array($mergeAttr, func_get_args());
                         $code = '';
                         foreach ($attributes as $originalName => $value) {
@@ -120,12 +118,7 @@ trait AssignmentHelpersTrait
                                 }
 
                                 if (!is_string($value)) {
-                                    $value = $originalName === 'class'
-                                        ? $classAttr($value)
-                                        : ($originalName === 'style'
-                                            ? $styleAttr($value)
-                                            : json_encode($value)
-                                        );
+                                    $value = htmlspecialchars(json_encode($value));
                                 }
 
                                 $code .= $pattern($attr, $name, $value);

@@ -114,6 +114,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeElement
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
+     * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideAttributesAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneStyleAttributeAssignment
@@ -168,6 +169,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::hasNonStaticAttributes
      * @covers \Phug\Formatter\Format\XmlFormat::hasDuplicateAttributeNames
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeElement
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes

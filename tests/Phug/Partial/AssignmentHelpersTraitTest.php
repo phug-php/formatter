@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Partial;
 
+use Phug\Formatter;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
@@ -47,6 +48,7 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group i
      * @covers ::provideAttributesAssignment
      * @covers ::provideClassAttributeAssignment
      * @covers ::provideStyleAttributeAssignment
@@ -58,13 +60,19 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
 
         $code = $helper([
             'a'     => 'b',
+        ], [
             'c'     => 'a',
+        ], [
             'class' => ['foo zoo', 'foo bar'],
+        ], [
+            'data-user' => ['name' => 'Bob'],
+        ], [
             'style' => ['min-width' => 'calc(100% - 50px)'],
         ]);
 
         self::assertSame(
             ' a="b" c="a" class="foo zoo bar" '.
+            'data-user="{&quot;name&quot;:&quot;Bob&quot;}" '.
             'style="min-width:calc(100% - 50px)"',
             $code
         );
@@ -96,6 +104,26 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
             ' class="a c"',
             $code
         );
+    }
+
+    /**
+     * @covers ::provideAttributesAssignment
+     * @covers ::provideClassAttributeAssignment
+     */
+    public function testAttributesMapping()
+    {
+        $format = new XmlFormat(new Formatter([
+            'attributes_mapping' => [
+                'class' => 'className',
+            ],
+        ]));
+        $helper = $format->getHelper('attributes_assignment');
+
+        $code = $helper([
+            'class' => ['foo zoo', 'foo bar'],
+        ]);
+
+        self::assertSame(' className="foo zoo bar"', $code);
     }
 
     /**

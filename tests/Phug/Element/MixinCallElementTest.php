@@ -81,6 +81,63 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter::requireMixin
      * @covers \Phug\Formatter::formatDependencies
      * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
+     * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
+     * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
+     * @covers ::<public>
+     */
+    public function testMixinCallBeforeDeclare()
+    {
+        $document = new DocumentElement();
+        $document->appendChild(new CodeElement('$test = "Hello"'));
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('tabs');
+        $attributes = new AttributeElement('bar', 'bar');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('["foo" => "Foo"]'));
+        $assignment = new AssignmentElement('attributes', $data, $mixinCall);
+        $mixinCall->getAssignments()->attach($assignment);
+        $mixinCall->getAttributes()->attach($attributes);
+        $mixinCall->appendChild(new ExpressionElement('$test'));
+        $document->appendChild($mixinCall);
+
+        $mixin = new MixinElement();
+        $mixin->setName('tabs');
+        $tabs = new AttributeElement('tabs', null);
+        $tabs->setIsVariadic(true);
+        $mixin->getAttributes()->attach($tabs);
+        $div = new MarkupElement('div');
+        $data = new SplObjectStorage();
+        $data->attach(new ExpressionElement('$attributes'));
+        $assignment = new AssignmentElement('attributes', $data, $div);
+        $div->getAssignments()->attach($assignment);
+        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
+        $expression->uncheck();
+        $expression->preventFromTransformation();
+        $div->appendChild($expression);
+        $mixin->appendChild($div);
+        $document->appendChild($mixin);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        call_user_func(function ($__php) {
+            eval('?>'.$__php);
+        }, $php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<div bar="bar" foo="Foo">Hello</div>', $html);
+    }
+
+    /**
+     * @covers \Phug\Formatter::getMixins
+     * @covers \Phug\Formatter::requireMixin
+     * @covers \Phug\Formatter::formatDependencies
+     * @covers \Phug\Formatter\Util\PhpUnwrap::<public>
      * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
      * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatMixinCallElement
