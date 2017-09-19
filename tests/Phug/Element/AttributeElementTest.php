@@ -133,7 +133,10 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame('<a class="1 2 3" data-class="[1,2,3]"></a>', $actual);
         $link = new MarkupElement('a');
-        $link->getAttributes()->attach(new AttributeElement('class', new ExpressionElement('["a" => true, "b" => false, "c" => true]')));
+        $link->getAttributes()->attach(new AttributeElement(
+            'class',
+            new ExpressionElement('["a" => true, "b" => false, "c" => true]')
+        ));
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,
         ]);

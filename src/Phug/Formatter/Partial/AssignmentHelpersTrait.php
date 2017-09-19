@@ -104,8 +104,24 @@ trait AssignmentHelpersTrait
                 'pattern.boolean_attribute_pattern',
                 'stand_alone_class_attribute_assignment',
                 'stand_alone_style_attribute_assignment',
-                function ($attributesMapping, $mergeAttributes, $pattern, $attributePattern, $booleanPattern, $classAttribute, $styleAttribute) {
-                    return function () use ($attributesMapping, $mergeAttributes, $pattern, $attributePattern, $booleanPattern, $classAttribute, $styleAttribute) {
+                function (
+                    $attributesMapping,
+                    $mergeAttributes,
+                    $pattern,
+                    $attributePattern,
+                    $booleanPattern,
+                    $classAttribute,
+                    $styleAttribute
+                ) {
+                    return function () use (
+                        $attributesMapping,
+                        $mergeAttributes,
+                        $pattern,
+                        $attributePattern,
+                        $booleanPattern,
+                        $classAttribute,
+                        $styleAttribute
+                    ) {
                         $attributes = call_user_func_array($mergeAttributes, func_get_args());
                         $code = '';
                         foreach ($attributes as $originalName => $value) {
