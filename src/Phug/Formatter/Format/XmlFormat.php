@@ -10,6 +10,7 @@ use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\ElementInterface;
 use Phug\Formatter\MarkupInterface;
@@ -36,6 +37,7 @@ class XmlFormat extends AbstractFormat
 
         $this
             ->setOptionsDefaults([
+                'attributes_mapping'    => [],
                 'assignment_handlers'   => [],
                 'attribute_assignments' => [],
             ])
@@ -136,6 +138,25 @@ class XmlFormat extends AbstractFormat
         return false;
     }
 
+    protected function hasNonStaticAttributes(MarkupInterface $element)
+    {
+        if ($element instanceof MarkupElement || $element instanceof MixinCallElement) {
+            foreach ($element->getAttributes() as $attribute) {
+                if ($attribute->hasStaticMember('value')) {
+                    continue;
+                }
+                if ($attribute->getValue() instanceof ExpressionElement &&
+                    $attribute->getValue()->hasStaticMember('value')) {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function formatAttributeElement(AttributeElement $element)
     {
         $value = $element->getValue();
@@ -179,44 +200,6 @@ class XmlFormat extends AbstractFormat
             }
             if (in_array(strtolower($value->getValue()), ['false', 'null', 'undefined'])) {
                 return '';
-            }
-            if (!$value->hasStaticMember('value')) {
-                $formattedName = null;
-                if ($name instanceof ExpressionElement) {
-                    $formattedName = $this->formatCode($name->getValue(), $name->isChecked());
-                }
-                $formattedName = $formattedName || $formattedName === '0'
-                    ? $formattedName
-                    : var_export($name, true);
-                $formattedValue = $this->formatCode($value->getValue(), $value->isChecked());
-                $booleanAttribute = var_export($this->pattern('boolean_attribute_pattern', '%s', '%s'), true);
-                $stringAttribute = var_export($this->pattern('attribute_pattern', '%s', '%s'), true);
-
-                return $this->pattern(
-                        'php_handle_code',
-                        $this->pattern(
-                            'save_value',
-                            $this->pattern('buffer_variable'),
-                            $formattedValue
-                        ).';'.
-                        $this->pattern(
-                            'save_value',
-                            $this->pattern('buffer_name'),
-                            $formattedName
-                        )
-                    ).
-                    $this->pattern(
-                        'php_display_code',
-                        '$__value === null || $__value === false ? "" : sprintf('.
-                        '$__value === true ? '.$booleanAttribute.' : '.$stringAttribute.','.
-                        '$__name,'.
-                        $this->pattern(
-                            'dynamic_attribute',
-                            '$__value === true ? $__name : $__value',
-                            '$__name'
-                        ).
-                        ')'
-                    );
             }
         }
 
@@ -327,22 +310,27 @@ class XmlFormat extends AbstractFormat
         return implode('', array_map([$this, 'format'], $newElements));
     }
 
-    protected function formatAttributes(MarkupElement $element)
+    protected function hasDuplicateAttributeNames(MarkupInterface $element)
     {
-        $code = '';
-        $names = [];
-        $needAttributeAssignment = false;
-        foreach ($element->getAttributes() as $attribute) {
-            $name = $attribute->getName();
-            if (($name instanceof ExpressionElement && !$name->hasStaticValue()) || in_array($name, $names)) {
-                $needAttributeAssignment = true;
-                break;
-            }
+        if ($element instanceof MarkupElement || $element instanceof MixinCallElement) {
+            $names = [];
+            foreach ($element->getAttributes() as $attribute) {
+                $name = $attribute->getName();
+                if (($name instanceof ExpressionElement && !$name->hasStaticValue()) || in_array($name, $names)) {
+                    return true;
+                }
 
-            $names[] = $name;
+                $names[] = $name;
+            }
         }
 
-        if ($needAttributeAssignment) {
+        return false;
+    }
+
+    protected function formatAttributes(MarkupElement $element)
+    {
+        if ($this->hasNonStaticAttributes($element) ||
+            $this->hasDuplicateAttributeNames($element)) {
             $attributeAssignment = $element->getAssignmentsByName('attributes');
             if (!count($attributeAssignment)) {
                 $data = new SplObjectStorage();
@@ -354,6 +342,8 @@ class XmlFormat extends AbstractFormat
         foreach ($element->getAssignments() as $assignment) {
             return $this->format($assignment);
         }
+
+        $code = '';
 
         foreach ($element->getAttributes() as $attribute) {
             $code .= $this->format($attribute);

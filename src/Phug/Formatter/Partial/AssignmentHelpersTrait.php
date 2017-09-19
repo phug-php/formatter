@@ -37,7 +37,7 @@ trait AssignmentHelpersTrait
                 return function (&$attributes, $name, $value) use ($attributeAssignments) {
                     if (isset($name) && $name !== '') {
                         $result = $attributeAssignments($attributes, $name, $value);
-                        if ($result !== '' || ($name !== 'class' && $name !== 'id')) {
+                        if (($result !== null && $result !== false && ($result !== '' || $name !== 'class'))) {
                             $attributes[$name] = $result;
                         }
                     }
@@ -91,27 +91,51 @@ trait AssignmentHelpersTrait
      */
     protected function provideAttributesAssignment()
     {
-        return $this->provideHelper('attributes_assignment', [
-            'merge_attributes',
-            'pattern',
-            'pattern.attribute_pattern',
-            'pattern.boolean_attribute_pattern',
-            function ($mergeAttributes, $pattern, $attributePattern, $booleanPattern) {
-                return function () use ($mergeAttributes, $pattern, $attributePattern, $booleanPattern) {
-                    $attributes = call_user_func_array($mergeAttributes, func_get_args());
-                    $code = '';
-                    foreach ($attributes as $name => $value) {
-                        if ($value) {
-                            $code .= $value === true
-                                ? $pattern($booleanPattern, $name, $name)
-                                : $pattern($attributePattern, $name, $value);
-                        }
-                    }
+        return $this
+            ->registerHelper(
+                'attributes_mapping',
+                (array) $this->getOption('attributes_mapping') ?: []
+            )
+            ->provideHelper('attributes_assignment', [
+                'attributes_mapping',
+                'merge_attributes',
+                'pattern',
+                'pattern.attribute_pattern',
+                'pattern.boolean_attribute_pattern',
+                'stand_alone_class_attribute_assignment',
+                'stand_alone_style_attribute_assignment',
+                function ($attributesMapping, $mergeAttributes, $pattern, $attributePattern, $booleanPattern, $classAttribute, $styleAttribute) {
+                    return function () use ($attributesMapping, $mergeAttributes, $pattern, $attributePattern, $booleanPattern, $classAttribute, $styleAttribute) {
+                        $attributes = call_user_func_array($mergeAttributes, func_get_args());
+                        $code = '';
+                        foreach ($attributes as $originalName => $value) {
+                            if ($value !== null && $value !== false && ($value !== '' || $originalName !== 'class')) {
+                                $name = isset($attributesMapping[$originalName])
+                                    ? $attributesMapping[$originalName]
+                                    : $originalName;
+                                if ($value === true) {
+                                    $code .= $pattern($booleanPattern, $name, $name);
 
-                    return $code;
-                };
-            },
-        ]);
+                                    continue;
+                                }
+
+                                if (!is_string($value)) {
+                                    $value = $originalName === 'class'
+                                        ? $classAttribute($value)
+                                        : ($originalName === 'style'
+                                            ? $styleAttribute($value)
+                                            : json_encode($value)
+                                        );
+                                }
+
+                                $code .= $pattern($attributePattern, $name, $value);
+                            }
+                        }
+
+                        return $code;
+                    };
+                },
+            ]);
     }
 
     /**

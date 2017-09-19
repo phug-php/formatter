@@ -35,10 +35,13 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             'default_format' => XmlFormat::class,
         ]);
 
-        self::assertSame(
-            '<img src="/foo/bar.png" alt="text"></img>',
-            $formatter->format($img)
-        );
+        ob_start();
+        $php = $formatter->format($img);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<img src="/foo/bar.png" alt="text"></img>', $actual);
         $attributes = new AttributeElement('foo', '/foo/bar.png');
 
         self::assertSame('foo', $attributes->getName());
@@ -66,7 +69,7 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<input (name)="user">',
-            $formatter->format($input)
+            $actual
         );
     }
 
@@ -96,10 +99,13 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
             'default_format' => HtmlFormat::class,
         ]);
 
-        self::assertSame(
-            '<input class="foo">',
-            $formatter->format($input)
-        );
+        ob_start();
+        $php = $formatter->format($input);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<input class="foo">', $actual);
     }
 
     /**
@@ -125,10 +131,20 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
         $actual = ob_get_contents();
         ob_end_clean();
 
-        self::assertSame(
-            '<a class="1 2 3" data-class="[1,2,3]"></a>',
-            $actual
-        );
+        self::assertSame('<a class="1 2 3" data-class="[1,2,3]"></a>', $actual);
+        $link = new MarkupElement('a');
+        $link->getAttributes()->attach(new AttributeElement('class', new ExpressionElement('["a" => true, "b" => false, "c" => true]')));
+        $formatter = new Formatter([
+            'default_format' => HtmlFormat::class,
+        ]);
+
+        $php = $formatter->format($link);
+        ob_start();
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<a class="a c"></a>', $actual);
 
         $link = new MarkupElement('a');
         $link->getAttributes()->attach(new AttributeElement('style', new ExpressionElement('["color" => "white"]')));
@@ -142,9 +158,6 @@ class AttributeElementTest extends \PHPUnit_Framework_TestCase
         $actual = ob_get_contents();
         ob_end_clean();
 
-        self::assertSame(
-            '<a style="color:white"></a>',
-            $actual
-        );
+        self::assertSame('<a style="color:white"></a>', $actual);
     }
 }

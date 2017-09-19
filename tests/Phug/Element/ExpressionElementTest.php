@@ -34,7 +34,8 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
         );
         $paragraph->appendChild(new ExpressionElement('true'));
         ob_start();
-        eval('?>'.$formatter->format($paragraph));
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -49,7 +50,8 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
         );
         $paragraph->appendChild(new ExpressionElement('false'));
         ob_start();
-        eval('?>'.$formatter->format($paragraph));
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
@@ -75,7 +77,8 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
         $paragraph->appendChild(new ExpressionElement('$foo'));
         ob_start();
         $foo = true;
-        eval('?>'.$formatter->format($paragraph));
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
         $actual = ob_get_contents();
         ob_end_clean();
 
