@@ -48,7 +48,6 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @covers ::provideAttributesAssignment
      * @covers ::provideClassAttributeAssignment
      * @covers ::provideStyleAttributeAssignment

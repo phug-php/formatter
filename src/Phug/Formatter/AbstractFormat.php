@@ -409,12 +409,24 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return var_export(strval($this->format($value, true)), true);
     }
 
-    protected function formatPairAsArrayItem($name, $value)
+    protected function formatDynamicValue($name, $value)
     {
-        $name = $this->formatAssignmentValue($name);
+
+        if ($value instanceof ExpressionElement &&
+            strtolower($value->getValue()) === 'undefined'
+        ) {
+            return 'null';
+        }
+
+        if ($value instanceof ExpressionElement &&
+            in_array(($code = strtolower($value->getValue())), ['true', 'false', 'null', 'undefined'])
+        ) {
+            return $code;
+        }
+
         $code = $this->formatAssignmentValue($value);
         if ($value instanceof ExpressionElement && $value->isEscaped()) {
-            $code = $this->pattern(
+            return $this->pattern(
                 'html_expression_escape',
                 $this->pattern(
                     'dynamic_attribute',
@@ -423,6 +435,14 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 )
             );
         }
+
+        return $code;
+    }
+
+    protected function formatPairAsArrayItem($name, $value)
+    {
+        $code = $this->formatDynamicValue($name, $value);
+        $name = $this->formatAssignmentValue($name);
 
         return '['.$name.' => '.$code.']';
     }

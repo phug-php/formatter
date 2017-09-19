@@ -289,13 +289,15 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Phug\Formatter\AbstractFormat::pattern
      * @covers \Phug\Formatter\AbstractFormat::formatCode
+     * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
+     * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
      */
     public function testTransformExpression()
     {
         $formatter = new Formatter([
             'patterns' => [
                 'transform_expression' => function ($expression) {
-                    return str_replace('.', '->', $expression);
+                    return preg_replace('/\.(?=\w)/', '->', $expression);
                 },
             ],
         ]);
@@ -332,6 +334,24 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             ' class="gg hh"',
+            $actual
+        );
+
+        $attribute = new AttributeElement('style', new ExpressionElement('$foo.bar'));
+
+        ob_start();
+        $foo = (object) [
+            'bar' => (object) [
+                'color' => 'red',
+            ],
+        ];
+        $php = $formatter->format($attribute, HtmlFormat::class);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            ' style="color:red"',
             $actual
         );
 
