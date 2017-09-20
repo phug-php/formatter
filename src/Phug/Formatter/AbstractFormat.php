@@ -411,7 +411,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatDynamicValue($formattedName, $value)
     {
-
         if ($value instanceof ExpressionElement &&
             strtolower($value->getValue()) === 'undefined'
         ) {
