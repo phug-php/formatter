@@ -137,7 +137,10 @@ trait AssignmentHelpersTrait
     protected function provideClassAttributeAssignment()
     {
         return $this->addAttributeAssignment('class', function (&$attributes, $value) {
-            $classes = isset($attributes['class']) ? array_filter(explode(' ', $attributes['class'])) : [];
+            $split = function ($input) {
+                return preg_split('/(?<![\[\{\<\=\%])\s+(?![\]\}\>\=\%])/', strval($input));
+            };
+            $classes = isset($attributes['class']) ? array_filter($split($attributes['class'])) : [];
             foreach ((array) $value as $key => $input) {
                 if (!is_string($input) && is_string($key)) {
                     if (!$input) {
@@ -146,7 +149,7 @@ trait AssignmentHelpersTrait
 
                     $input = $key;
                 }
-                foreach (explode(' ', strval($input)) as $class) {
+                foreach ($split($input) as $class) {
                     if (!in_array($class, $classes)) {
                         $classes[] = $class;
                     }

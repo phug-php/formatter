@@ -409,7 +409,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         return var_export(strval($this->format($value, true)), true);
     }
 
-    protected function formatDynamicValue($name, $value)
+    protected function formatDynamicValue($formattedName, $value)
     {
 
         if ($value instanceof ExpressionElement &&
@@ -431,7 +431,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $this->pattern(
                     'dynamic_attribute',
                     $code,
-                    $name
+                    $formattedName
                 )
             );
         }
@@ -441,10 +441,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatPairAsArrayItem($name, $value)
     {
-        $code = $this->formatDynamicValue($name, $value);
-        $name = $this->formatAssignmentValue($name);
+        $formattedName = $this->formatAssignmentValue($name);
+        $code = $this->formatDynamicValue($formattedName, $value);
 
-        return '['.$name.' => '.$code.']';
+        return '['.$formattedName.' => '.$code.']';
     }
 
     protected function formatAttributeAsArrayItem(AttributeElement $attribute)
