@@ -291,6 +291,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         self::assertInstanceOf(ExpressionElement::class, $list);
         self::assertSame('$pugModule['.
             '\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat::merge_attributes\']'.
-            '([\'name\' => htmlspecialchars($var)])', $list->getValue());
+            '([\'name\' => $pugModule[\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat'.
+            '::array_escape\'](\'name\', $var)])', $list->getValue());
     }
 }

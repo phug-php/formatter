@@ -36,15 +36,19 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     const CLASS_ATTRIBUTE = '(is_array($_pug_temp = %s) ? implode(" ", $_pug_temp) : strval($_pug_temp))';
     const STRING_ATTRIBUTE = '
-        (is_array($_pug_temp = %s) || (is_object($_pug_temp) && !method_exists($_pug_temp, "__toString"))
+        (is_array($_pug_temp = %s) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
             ? json_encode($_pug_temp)
             : strval($_pug_temp))';
     const DYNAMIC_ATTRIBUTE = '
         (is_array($_pug_temp = is_array($_pug_temp = %s) && %s === "class"
             ? implode(" ", $_pug_temp)
-            : $_pug_temp) || (is_object($_pug_temp) && !method_exists($_pug_temp, "__toString"))
+            : $_pug_temp) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
                 ? json_encode($_pug_temp)
                 : strval($_pug_temp))';
+    const ATTRIBUTE_TO_STRING = '
+        (is_array($_pug_temp = %s) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
+            ? json_encode($_pug_temp)
+            : strval($_pug_temp))';
     const EXPRESSION_IN_TEXT = '(is_bool($_pug_temp = %s) ? var_export($_pug_temp, true) : $_pug_temp)';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
@@ -78,6 +82,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             'class_attribute'        => static::CLASS_ATTRIBUTE,
             'string_attribute'       => static::STRING_ATTRIBUTE,
             'dynamic_attribute'      => static::DYNAMIC_ATTRIBUTE,
+            'attribute_to_string'    => static::ATTRIBUTE_TO_STRING,
             'expression_in_text'     => static::EXPRESSION_IN_TEXT,
             'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
@@ -425,14 +430,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
         $code = $this->formatAssignmentValue($value);
         if ($value instanceof ExpressionElement && $value->isEscaped()) {
-            return $this->pattern(
-                'html_expression_escape',
-                $this->pattern(
-                    'dynamic_attribute',
-                    $code,
-                    $formattedName
-                )
-            );
+            return $this->exportHelper('array_escape', [$formattedName, $code]);
         }
 
         return $code;
@@ -463,10 +461,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function attributesAssignmentsFromPairs($pairs, $helper = 'attributes_assignment')
     {
-        $expression = new ExpressionElement(
-            $this->exportHelper($helper).
-            '('.implode(', ', $pairs).')'
-        );
+        $expression = new ExpressionElement($this->exportHelper($helper, $pairs));
         $expression->uncheck();
         $expression->preventFromTransformation();
 
@@ -524,18 +519,22 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatAttributeValueAccordingToName($value, $name, $checked)
     {
         if ($name instanceof ExpressionElement) {
-            return $this->exportHelper('stand_alone_attribute_assignment').
-                '('.$this->formatCode($name->getValue(), $checked).', '.$value.')';
+            return $this->exportHelper('stand_alone_attribute_assignment', [
+                $this->formatCode($name->getValue(), $checked),
+                $value,
+            ]);
         }
 
         if ($name === 'class') {
-            return $this->exportHelper('stand_alone_class_attribute_assignment').
-                '('.$value.')';
+            return $this->exportHelper('stand_alone_class_attribute_assignment', [
+                $value,
+            ]);
         }
 
         if ($name === 'style') {
-            return $this->exportHelper('stand_alone_style_attribute_assignment').
-                '('.$value.')';
+            return $this->exportHelper('stand_alone_style_attribute_assignment', [
+                $value,
+            ]);
         }
 
         return $this->pattern('string_attribute', $value, $this->formatCode($name, $checked));

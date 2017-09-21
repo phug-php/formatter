@@ -71,7 +71,7 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             ' a="b" c="a" class="foo zoo bar" '.
-            'data-user="{&quot;name&quot;:&quot;Bob&quot;}" '.
+            'data-user="{"name":"Bob"}" '.
             'style="min-width:calc(100% - 50px)"',
             $code
         );

@@ -93,16 +93,22 @@ trait PatternTrait
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param array  $name
      *
      * @return string
      */
-    public function exportHelper($name)
+    public function exportHelper($name, array $arguments = null)
     {
         $this->requireHelper($name);
 
-        return $this->formatter->getDependencyStorage(
+        $code = $this->formatter->getDependencyStorage(
             $this->helperName($name)
         );
+        if (!is_null($arguments)) {
+            $code .= '('.implode(', ', $arguments).')';
+        }
+
+        return $code;
     }
 }

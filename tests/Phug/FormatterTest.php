@@ -316,8 +316,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $expression->linkTo(new AttributeElement('a', 'a'));
         self::assertSame(
-            '<?= (is_array($_pug_temp = $foo->bar) || (is_object($_pug_temp) && '.
-            '!method_exists($_pug_temp, "__toString")) ? json_encode($_pug_temp) : strval($_pug_temp)) ?>',
+            '<?= (is_array($_pug_temp = $foo->bar) || is_object($_pug_temp) && '.
+            '!method_exists($_pug_temp, "__toString") ? json_encode($_pug_temp) : strval($_pug_temp)) ?>',
             $formatter->format($expression, HtmlFormat::class)
         );
 

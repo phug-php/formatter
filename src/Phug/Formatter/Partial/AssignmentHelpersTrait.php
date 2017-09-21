@@ -100,10 +100,11 @@ trait AssignmentHelpersTrait
                 'attributes_mapping',
                 'merge_attributes',
                 'pattern',
+                'pattern.html_text_escape',
                 'pattern.attribute_pattern',
                 'pattern.boolean_attribute_pattern',
-                function ($attrMapping, $mergeAttr, $pattern, $attr, $bool) {
-                    return function () use ($attrMapping, $mergeAttr, $pattern, $attr, $bool) {
+                function ($attrMapping, $mergeAttr, $pattern, $escape, $attr, $bool) {
+                    return function () use ($attrMapping, $mergeAttr, $pattern, $escape, $attr, $bool) {
                         $attributes = call_user_func_array($mergeAttr, func_get_args());
                         $code = '';
                         foreach ($attributes as $originalName => $value) {
@@ -116,9 +117,9 @@ trait AssignmentHelpersTrait
 
                                     continue;
                                 }
-
-                                if (!is_string($value)) {
-                                    $value = htmlspecialchars(json_encode($value));
+                                if (is_array($value) || is_object($value) &&
+                                    !method_exists($value, '__toString')) {
+                                    $value = json_encode($value);
                                 }
 
                                 $code .= $pattern($attr, $name, $value);
@@ -126,6 +127,38 @@ trait AssignmentHelpersTrait
                         }
 
                         return $code;
+                    };
+                },
+            ]);
+    }
+
+    /**
+     * @return $this
+     */
+    protected function provideArrayEscape()
+    {
+        return $this
+            ->provideHelper('array_escape', [
+                'array_escape',
+                'pattern.html_text_escape',
+                function ($arrayEscape, $escape) {
+                    return function ($name, $input) use ($arrayEscape, $escape) {
+                        if (is_array($input) && in_array(strtolower($name), ['class', 'style'])) {
+                            $result = [];
+                            foreach ($input as $key => $value) {
+                                $result[$escape($key)] = $arrayEscape($name, $value);
+                            }
+
+                            return $result;
+                        }
+                        if (is_array($input) || is_object($input) && !method_exists($input, '__toString')) {
+                            return $escape(json_encode($input));
+                        }
+                        if (is_string($input)) {
+                            return $escape($input);
+                        }
+
+                        return $input;
                     };
                 },
             ]);

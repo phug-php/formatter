@@ -57,6 +57,7 @@ class XmlFormat extends AbstractFormat
             ->provideAttributeAssignment()
             ->provideStandAloneAttributeAssignment()
             ->provideMergeAttributes()
+            ->provideArrayEscape()
             ->provideAttributesAssignment()
             ->provideClassAttributeAssignment()
             ->provideStandAloneClassAttributeAssignment()
