@@ -39,16 +39,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         (is_array($_pug_temp = %s) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
             ? json_encode($_pug_temp)
             : strval($_pug_temp))';
-    const DYNAMIC_ATTRIBUTE = '
-        (is_array($_pug_temp = is_array($_pug_temp = %s) && %s === "class"
-            ? implode(" ", $_pug_temp)
-            : $_pug_temp) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
-                ? json_encode($_pug_temp)
-                : strval($_pug_temp))';
-    const ATTRIBUTE_TO_STRING = '
-        (is_array($_pug_temp = %s) || is_object($_pug_temp) && !method_exists($_pug_temp, "__toString")
-            ? json_encode($_pug_temp)
-            : strval($_pug_temp))';
     const EXPRESSION_IN_TEXT = '(is_bool($_pug_temp = %s) ? var_export($_pug_temp, true) : $_pug_temp)';
     const HTML_EXPRESSION_ESCAPE = 'htmlspecialchars(%s)';
     const HTML_TEXT_ESCAPE = 'htmlspecialchars';
@@ -81,8 +71,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $patterns = [
             'class_attribute'        => static::CLASS_ATTRIBUTE,
             'string_attribute'       => static::STRING_ATTRIBUTE,
-            'dynamic_attribute'      => static::DYNAMIC_ATTRIBUTE,
-            'attribute_to_string'    => static::ATTRIBUTE_TO_STRING,
             'expression_in_text'     => static::EXPRESSION_IN_TEXT,
             'html_expression_escape' => static::HTML_EXPRESSION_ESCAPE,
             'html_text_escape'       => static::HTML_TEXT_ESCAPE,
@@ -342,10 +330,22 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
         $tokens = array_slice(token_get_all('<?php '.$code), 1);
+        $afterIsset = false;
+        $inIsset = false;
 
         foreach ($tokens as $index => $token) {
             $tokenId = $token;
             $text = $token;
+            if ($afterIsset && $token === ')') {
+                $inIsset = false;
+                $afterIsset = false;
+            }
+            if ($afterIsset && $token === '(') {
+                $inIsset = true;
+            }
+            if (is_array($token) && $token[0] === T_ISSET) {
+                $afterIsset = true;
+            }
             if (!is_string($tokenId)) {
                 list($tokenId, $text) = $token;
             }
@@ -360,7 +360,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 continue;
             }
 
-            yield $phpTokenHandler[$tokenId]($text, $index, $tokens, $checked);
+            yield $phpTokenHandler[$tokenId]($text, $index, $tokens, $checked && !$inIsset);
         }
     }
 
@@ -406,9 +406,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function formatAssignmentValue($value)
     {
         if ($value instanceof ExpressionElement) {
-            $code = $this->formatCode($value->getValue(), false);
-
-            return $code;
+            return $this->formatCode($value->getValue(), $value->isChecked());
         }
 
         return var_export(strval($this->format($value, true)), true);

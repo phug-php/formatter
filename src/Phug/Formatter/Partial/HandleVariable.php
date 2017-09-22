@@ -118,12 +118,13 @@ trait HandleVariable
             $this->isInExclusionContext($tokens, $index) ||
             $this->isInFunctionParams($tokens, $index) ||
             $this->isInKeywordParams($tokens, $index) ||
-            $variable === '$_pug_temp'
+            $variable === '$_pug_temp' ||
+            mb_substr($variable, 0, 1) !== '$'
         ) {
             return $variable;
         }
 
-        $checkedVariable = '(isset('.$variable.') ? '.$variable." : '')";
+        $checkedVariable = '(isset('.$variable.') ? '.$variable." : null)";
         if ($this->isInInterpolation($tokens, $index)) {
             $checkedVariable = '".'.$checkedVariable.'."';
         }

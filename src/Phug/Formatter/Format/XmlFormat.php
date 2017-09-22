@@ -28,8 +28,6 @@ class XmlFormat extends AbstractFormat
     const ATTRIBUTE_PATTERN = ' %s="%s"';
     const BOOLEAN_ATTRIBUTE_PATTERN = ' %s="%s"';
     const BUFFER_VARIABLE = '$__value';
-    const BUFFER_NAME = '$__name';
-    const TEST_VALUE = 'isset(%s)';
 
     public function __construct(Formatter $formatter = null)
     {
@@ -49,9 +47,7 @@ class XmlFormat extends AbstractFormat
                 'attribute_pattern'         => static::ATTRIBUTE_PATTERN,
                 'boolean_attribute_pattern' => static::BOOLEAN_ATTRIBUTE_PATTERN,
                 'save_value'                => static::SAVE_VALUE,
-                'test_value'                => static::TEST_VALUE,
                 'buffer_variable'           => static::BUFFER_VARIABLE,
-                'buffer_name'               => static::BUFFER_NAME,
             ])
             ->provideAttributeAssignments()
             ->provideAttributeAssignment()
@@ -273,10 +269,11 @@ class XmlFormat extends AbstractFormat
                     $attributes,
                     function (AbstractValueElement $attribute) use (&$arguments) {
                         $value = $attribute;
+                        $checked = method_exists($value, 'isChecked') && $value->isChecked();
                         while (method_exists($value, 'getValue')) {
                             $value = $value->getValue();
                         }
-                        $arguments[] = $this->formatCode($value, false);
+                        $arguments[] = $this->formatCode($value, $checked);
                     }
                 );
                 $markup->removedAssignment($attributesAssignment);

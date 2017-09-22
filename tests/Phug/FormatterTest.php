@@ -225,7 +225,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $exp = new ExpressionElement('($a = function ($a, $b) { return $c; }) ? call_user_func($a, "A", "B") : null');
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 
-        self::assertSame('', $return);
+        self::assertSame(null, $return);
 
         $exp = new ExpressionElement('foreach ($tabs as $key => $tab)');
         $code = $formatter->format($exp);
@@ -365,7 +365,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
 
         $expression = new ExpressionElement('foo');
         self::assertSame(
-            '<?= (is_bool($_pug_temp = (isset($foo) ? $foo : \'\')) '.
+            '<?= (is_bool($_pug_temp = (isset($foo) ? $foo : null)) '.
             '? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($expression, HtmlFormat::class)
         );
@@ -397,7 +397,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $formatter = new Formatter();
 
         self::assertSame(
-            '<?= htmlspecialchars((is_bool($_pug_temp = "<".(isset($tag) ? $tag : \'\').">") '.
+            '<?= htmlspecialchars((is_bool($_pug_temp = "<".(isset($tag) ? $tag : null).">") '.
             '? var_export($_pug_temp, true) : $_pug_temp)) ?>',
             $formatter->format($answer, HtmlFormat::class)
         );

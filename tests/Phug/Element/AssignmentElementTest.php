@@ -253,7 +253,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<img<?= (is_bool($_pug_temp = '.
-            'my_func((isset($var) ? $var : \'\'))'.
+            'my_func((isset($var) ? $var : null))'.
             ') ? var_export($_pug_temp, true) : $_pug_temp) ?> />',
             $formatter->format($img)
         );
@@ -269,9 +269,6 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
     {
         $formatter = new Formatter([
             'default_format' => HtmlFormat::class,
-            'patterns'       => [
-                'dynamic_attribute' => '%s',
-            ],
         ]);
         $list = $formatter->formatAttributesList([
             new AttributeElement('name', new ExpressionElement('["class" => "top bottom"]')),
@@ -292,6 +289,6 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame('$pugModule['.
             '\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat::merge_attributes\']'.
             '([\'name\' => $pugModule[\'Phug\\\\Formatter\\\\Format\\\\HtmlFormat'.
-            '::array_escape\'](\'name\', $var)])', $list->getValue());
+            '::array_escape\'](\'name\', (isset($var) ? $var : null))])', $list->getValue());
     }
 }

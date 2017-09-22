@@ -45,6 +45,6 @@ class VariableElementTest extends \PHPUnit_Framework_TestCase
         $document = new DocumentElement();
         $document->appendChild($variable);
 
-        self::assertSame('<?php $foo=htmlspecialchars((isset($bar) ? $bar : \'\')) ?>', $formatter->format($document));
+        self::assertSame('<?php $foo=htmlspecialchars((isset($bar) ? $bar : null)) ?>', $formatter->format($document));
     }
 }
