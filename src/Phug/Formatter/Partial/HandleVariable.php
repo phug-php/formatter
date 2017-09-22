@@ -124,7 +124,7 @@ trait HandleVariable
             return $variable;
         }
 
-        $checkedVariable = '(isset('.$variable.') ? '.$variable." : null)";
+        $checkedVariable = '(isset('.$variable.') ? '.$variable.' : null)';
         if ($this->isInInterpolation($tokens, $index)) {
             $checkedVariable = '".'.$checkedVariable.'."';
         }
