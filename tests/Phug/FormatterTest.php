@@ -268,6 +268,27 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::handleCode
+     * @covers ::handleCode
+     * @covers ::getFormatInstance
+     */
+    public function testFormats()
+    {
+        include_once __DIR__.'/CustomFormat.php';
+
+        $formatter = new Formatter([
+            'formats' => [
+                'custom' => CustomFormat::class,
+            ],
+        ]);
+
+        self::assertSame(
+            '<!DOCTYPE custom>',
+            $formatter->format(new DoctypeElement('custom'))
+        );
+    }
+
+    /**
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      * @covers ::formatCode
      * @covers ::getFormatInstance
