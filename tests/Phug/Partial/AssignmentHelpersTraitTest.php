@@ -106,6 +106,32 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::provideArrayEscape
+     */
+    public function testArrayEscape()
+    {
+        $formatter = new Formatter();
+        $format = new XmlFormat($formatter);
+        $escape = $format->getHelper('array_escape');
+
+        self::assertSame('{&quot;&lt;foo&gt;&quot;:&quot;&lt;strong&gt;&quot;}', $escape('data-user', [
+            '<foo>' => '<strong>',
+        ]));
+
+        $expected = '{&quot;&lt;foo&gt;&quot;:true}';
+        self::assertSame($expected, $escape('data-user', [
+            '<foo>' => true,
+        ]));
+
+        $expected = [
+            '&lt;foo&gt;' => true,
+        ];
+        self::assertSame($expected, $escape('class', [
+            '<foo>' => true,
+        ]));
+    }
+
+    /**
      * @covers ::provideAttributesAssignment
      * @covers ::provideClassAttributeAssignment
      */

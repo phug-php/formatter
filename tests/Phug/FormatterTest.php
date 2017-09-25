@@ -253,6 +253,27 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phug\Formatter\AbstractFormat::initFormats
+     */
+    public function testInitFormats()
+    {
+        $formatter = new Formatter([
+            'patterns' => [
+                'php_handle_code' => 'foo',
+            ],
+        ]);
+        $format = $formatter->getFormatInstance();
+        $formatter->setOption('patterns.php_handle_code', 'bar');
+
+        self::assertSame('foo', $format->getOption('patterns.php_handle_code'));
+
+        $formatter->initFormats();
+        $format = $formatter->getFormatInstance();
+
+        self::assertSame('bar', $format->getOption('patterns.php_handle_code'));
+    }
+
+    /**
      * @covers \Phug\Formatter\AbstractFormat::handleCode
      * @covers ::handleCode
      * @covers ::getFormatInstance
