@@ -28,6 +28,8 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneClassAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStyleAttributeAssignment
      * @covers \Phug\Formatter\Partial\AssignmentHelpersTrait::provideStandAloneStyleAttributeAssignment
+     * @covers \Phug\Formatter\AbstractFormat::handleTokens
+     * @covers \Phug\Formatter\AbstractFormat::formatDynamicValue
      * @covers \Phug\Formatter\AbstractFormat::formatPairAsArrayItem
      * @covers \Phug\Formatter\AbstractFormat::attributesAssignmentsFromPairs
      * @covers \Phug\Formatter\Format\XmlFormat::addAttributeAssignment
@@ -261,6 +263,7 @@ class AssignmentElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers \Phug\Formatter::formatAttributesList
+     * @covers \Phug\Formatter\AbstractFormat::formatDynamicValue
      * @covers \Phug\Formatter\AbstractFormat::formatAttributesList
      * @covers \Phug\Formatter\AbstractFormat::arrayToPairsExports
      * @covers \Phug\Formatter\AbstractFormat::formatPairAsArrayItem

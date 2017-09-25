@@ -118,6 +118,9 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
             '<foo>' => '<strong>',
         ]));
 
+        self::assertSame('foo', $escape('data-user', 'foo'));
+        self::assertSame('&lt;foo&gt;', $escape('data-user', '<foo>'));
+
         $expected = '{&quot;&lt;foo&gt;&quot;:true}';
         self::assertSame($expected, $escape('data-user', [
             '<foo>' => true,

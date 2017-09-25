@@ -15,6 +15,7 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\AbstractFormat::formatDynamicValue
      */
     public function testExpressionElement()
     {
@@ -57,6 +58,22 @@ class ExpressionElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame(
             '<p>false</p>',
+            $actual
+        );
+
+        $paragraph = new MarkupElement('p');
+        $paragraph->getAttributes()->attach(
+            new AttributeElement('foo', new ExpressionElement('undefined'))
+        );
+        $paragraph->appendChild(new ExpressionElement('null'));
+        ob_start();
+        $php = $formatter->format($paragraph);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<p></p>',
             $actual
         );
     }

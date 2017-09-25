@@ -253,7 +253,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Phug\Formatter\AbstractFormat::initFormats
+     * @covers ::initFormats
      */
     public function testInitFormats()
     {
