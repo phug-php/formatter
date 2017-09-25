@@ -84,7 +84,7 @@ class Formatter implements ModuleContainerInterface
      */
     public function __construct($options = null)
     {
-        $this->setOptionsDefaults($options ?: [], [
+        $this->initFormats()->setOptionsDefaults($options ?: [], [
             'debug'                       => false,
             'dependencies_storage'        => 'pugModule',
             'dependencies_storage_getter' => null,
@@ -314,6 +314,18 @@ class Formatter implements ModuleContainerInterface
     public function getFormat()
     {
         return $this->format;
+    }
+
+    /**
+     * Initialize the formats lists.
+     *
+     * @return $this
+     */
+    public function initFormats()
+    {
+        $this->formats = [];
+
+        return $this;
     }
 
     /**
