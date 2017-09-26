@@ -107,10 +107,6 @@ class Formatter implements ModuleContainerInterface
             'on_dependency_storage' => null,
         ]);
 
-        $this->dependencies = new DependencyInjection();
-        $this->mixins = new DependencyInjection();
-        $this->destructors = new SplObjectStorage();
-
         $formatClassName = $this->getOption('default_format');
 
         if (!is_a($formatClassName, FormatInterface::class, true)) {
@@ -317,12 +313,15 @@ class Formatter implements ModuleContainerInterface
     }
 
     /**
-     * Initialize the formats lists.
+     * Initialize the formats list and dependencies.
      *
      * @return $this
      */
     public function initFormats()
     {
+        $this->dependencies = new DependencyInjection();
+        $this->mixins = new DependencyInjection();
+        $this->destructors = new SplObjectStorage();
         $this->formats = [];
 
         return $this;
