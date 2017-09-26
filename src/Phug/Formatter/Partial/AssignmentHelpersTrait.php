@@ -74,7 +74,7 @@ trait AssignmentHelpersTrait
             function ($attributeAssignment) {
                 return function () use ($attributeAssignment) {
                     $attributes = [];
-                    foreach (func_get_args() as $input) {
+                    foreach (array_filter(func_get_args(), 'is_array') as $input) {
                         foreach ($input as $name => $value) {
                             $attributeAssignment($attributes, $name, $value);
                         }
