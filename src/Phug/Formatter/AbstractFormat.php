@@ -11,6 +11,7 @@ use Phug\Formatter\Element\CommentElement;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
 use Phug\Formatter\Element\ExpressionElement;
+use Phug\Formatter\Element\KeywordElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\MixinElement;
@@ -122,6 +123,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     ExpressionElement::class => [$this, 'formatExpressionElement'],
                     DoctypeElement::class    => [$this, 'formatDoctypeElement'],
                     DocumentElement::class   => [$this, 'formatDocumentElement'],
+                    KeywordElement::class    => [$this, 'formatKeywordElement'],
                     MarkupElement::class     => [$this, 'formatMarkupElement'],
                     MixinCallElement::class  => [$this, 'formatMixinCallElement'],
                     MixinElement::class      => [$this, 'formatMixinElement'],
@@ -474,6 +476,42 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     public function formatAttributesList($attributes)
     {
         return $this->attributesAssignmentsFromPairs($this->arrayToPairsExports($attributes), 'merge_attributes');
+    }
+
+    /**
+     * @param KeywordElement $element
+     *
+     * @return string
+     */
+    protected function formatKeywordElement(KeywordElement $element)
+    {
+        $name = $element->getName();
+        $keyword = $this->getOption(['keywords', $name]);
+        $result = call_user_func($keyword, $element->getValue(), $element, $name);
+
+        if (is_string($result)) {
+            $result = ['begin' => $result];
+        }
+
+        if (!is_array($result) && !($result instanceof \ArrayAccess)) {
+            $this->throwException("The keyword $name returned an invalid value type, string or array was expected.");
+        }
+
+        foreach (['begin', 'end'] as $key) {
+            $result[$key] = (isset($result[$key.'Php'])
+                ? "<?php\n".$result[$key.'Php']."\n?>"
+                : ''
+            ).(isset($result[$key])
+                ? $result[$key]
+                : ''
+            );
+        }
+
+        return implode('', array_filter([
+            $result['begin'],
+            $this->formatElementChildren($element),
+            $result['end'],
+        ]));
     }
 
     protected function formatVariableElement(VariableElement $element)
