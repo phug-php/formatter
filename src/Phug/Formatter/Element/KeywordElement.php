@@ -16,11 +16,10 @@ class KeywordElement extends AbstractElement
     use MagicAccessorTrait;
 
     /**
-     * MarkupElement constructor.
+     * KeywordElement constructor.
      *
      * @param string                 $name
-     * @param bool                   $autoClosed
-     * @param \SplObjectStorage|null $attributes
+     * @param string                 $value
      * @param ParserNode|null        $originNode
      * @param NodeInterface|null     $parent
      * @param array|null             $children
@@ -28,7 +27,6 @@ class KeywordElement extends AbstractElement
     public function __construct(
         $name,
         $value,
-        \SplObjectStorage $attributes = null,
         ParserNode $originNode = null,
         NodeInterface $parent = null,
         array $children = null
