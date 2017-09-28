@@ -18,11 +18,11 @@ class KeywordElement extends AbstractElement
     /**
      * KeywordElement constructor.
      *
-     * @param string                 $name
-     * @param string                 $value
-     * @param ParserNode|null        $originNode
-     * @param NodeInterface|null     $parent
-     * @param array|null             $children
+     * @param string             $name
+     * @param string             $value
+     * @param ParserNode|null    $originNode
+     * @param NodeInterface|null $parent
+     * @param array|null         $children
      */
     public function __construct(
         $name,
