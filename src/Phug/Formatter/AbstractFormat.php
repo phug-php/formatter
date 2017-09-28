@@ -494,7 +494,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
 
         if (!is_array($result) && !($result instanceof \ArrayAccess)) {
-            $this->throwException("The keyword $name returned an invalid value type, string or array was expected.");
+            $this->throwException(
+                "The keyword $name returned an invalid value type, string or array was expected.",
+                $element
+            );
         }
 
         foreach (['begin', 'end'] as $key) {

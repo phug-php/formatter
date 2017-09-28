@@ -108,4 +108,28 @@ class KeywordElementTest extends \PHPUnit_Framework_TestCase
 
         self::assertSame("<?php\nif (\$value === \"bar\") {\n?><img /><?php\n}\n?>", $code);
     }
+
+    /**
+     * @covers                   \Phug\Formatter\AbstractFormat::formatKeywordElement
+     * @expectedException        \Phug\FormatterException
+     * @expectedExceptionMessage The keyword foo returned an invalid value type
+     */
+    public function testBadReturn()
+    {
+        $keyword = new KeywordElement('foo', 'bar');
+        $attributes = new SplObjectStorage();
+        $source = new AttributeElement('src', '/foo/bar.png');
+        $attributes->attach($source);
+        $img = new MarkupElement('img', false, $attributes);
+        $keyword->appendChild($img);
+        $formatter = new Formatter([
+            'keywords' => [
+                'foo' => function () {
+                    return (object) [];
+                },
+            ],
+        ]);
+
+        $formatter->format($keyword);
+    }
 }
