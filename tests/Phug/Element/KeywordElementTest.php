@@ -15,6 +15,7 @@ class KeywordElementTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::__construct
+     * @covers \Phug\Formatter\AbstractFormat::formatKeywordElement
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::getMethod
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__get
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__set
@@ -38,7 +39,7 @@ class KeywordElementTest extends \PHPUnit_Framework_TestCase
                             }
                         }
                     }
-                    $element->setChildren([]);
+                    $element->nodes = [];
 
                     return $name.':'.$value;
                 },
@@ -52,6 +53,7 @@ class KeywordElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::__construct
+     * @covers \Phug\Formatter\AbstractFormat::formatKeywordElement
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::getMethod
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__get
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__set
@@ -80,6 +82,7 @@ class KeywordElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::__construct
+     * @covers \Phug\Formatter\AbstractFormat::formatKeywordElement
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::getMethod
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__get
      * @covers \Phug\Formatter\Partial\MagicAccessorTrait::__set
