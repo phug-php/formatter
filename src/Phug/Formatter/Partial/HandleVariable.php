@@ -41,10 +41,11 @@ trait HandleVariable
 
     private function isInInterpolation(&$tokens, $index)
     {
-        return
-            isset($tokens[$index - 1]) &&
+        return isset($tokens[$index - 1]) && (
+            $tokens[$index - 1] === '"' ||
             is_array($tokens[$index - 1]) &&
-            $tokens[$index - 1][0] === T_ENCAPSED_AND_WHITESPACE;
+            $tokens[$index - 1][0] === T_ENCAPSED_AND_WHITESPACE
+        );
     }
 
     private function isInExclusionContext(&$tokens, $index)
@@ -112,12 +113,18 @@ trait HandleVariable
         return false;
     }
 
+    private function isInComplexInterpolation($tokens, $index)
+    {
+        return isset($tokens[$index - 1]) && is_array($tokens[$index - 1]) && $tokens[$index - 1][0] === T_CURLY_OPEN;
+    }
+
     protected function handleVariable($variable, $index, &$tokens, $checked)
     {
         if (!$checked ||
             $this->isInExclusionContext($tokens, $index) ||
             $this->isInFunctionParams($tokens, $index) ||
             $this->isInKeywordParams($tokens, $index) ||
+            $this->isInComplexInterpolation($tokens, $index) ||
             $variable === '$_pug_temp' ||
             mb_substr($variable, 0, 1) !== '$'
         ) {
