@@ -644,10 +644,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $code = preg_replace('/<\?(?!php)/', '<<?= "?" ?>', $code);
         }
         // @codeCoverageIgnoreEnd
-        if (defined('HHVM_VERSION')) {
-            var_dump(ini_get('short_open_tag'), ini_get('hhvm.enable_short_tags'), $code);
-            exit;
-        }
 
         return $code.$this->getNewLine();
     }
