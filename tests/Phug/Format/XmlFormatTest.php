@@ -38,9 +38,14 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             'default_format' => XmlFormat::class,
         ]));
 
+        ob_start();
+        eval('?>'.$xmlFormat($document));
+        $html = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img />',
-            $xmlFormat($document)
+            $html
         );
 
         $document = new DocumentElement();
@@ -50,9 +55,14 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             'default_format' => XmlFormat::class,
         ]));
 
+        ob_start();
+        eval('?>'.$xmlFormat($document));
+        $html = ob_get_contents();
+        ob_end_clean();
+
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img></img>',
-            $xmlFormat($document)
+            $html
         );
     }
 

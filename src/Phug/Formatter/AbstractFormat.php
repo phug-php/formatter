@@ -102,6 +102,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $this
             ->setOptionsRecursive([
                 'debug'               => true,
+                'short_open_tag_fix'  => 'auto',
                 'pattern'             => function ($pattern) {
                     $args = func_get_args();
                     $args[0] = $pattern;
@@ -633,8 +634,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     {
         $type = $doctype->getValue();
         $pattern = $type ? 'custom_doctype' : 'doctype';
+        $code = $this->pattern($pattern, $type);
+        $shortTagFix = $this->getOption('short_open_tag_fix');
+        if ($shortTagFix === 'auto') {
+            $shortTagFix = intval(ini_get('short_open_tag'));
+        }
+        // @codeCoverageIgnoreStart
+        if ($shortTagFix) {
+            $code = preg_replace('/<\?(?!php)/', '<<?= "?" ?>', $code);
+        }
+        // @codeCoverageIgnoreEnd
 
-        return $this->pattern($pattern, $type).$this->getNewLine();
+        return $code.$this->getNewLine();
     }
 
     protected function formatMixinAttributeValue($value)
