@@ -136,11 +136,23 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
             $formatter->format($img)
         );
 
-        self::assertSame('<?xml version="1.0" encoding="utf-8" ?>', $formatter->format(new DoctypeElement('xml')));
+        $php = $formatter->format(new DoctypeElement('xml'));
+        ob_start();
+        eval('?>'.$php);
+        $xml = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<?xml version="1.0" encoding="utf-8" ?>', $xml);
 
         self::assertSame(XmlFormat::class, $formatter->getFormat());
 
-        self::assertSame('<!DOCTYPE doesnotexists>', $formatter->format(new DoctypeElement('doesnotexists')));
+        $php = $formatter->format(new DoctypeElement('doesnotexists'));
+        ob_start();
+        eval('?>'.$php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<!DOCTYPE doesnotexists>', $html);
 
         self::assertSame(BasicFormat::class, $formatter->getFormat());
     }

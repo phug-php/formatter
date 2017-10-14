@@ -41,12 +41,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $php = $xmlFormat($document);
         ob_start();
         eval('?>'.$php);
-        $html = ob_get_contents();
+        $xml = ob_get_contents();
         ob_end_clean();
 
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img />',
-            $html
+            $xml
         );
 
         $document = new DocumentElement();
@@ -59,12 +59,12 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $php = $xmlFormat($document);
         ob_start();
         eval('?>'.$php);
-        $html = ob_get_contents();
+        $xml = ob_get_contents();
         ob_end_clean();
 
         self::assertSame(
             '<?xml version="1.0" encoding="utf-8" ?><img></img>',
-            $html
+            $xml
         );
     }
 
