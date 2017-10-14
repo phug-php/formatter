@@ -637,7 +637,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $code = $this->pattern($pattern, $type);
         $shortTagFix = $this->getOption('short_open_tag_fix');
         if ($shortTagFix === 'auto') {
-            $shortTagFix = intval(ini_get('short_open_tag'));
+            $shortTagFix = intval(ini_get('short_open_tag')) || intval(ini_get('hhvm.enable_short_tags'));
         }
         // @codeCoverageIgnoreStart
         if ($shortTagFix) {
@@ -645,7 +645,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
         // @codeCoverageIgnoreEnd
         if (defined('HHVM_VERSION')) {
-            var_dump(ini_get('short_open_tag'), $code);
+            var_dump(ini_get('short_open_tag'), ini_get('hhvm.enable_short_tags'), $code);
             exit;
         }
 
