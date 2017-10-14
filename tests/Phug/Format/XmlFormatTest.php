@@ -38,8 +38,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             'default_format' => XmlFormat::class,
         ]));
 
+        $php = $xmlFormat($document);
         ob_start();
-        eval('?>'.$xmlFormat($document));
+        eval('?>'.$php);
         $html = ob_get_contents();
         ob_end_clean();
 
@@ -55,8 +56,9 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
             'default_format' => XmlFormat::class,
         ]));
 
+        $php = $xmlFormat($document);
         ob_start();
-        eval('?>'.$xmlFormat($document));
+        eval('?>'.$php);
         $html = ob_get_contents();
         ob_end_clean();
 
