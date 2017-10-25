@@ -363,21 +363,20 @@ class XmlFormat extends AbstractFormat
         $dirtyAssignments->removeAll($dirtyAssignments);
         $dirtyAssignments->addAll($saveAssignments);
 
-        if ($this->isSelfClosingTag($element)) {
-            if ($element->isAutoClosed() && $this->hasPattern('explicit_closing_tag')) {
-                return $this->pattern('explicit_closing_tag', $tag.$attributes);
-            }
+        $tag = $this->isSelfClosingTag($element)
+            ? $this->pattern(
+                $element->isAutoClosed() && $this->hasPattern('explicit_closing_tag')
+                    ? 'explicit_closing_tag'
+                    : 'self_closing_tag',
+                $tag.$attributes
+            )
+            : $this->formatPairTag(
+                $this->pattern('open_pair_tag', $tag.$attributes),
+                $this->pattern('close_pair_tag', $tag),
+                $element
+            );
 
-            return $this->pattern('self_closing_tag', $tag.$attributes);
-        }
-
-        $tag = $this->formatPairTag(
-            $this->pattern('open_pair_tag', $tag.$attributes),
-            $this->pattern('close_pair_tag', $tag),
-            $element
-        );
-
-        return $this->isBlockTag($element)
+        return !$element->isAutoClosed() && $this->isBlockTag($element)
             ? $this->getIndent().$tag.$this->getNewLine()
             : $tag;
     }
