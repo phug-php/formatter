@@ -103,6 +103,32 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
+     */
+    public function testDoctypeOption()
+    {
+        $formatter = new Formatter([
+            'doctype' => 'html',
+        ]);
+        $img = new MarkupElement('hr');
+
+        self::assertSame(
+            '<hr>',
+            $formatter->format($img)
+        );
+
+        $formatter = new Formatter([
+            'doctype' => 'xml',
+        ]);
+        $img = new MarkupElement('hr');
+
+        self::assertSame(
+            '<hr />',
+            $formatter->format($img)
+        );
+    }
+
+    /**
      * @covers ::format
      * @covers ::setFormat
      * @covers ::getFormat

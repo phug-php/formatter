@@ -89,6 +89,7 @@ class Formatter implements ModuleContainerInterface
             'dependencies_storage'        => 'pugModule',
             'dependencies_storage_getter' => null,
             'default_format'              => BasicFormat::class,
+            'doctype'                     => null,
             'formats'                     => [
                 'basic'        => BasicFormat::class,
                 'frameset'     => FramesetFormat::class,
@@ -136,6 +137,12 @@ class Formatter implements ModuleContainerInterface
         }
 
         $this->addModules($this->getOption('formatter_modules'));
+
+        $doctype = $this->getOption('doctype');
+
+        if ($doctype) {
+            $this->setFormat($doctype);
+        }
     }
 
     /**
