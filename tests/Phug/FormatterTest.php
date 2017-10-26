@@ -123,7 +123,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $img = new MarkupElement('hr');
 
         self::assertSame(
-            '<hr />',
+            '<hr></hr>',
             $formatter->format($img)
         );
     }
