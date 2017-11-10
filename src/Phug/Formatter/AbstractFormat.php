@@ -698,7 +698,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '}',
             ($mode === 'ignore' ? '!isset('.$variable.') && ' : '').
             $variable.' = function ('.
-            '$attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
+            '$block, $attributes, $__pug_arguments, $__pug_mixin_vars, $__pug_children'.
             ') use (&$__pug_mixins, &$'.$this->getOption('dependencies_storage').') {',
             '    $__pug_values = [];',
             '    foreach ($__pug_arguments as $__pug_argument) {',
@@ -763,6 +763,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatMixinCallElement(MixinCallElement $mixinCall)
     {
+        $hasBlock = $mixinCall->hasChildren();
         $children = new PhpUnwrap($this->formatElementChildren($mixinCall), $this->formatter);
         $mixinName = $mixinCall->getName();
         $name = is_string($mixinName)
@@ -847,7 +848,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                     ');'."\n".
                 '}'."\n"
                 : 'isset('.$variable.') && ',
-            $variable.'('.implode(', ', [
+            $variable.'('.var_export($hasBlock, true).', '.implode(', ', [
                 // $attributes
                 $this->formatCode($attributesExpression->getValue(), true),
                 // $__pug_arguments

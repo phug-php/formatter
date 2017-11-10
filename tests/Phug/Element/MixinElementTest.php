@@ -46,7 +46,7 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         $formatter->requireMixin('tabs');
         $php = $formatter->formatDependencies().$php;
         $call = '<?php $__pug_mixins["tabs"]('.
-            '[], [[false, "a"], [false, "b"]], [], '.
+            'true, [], [[false, "a"], [false, "b"]], [], '.
             'function () { echo "block"; }'.
             '); ?>';
 
@@ -119,7 +119,7 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         $formatter->requireAllMixins();
         $php = $formatter->formatDependencies().$php;
         $call = '<?php $__pug_mixins["tabs"]('.
-            '[], [[false, "a"], [false, "b"]], [], '.
+            'true, [], [[false, "a"], [false, "b"]], [], '.
             'function () { echo "block"; }'.
             '); ?>';
 
@@ -158,7 +158,7 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         }
         $document->appendChild(new CodeElement(
             '$__pug_mixins["foo"]('.
-                '[], [], [], '.
+                'true, [], [], [], '.
                 'function () { echo "block"; }'.
             ')'
         ));
@@ -197,7 +197,7 @@ class MixinElementTest extends \PHPUnit_Framework_TestCase
         }
         $document->appendChild(new CodeElement(
             '$__pug_mixins["foo"]('.
-            '[], [], [], '.
+            'true, [], [], [], '.
             'function () { echo "block"; }'.
             ')'
         ));

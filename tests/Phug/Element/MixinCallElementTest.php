@@ -133,6 +133,39 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame('<div bar="bar" foo="Foo">Hello</div>', $html);
     }
 
+    public function testMixinBlockVariable()
+    {
+        $document = new DocumentElement();
+
+        $mixin = new MixinElement();
+        $mixin->setName('tabs');
+        $mixin->appendChild(new ExpressionElement('$block ? "present" : "absent"'));
+        $document->appendChild($mixin);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('tabs');
+        $div = new MarkupElement('div');
+        $mixinCall->appendChild($div);
+        $document->appendChild($mixinCall);
+
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('tabs');
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        ob_start();
+        call_user_func(function ($__php) {
+            eval('?>'.$__php);
+        }, $php);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('present' . 'absent', $html);
+    }
+
     /**
      * @covers \Phug\Formatter::getMixins
      * @covers \Phug\Formatter::requireMixin
