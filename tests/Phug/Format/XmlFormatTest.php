@@ -110,7 +110,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document->appendChild(new TextNode()); // Should be ignored
         $document->appendChild($else);
         $xmlFormat = new XmlFormat(new Formatter([
-            'default_format'   => XmlFormat::class,
+            'default_format' => XmlFormat::class,
         ]));
 
         self::assertSame(
@@ -125,7 +125,7 @@ class XmlFormatTest extends \PHPUnit_Framework_TestCase
         $document->appendChild($do);
         $document->appendChild($while);
         $xmlFormat = new XmlFormat(new Formatter([
-            'default_format'   => XmlFormat::class,
+            'default_format' => XmlFormat::class,
         ]));
 
         self::assertSame(

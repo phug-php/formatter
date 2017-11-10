@@ -163,7 +163,7 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
         $html = ob_get_contents();
         ob_end_clean();
 
-        self::assertSame('present' . 'absent', $html);
+        self::assertSame('present'.'absent', $html);
     }
 
     /**

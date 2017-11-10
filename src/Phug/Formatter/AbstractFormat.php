@@ -101,9 +101,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
         $this
             ->setOptionsRecursive([
-                'debug'               => true,
-                'short_open_tag_fix'  => 'auto',
-                'pattern'             => function ($pattern) {
+                'debug'              => true,
+                'short_open_tag_fix' => 'auto',
+                'pattern'            => function ($pattern) {
                     $args = func_get_args();
                     $args[0] = $pattern;
                     $function = 'sprintf';
@@ -114,9 +114,9 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
                     return call_user_func_array($function, $args);
                 },
-                'patterns'           => $patterns,
-                'pretty'             => false,
-                'element_handlers'   => [
+                'patterns'         => $patterns,
+                'pretty'           => false,
+                'element_handlers' => [
                     AssignmentElement::class => [$this, 'formatAssignmentElement'],
                     AttributeElement::class  => [$this, 'formatAttributeElement'],
                     CodeElement::class       => [$this, 'formatCodeElement'],
@@ -134,7 +134,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'php_token_handlers' => [
                     T_VARIABLE => [$this, 'handleVariable'],
                 ],
-                'mixin_merge_mode'   => 'replace',
+                'mixin_merge_mode' => 'replace',
             ])
             ->setFormatter($formatter)
             ->registerHelper('pattern', $this->getOption('pattern'))
