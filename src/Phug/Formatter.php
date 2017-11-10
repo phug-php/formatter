@@ -101,7 +101,7 @@ class Formatter implements ModuleContainerInterface
                 'transitional' => TransitionalFormat::class,
                 'xml'          => XmlFormat::class,
             ],
-            'formatter_modules'     => [],
+            'formatter_modules' => [],
 
             'on_format'             => null,
             'on_new_format'         => null,

@@ -67,7 +67,7 @@ trait HandleVariable
                 T_PUBLIC,
             ],
             // Exclude tokens after the variables
-            1  => [
+            1 => [
                 '[',
                 '=',
                 T_AND_EQUAL,

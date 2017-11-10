@@ -58,9 +58,9 @@ class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
         $helper = $format->getHelper('attributes_assignment');
 
         $code = $helper([
-            'a'     => 'b',
+            'a' => 'b',
         ], [
-            'c'     => 'a',
+            'c' => 'a',
         ], [
             'class' => ['foo zoo', 'foo bar'],
         ], [

@@ -903,8 +903,8 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
             ']; ?>', $formatter->formatDependencies());
 
         $formatter = new Formatter([
-            'dependencies_storage'        => 'dep',
-            'on_dependency_storage'       => function (Formatter\Event\DependencyStorageEvent $event) {
+            'dependencies_storage'  => 'dep',
+            'on_dependency_storage' => function (Formatter\Event\DependencyStorageEvent $event) {
                 $event->setDependencyStorage(mb_substr(ltrim($event->getDependencyStorage()), 1));
             },
         ]);
