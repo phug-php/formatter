@@ -154,7 +154,7 @@ class MixinCallElementTest extends \PHPUnit_Framework_TestCase
 
         $formatter = new Formatter();
         $php = $formatter->format($document);
-        $php = $formatter->formatDependencies().$php;
+        $php = '<?php $block = 0; ?>'.$formatter->formatDependencies().$php;
 
         ob_start();
         call_user_func(function ($__php) {
