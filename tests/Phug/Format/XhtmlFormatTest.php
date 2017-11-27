@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\DoctypeElement;
 use Phug\Formatter\Element\DocumentElement;
@@ -16,7 +17,7 @@ use Phug\Formatter\Format\TransitionalFormat;
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XhtmlFormat
  */
-class XhtmlFormatTest extends \PHPUnit_Framework_TestCase
+class XhtmlFormatTest extends TestCase
 {
     /**
      * @covers ::__construct

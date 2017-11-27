@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
@@ -13,7 +14,7 @@ use SplObjectStorage;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\MarkupElement
  */
-class MarkupElementTest extends \PHPUnit_Framework_TestCase
+class MarkupElementTest extends TestCase
 {
     /**
      * @covers \Phug\Formatter\AbstractElement::__construct
@@ -45,7 +46,7 @@ class MarkupElementTest extends \PHPUnit_Framework_TestCase
         self::assertSame('/foo/bar.png', $img->getAttribute('src'));
         self::assertSame($altValue, $img->getAttribute('alt'));
         self::assertSame('42', $img->getAttribute($mysteryCode));
-        self::assertSame(null, $img->getAttribute('foo'));
+        self::assertNull($img->getAttribute('foo'));
 
         $link->appendChild($img);
         $img->appendChild(new TextElement('foo'));

@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -11,7 +12,7 @@ use Phug\Formatter\Format\XmlFormat;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\AbstractValueElement
  */
-class ExpressionElementTest extends \PHPUnit_Framework_TestCase
+class ExpressionElementTest extends TestCase
 {
     /**
      * @covers ::<public>

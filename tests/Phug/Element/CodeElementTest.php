@@ -2,12 +2,13 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter\Element\CodeElement;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Element\CodeElement
  */
-class CodeElementTest extends \PHPUnit_Framework_TestCase
+class CodeElementTest extends TestCase
 {
     /**
      * @covers ::<public>

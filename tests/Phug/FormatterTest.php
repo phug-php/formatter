@@ -3,6 +3,7 @@
 namespace Phug\Test;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 use Phug\DependencyException;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
@@ -27,7 +28,7 @@ use RuntimeException;
 /**
  * @coversDefaultClass \Phug\Formatter
  */
-class FormatterTest extends \PHPUnit_Framework_TestCase
+class FormatterTest extends TestCase
 {
     /**
      * @covers ::__construct
@@ -263,7 +264,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $exp = new ExpressionElement('($a = function ($a, $b) { return $c; }) ? call_user_func($a, "A", "B") : null');
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 
-        self::assertSame(null, $return);
+        self::assertNull($return);
 
         $exp = new ExpressionElement('foreach ($tabs as $key => $tab)');
         $code = $formatter->format($exp);
@@ -993,7 +994,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertInstanceOf(LocatedException::class, $error);
         self::assertSame(7, $error->getLocation()->getLine());
         self::assertSame(9, $error->getLocation()->getOffset());
-        self::assertSame(null, $error->getLocation()->getPath());
+        self::assertNull($error->getLocation()->getPath());
 
         $error = null;
         $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.'test-'.mt_rand(0, 9999999);
@@ -1012,7 +1013,7 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         self::assertInstanceOf(LocatedException::class, $error);
         self::assertSame(7, $error->getLocation()->getLine());
         self::assertSame(9, $error->getLocation()->getOffset());
-        self::assertSame(null, $error->getLocation()->getPath());
+        self::assertNull($error->getLocation()->getPath());
     }
 
     /**

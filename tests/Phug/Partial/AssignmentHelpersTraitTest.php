@@ -2,13 +2,14 @@
 
 namespace Phug\Test\Partial;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Format\XmlFormat;
 
 /**
  * @coversDefaultClass \Phug\Formatter\Partial\AssignmentHelpersTrait
  */
-class AssignmentHelpersTraitTest extends \PHPUnit_Framework_TestCase
+class AssignmentHelpersTraitTest extends TestCase
 {
     /**
      * @covers ::provideAttributeAssignments

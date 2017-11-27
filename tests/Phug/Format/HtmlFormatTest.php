@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
@@ -20,7 +21,7 @@ use Phug\Util\SourceLocation;
 /**
  * @coversDefaultClass \Phug\Formatter\Format\HtmlFormat
  */
-class HtmlFormatTest extends \PHPUnit_Framework_TestCase
+class HtmlFormatTest extends TestCase
 {
     /**
      * @covers ::<public>

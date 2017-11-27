@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\ExpressionElement;
@@ -9,7 +10,7 @@ use Phug\Formatter\Element\ExpressionElement;
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XmlFormat
  */
-class FormatExtendTest extends \PHPUnit_Framework_TestCase
+class FormatExtendTest extends TestCase
 {
     /**
      * @covers ::formatAttributeElement

@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Format;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
@@ -21,7 +22,7 @@ use SplObjectStorage;
 /**
  * @coversDefaultClass \Phug\Formatter\Format\XmlFormat
  */
-class XmlFormatTest extends \PHPUnit_Framework_TestCase
+class XmlFormatTest extends TestCase
 {
     /**
      * @covers ::__construct

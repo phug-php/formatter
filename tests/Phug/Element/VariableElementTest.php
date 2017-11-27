@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DocumentElement;
@@ -12,7 +13,7 @@ use Phug\Formatter\Format\HtmlFormat;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\VariableElement
  */
-class VariableElementTest extends \PHPUnit_Framework_TestCase
+class VariableElementTest extends TestCase
 {
     /**
      * @covers \Phug\Formatter\AbstractFormat::formatVariableElement

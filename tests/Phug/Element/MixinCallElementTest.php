@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
@@ -17,7 +18,7 @@ use SplObjectStorage;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\MixinCallElement
  */
-class MixinCallElementTest extends \PHPUnit_Framework_TestCase
+class MixinCallElementTest extends TestCase
 {
     /**
      * @covers \Phug\Formatter::getMixins

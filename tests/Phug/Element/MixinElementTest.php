@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
@@ -14,7 +15,7 @@ use Phug\Formatter\Element\TextElement;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\MixinElement
  */
-class MixinElementTest extends \PHPUnit_Framework_TestCase
+class MixinElementTest extends TestCase
 {
     /**
      * @covers \Phug\Formatter::getMixins

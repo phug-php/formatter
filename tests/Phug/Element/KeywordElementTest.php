@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\KeywordElement;
@@ -11,7 +12,7 @@ use SplObjectStorage;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\KeywordElement
  */
-class KeywordElementTest extends \PHPUnit_Framework_TestCase
+class KeywordElementTest extends TestCase
 {
     /**
      * @covers ::__construct

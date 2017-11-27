@@ -2,6 +2,7 @@
 
 namespace Phug\Test;
 
+use PHPUnit\Framework\TestCase;
 use Phug\AbstractFormatterModule;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
@@ -40,7 +41,7 @@ class TestModule extends AbstractFormatterModule
 /**
  * @coversDefaultClass Phug\AbstractFormatterModule
  */
-class FormatterModuleTest extends \PHPUnit_Framework_TestCase
+class FormatterModuleTest extends TestCase
 {
     /**
      * @covers ::<public>

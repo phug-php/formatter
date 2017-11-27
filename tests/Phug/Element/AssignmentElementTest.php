@@ -2,6 +2,7 @@
 
 namespace Phug\Test\Element;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
@@ -15,7 +16,7 @@ use SplObjectStorage;
 /**
  * @coversDefaultClass \Phug\Formatter\Element\AssignmentElement
  */
-class AssignmentElementTest extends \PHPUnit_Framework_TestCase
+class AssignmentElementTest extends TestCase
 {
     /**
      * @covers ::<public>
