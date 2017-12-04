@@ -159,10 +159,11 @@ class XmlFormat extends AbstractFormat
         $value = $element->getValue();
         $name = $element->getName();
         $nonEmptyAttribute = ($name === 'class' || $name === 'id');
-        if ($value instanceof TextElement && $nonEmptyAttribute && (!$value->getValue() || $value->getValue() === '')) {
-            return '';
-        }
-        if ($nonEmptyAttribute && (!$value || (is_string($value) && in_array(trim($value), ['', '""', "''"])))) {
+        if ($nonEmptyAttribute && (
+            !$value ||
+            ($value instanceof TextElement && ($value->getValue() ?: '') === '') ||
+            (is_string($value) && in_array(trim($value), ['', '""', "''"]))
+        )) {
             return '';
         }
         if ($value instanceof ExpressionElement) {
