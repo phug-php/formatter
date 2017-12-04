@@ -203,7 +203,9 @@ class Formatter implements ModuleContainerInterface
                 $line = null;
             }
             foreach (['php', '__pug_php'] as $key) {
-                if (isset($step['args'], $step['args'][4], $step['args'][4][$key]) &&
+                if (isset($step['args'], $step['args'][4]) &&
+                    is_array($step['args'][4]) &&
+                    isset($step['args'][4][$key]) &&
                     mb_strrpos($step['args'][4][$key], 'PUG_DEBUG:') !== false
                 ) {
                     if (isset($step['line'])) {
