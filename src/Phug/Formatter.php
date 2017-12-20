@@ -85,12 +85,11 @@ class Formatter implements ModuleContainerInterface
     public function __construct($options = null)
     {
         $this->initFormats()->setOptionsDefaults($options ?: [], [
-            'debug'                       => false,
-            'dependencies_storage'        => 'pugModule',
-            'dependencies_storage_getter' => null,
-            'default_format'              => BasicFormat::class,
-            'doctype'                     => null,
-            'formats'                     => [
+            'debug'                => false,
+            'dependencies_storage' => 'pugModule',
+            'default_format'       => BasicFormat::class,
+            'doctype'              => null,
+            'formats'              => [
                 'basic'        => BasicFormat::class,
                 'frameset'     => FramesetFormat::class,
                 'html'         => HtmlFormat::class,
