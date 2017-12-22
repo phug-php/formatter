@@ -275,10 +275,10 @@ class Formatter implements ModuleContainerInterface
         $node = $this->getNodeFromDebugId($nodeId);
         $nodeLocation = $node->getSourceLocation();
         $location = new SourceLocation(
-            $nodeLocation->getPath() ?: $path,
-            $nodeLocation->getLine(),
-            $nodeLocation->getOffset(),
-            $nodeLocation->getOffsetLength()
+            ($nodeLocation ? $nodeLocation->getPath() : null) ?: $path,
+            $nodeLocation ? $nodeLocation->getLine() : 0,
+            $nodeLocation ? $nodeLocation->getOffset() : 0,
+            $nodeLocation ? $nodeLocation->getOffsetLength() : 0
         );
 
         return new LocatedException(
