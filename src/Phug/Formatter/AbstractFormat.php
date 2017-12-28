@@ -363,7 +363,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 continue;
             }
 
-            yield $phpTokenHandler[$tokenId]($text, $index, $tokens, $checked && !$inIsset);
+            yield $phpTokenHandler[$tokenId]($text, $index, $tokens, $checked && !$inIsset, $this);
         }
     }
 
@@ -582,7 +582,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatExpressionElement(ExpressionElement $code)
     {
-        $value = $code->getValue();
+        $value = $this->formatCode($code->getValue(), $code->isChecked(), !$code->isTransformationAllowed());
 
         if ($code->hasStaticValue()) {
             $value = strval(eval('return '.$value.';'));
@@ -592,8 +592,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
             return $value;
         }
-
-        $value = $this->formatCode($value, $code->isChecked(), !$code->isTransformationAllowed());
 
         if ($link = $code->getLink()) {
             if ($link instanceof AttributeElement) {
