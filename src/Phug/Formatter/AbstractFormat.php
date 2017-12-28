@@ -105,7 +105,6 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'short_open_tag_fix' => 'auto',
                 'pattern'            => function ($pattern) {
                     $args = func_get_args();
-                    $args[0] = $pattern;
                     $function = 'sprintf';
                     if (is_callable($pattern)) {
                         $function = $pattern;
