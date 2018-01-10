@@ -531,7 +531,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
 
     protected function formatCodeElement(CodeElement $code)
     {
-        $php = $this->formatCode($code->getValue(), false, !$code->isTransformationAllowed());
+        $php = $this->formatCode($code->getValue(), $code->isChecked(), !$code->isTransformationAllowed());
 
         if ($code->needAccolades()) {
             $php = preg_replace('/\s*\{\s*\}\s*$/', '', $php).$this->pattern(

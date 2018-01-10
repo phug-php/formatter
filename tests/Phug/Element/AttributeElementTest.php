@@ -51,6 +51,61 @@ class AttributeElementTest extends TestCase
 
     /**
      * @covers ::<public>
+     * @covers \Phug\Formatter\Format\XmlFormat::hasNonStaticAttributes
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
+     * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeElement
+     */
+    public function testStaticAttributeElement()
+    {
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+
+        $attribute = new AttributeElement('foo', new ExpressionElement('null'));
+
+        ob_start();
+        $php = $formatter->format($attribute);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('', $actual);
+
+        $attribute = new AttributeElement('class', '""');
+
+        ob_start();
+        $php = $formatter->format($attribute);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('', $actual);
+
+        $attribute = new AttributeElement('class', new ExpressionElement("''"));
+
+        ob_start();
+        $php = $formatter->format($attribute);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('', $actual);
+
+        $attribute = new AttributeElement('width', '12');
+        $iframe = new MarkupElement('iframe');
+        $iframe->getAttributes()->attach($attribute);
+
+        ob_start();
+        $php = $formatter->format($iframe);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<iframe width="12"></iframe>', $actual);
+    }
+
+    /**
+     * @covers ::<public>
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      */
     public function testExpressionAttributeElement()

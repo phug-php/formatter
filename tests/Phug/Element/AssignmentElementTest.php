@@ -230,6 +230,7 @@ class AssignmentElementTest extends TestCase
     /**
      * @covers \Phug\Formatter\Element\AssignmentElement::detach
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers \Phug\Formatter\Partial\HandleVariable::isInComplexInterpolation
      */
     public function testAssignmentHandlersWithYield()
     {

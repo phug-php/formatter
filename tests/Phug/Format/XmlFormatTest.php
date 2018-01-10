@@ -155,6 +155,29 @@ class XmlFormatTest extends TestCase
             2,
             eval('?>'.$xmlFormat($document).'<?php return $a;')
         );
+
+        $formatter = new Formatter([
+            'default_format' => XmlFormat::class,
+        ]);
+        $if = new CodeElement('if ($doesNotExist)');
+        $if->check()->appendChild(new MarkupElement('if', true));
+        $else = new CodeElement('else');
+        $else->check()->appendChild(new MarkupElement('else', true));
+        $document = new DocumentElement();
+        $document->appendChild($if);
+        $document->appendChild($else);
+        $xmlFormat = new XmlFormat($formatter);
+
+        ob_start();
+        $php = $xmlFormat($document);
+        eval('?>'.$formatter->formatDependencies().$php);
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame(
+            '<else />',
+            $actual
+        );
     }
 
     /**
