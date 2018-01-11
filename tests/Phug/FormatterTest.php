@@ -18,6 +18,7 @@ use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterModuleInterface;
+use Phug\Lexer\Token\TextToken;
 use Phug\Parser\Node\CodeNode;
 use Phug\Parser\Node\ExpressionNode;
 use Phug\Parser\Node\TextNode;
@@ -713,7 +714,7 @@ class FormatterTest extends TestCase
     }
 
     /**
-     * @group debug
+     * @group  debug
      * @covers \Phug\Formatter\AbstractFormat::format
      * @covers \Phug\Formatter\AbstractFormat::formatElementChildren
      * @covers \Phug\Formatter::getSourceLine
@@ -756,7 +757,12 @@ class FormatterTest extends TestCase
             ]),
             $formatter->format($document, $format)
         );
-        $exception = new \Exception();
+
+        include_once __DIR__.'/ExceptionWrapper.php';
+        $exception = new ExceptionWrapper();
+        $exception->setTrace([]);
+        $exception->setLine(null);
+        $exception->setFile(null);
         $error = $formatter->getDebugError($exception, 1);
 
         self::assertSame($error, $exception);
@@ -764,6 +770,7 @@ class FormatterTest extends TestCase
         include_once __DIR__.'/OpenThrowable.php';
         $exception = new OpenThrowable();
         $exception->setLine(5);
+        $exception->setFile(__DIR__.'/OpenThrowable.php');
         $error = $formatter->getDebugError($exception, 1);
 
         self::assertSame($error, $exception);
@@ -779,10 +786,11 @@ class FormatterTest extends TestCase
 
         $exception = new OpenThrowable();
         $exception->setLine(2);
+        $exception->setFile(__DIR__.'/OpenThrowable.php');
         $error = $formatter->getDebugError($exception, 1);
 
         self::assertSame($error, $exception);
-
+//
         $formatter = new Formatter([
             'debug' => true,
         ]);
@@ -823,6 +831,151 @@ class FormatterTest extends TestCase
             ]),
             $formatter->format($document, $format)
         );
+    }
+
+    /**
+     * @group  debug
+     * @covers \Phug\Formatter::getSourceLine
+     * @covers \Phug\Formatter::getDebugError
+     */
+    public function testFormatDebugException()
+    {
+        include_once __DIR__.'/LocationCatcher.php';
+        $formatter = new Formatter([
+            'debug'                        => false,
+            'located_exception_class_name' => LocationCatcher::class,
+        ]);
+
+        $file = sys_get_temp_dir().'/pug-'.mt_rand(0, 9999999);
+        file_put_contents($file, 'PUG_DEBUG:1');
+        include_once __DIR__.'/OpenThrowable.php';
+        $exception = new OpenThrowable();
+        $exception->setLine(5);
+        $exception->setFile($file);
+        $error = null;
+        try {
+            $formatter->getDebugError($exception, '');
+        } catch (\Exception $exp) {
+            $error = $exp;
+        }
+
+        self::assertSame($error, $exception);
+
+        $error = null;
+        try {
+            $formatter->getDebugError($exception, "\n\nPUG_DEBUG:1\n\n");
+        } catch (\Exception $exp) {
+            $error = $exp;
+        }
+
+        self::assertSame($error, $exception);
+
+        include_once __DIR__.'/ExceptionWrapper.php';
+        $exception = new ExceptionWrapper();
+        $exception->setFile(null);
+        $exception->setTrace([
+            [
+                'line' => 12,
+            ],
+            [
+                'function' => 'eval',
+            ],
+            [
+                'line' => 99,
+            ],
+        ]);
+        $error = null;
+        $error = $formatter->getDebugError($exception, '');
+
+        unlink($file);
+
+        self::assertSame($exception, $error);
+
+        $code = "PUG_DEBUG:0\n\n\n\nPUG_DEBUG:1\nPUG_DEBUG:2\nPUG_DEBUG:3\n";
+        $exception = new ExceptionWrapper();
+        $exception->setFile(null);
+        $exception->setTrace([
+            [
+                'args' => [
+                    0,
+                    1,
+                    2,
+                    3,
+                    [
+                        '__pug_php' => $code,
+                    ],
+                ],
+                'line' => 6,
+            ],
+            [
+                'function' => 'eval',
+            ],
+            [
+                'line' => 99,
+            ],
+        ]);
+        $formatter->storeDebugNode(new TextNode(new TextToken(new SourceLocation('path', 42, 12, 3))));
+        $formatter->storeDebugNode(new TextNode(new TextToken(new SourceLocation('path', 43, 13, 4))));
+        $formatter->storeDebugNode(new TextNode(new TextToken(new SourceLocation('path', 44, 14, 5))));
+        $formatter->storeDebugNode(new TextNode(new TextToken(new SourceLocation('path', 45, 15, 6))));
+        $outputException = $formatter->getDebugError($exception, $code);
+        $outputLocation = $outputException->getLocation();
+
+        self::assertSame('path', $outputLocation->getPath());
+        self::assertSame(43, $outputLocation->getLine());
+        self::assertSame(13, $outputLocation->getOffset());
+        self::assertSame(4, $outputLocation->getOffsetLength());
+
+        $exception = new ExceptionWrapper();
+        $exception->setFile(null);
+        $exception->setTrace([
+            [
+                'args' => [
+                    0,
+                    1,
+                    2,
+                    7,
+                    [
+                        '__pug_php' => $code,
+                    ],
+                ],
+            ],
+            [
+                'function' => 'eval',
+            ],
+            [
+                'line' => 99,
+            ],
+        ]);
+        $outputException = $formatter->getDebugError($exception, $code);
+        $outputLocation = $outputException->getLocation();
+
+        self::assertSame('path', $outputLocation->getPath());
+        self::assertSame(44, $outputLocation->getLine());
+        self::assertSame(14, $outputLocation->getOffset());
+        self::assertSame(5, $outputLocation->getOffsetLength());
+
+        $exception = new ExceptionWrapper();
+        $exception->setFile(null);
+        $exception->setTrace([
+            [
+            ],
+            [
+                'function' => 'eval',
+            ],
+            [
+                'args' => [
+                    $code,
+                ],
+            ],
+        ]);
+        $outputException = $formatter->getDebugError($exception, $code);
+        $outputLocation = $outputException->getLocation();
+
+        self::assertSame('path', $outputLocation->getPath());
+        self::assertSame(42, $outputLocation->getLine());
+        self::assertSame(12, $outputLocation->getOffset());
+        self::assertSame(3, $outputLocation->getOffsetLength());
     }
 
     /**
