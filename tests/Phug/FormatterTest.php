@@ -853,6 +853,7 @@ class FormatterTest extends TestCase
         $exception->setLine(5);
         $exception->setFile($file);
         $error = null;
+
         try {
             $formatter->getDebugError($exception, '');
         } catch (\Exception $exp) {
@@ -862,6 +863,7 @@ class FormatterTest extends TestCase
         self::assertSame($error, $exception);
 
         $error = null;
+
         try {
             $formatter->getDebugError($exception, "\n\nPUG_DEBUG:1\n\n");
         } catch (\Exception $exp) {
