@@ -16,19 +16,7 @@ matrix:
         - php: hhvm-3.18
           dist: trusty
           sudo: required
-        - php: hhvm-3.19
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.20
-          dist: trusty
-          sudo: required
         - php: hhvm-3.21
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.22
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.23
           dist: trusty
           sudo: required
         - php: hhvm-3.24
@@ -38,19 +26,7 @@ matrix:
         - php: hhvm-3.18
           dist: trusty
           sudo: required
-        - php: hhvm-3.19
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.20
-          dist: trusty
-          sudo: required
         - php: hhvm-3.21
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.22
-          dist: trusty
-          sudo: required
-        - php: hhvm-3.23
           dist: trusty
           sudo: required
         - php: hhvm-3.24
