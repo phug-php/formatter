@@ -11,6 +11,7 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
+use Phug\Util\Joiner;
 use SplObjectStorage;
 
 /**
@@ -39,6 +40,7 @@ class AssignmentElementTest extends TestCase
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentValue
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributeAsArrayItem
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers \Phug\Formatter\Format\XmlFormat::yieldAssignmentElement
      * @covers \Phug\Formatter\Format\XmlFormat::formatAttributes
      */
     public function testAttributeElement()
@@ -153,6 +155,7 @@ class AssignmentElementTest extends TestCase
     /**
      * @covers                   \Phug\Formatter\AbstractFormat::throwException
      * @covers                   \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers                   \Phug\Formatter\Format\XmlFormat::yieldAssignmentElement
      * @expectedException        \Phug\FormatterException
      * @expectedExceptionMessage Unable to handle class assignment
      */
@@ -170,7 +173,9 @@ class AssignmentElementTest extends TestCase
     }
 
     /**
+     * @group i
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers \Phug\Formatter\Format\XmlFormat::yieldAssignmentElement
      * @covers \Phug\Formatter\Element\ExpressionElement::<public>
      * @covers \Phug\Formatter\Partial\TransformableTrait::preventFromTransformation
      * @covers \Phug\Formatter\Partial\TransformableTrait::isTransformationAllowed
@@ -230,6 +235,7 @@ class AssignmentElementTest extends TestCase
     /**
      * @covers \Phug\Formatter\Element\AssignmentElement::detach
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
+     * @covers \Phug\Formatter\Format\XmlFormat::yieldAssignmentElement
      * @covers \Phug\Formatter\Partial\HandleVariable::isInComplexInterpolation
      */
     public function testAssignmentHandlersWithYield()
@@ -246,9 +252,9 @@ class AssignmentElementTest extends TestCase
                     if ($element->getName() === 'foo') {
                         $element->detach();
                         yield new ExpressionElement(
-                            'my_func('.implode(', ', array_map(function (ExpressionElement $attribute) {
+                            'my_func('.(new Joiner($element->getAttributes()))->mapAndJoin(function (ExpressionElement $attribute) {
                                 return $attribute->getValue();
-                            }, iterator_to_array($element->getAttributes()))).')'
+                            }, ', ').')'
                         );
                     }
                 },

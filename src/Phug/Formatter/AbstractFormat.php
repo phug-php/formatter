@@ -24,6 +24,7 @@ use Phug\FormatterException;
 use Phug\Parser\Node\ConditionalNode;
 use Phug\Parser\Node\WhenNode;
 use Phug\Parser\NodeInterface;
+use Phug\Util\Joiner;
 use Phug\Util\OptionInterface;
 use Phug\Util\Partial\OptionTrait;
 use Phug\Util\SourceLocation;
@@ -331,6 +332,24 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function handleTokens($code, $checked)
     {
         $phpTokenHandler = $this->getOption('php_token_handlers');
+        $untouched = false;
+        if (!$checked) {
+            try {
+                $reflector = new \ReflectionMethod($this, 'handleVariable');
+                $untouched = (empty($phpTokenHandler) || $phpTokenHandler === [
+                            T_VARIABLE => [$this, 'handleVariable'],
+                        ]) && $reflector->getDeclaringClass()->getName() === self::class;
+            } catch (\ReflectionException $exp) {
+                $untouched = false;
+            }
+        }
+
+        if ($untouched) {
+            yield $code;
+
+            return;
+        }
+
         $tokens = array_slice(token_get_all('<?php '.$code), 1);
         $afterIsset = false;
         $inIsset = false;
@@ -399,10 +418,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             );
         }
 
-        return implode('', iterator_to_array($this->handleTokens(
+        return (new Joiner($this->handleTokens(
             $code,
             $checked
-        )));
+        )))->join('');
     }
 
     protected function formatAssignmentValue($value)
