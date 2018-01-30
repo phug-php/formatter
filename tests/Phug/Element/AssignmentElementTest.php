@@ -252,9 +252,11 @@ class AssignmentElementTest extends TestCase
                     if ($element->getName() === 'foo') {
                         $element->detach();
                         yield new ExpressionElement(
-                            'my_func('.(new Joiner($element->getAttributes()))->mapAndJoin(function (ExpressionElement $attribute) {
-                                return $attribute->getValue();
-                            }, ', ').')'
+                            'my_func('.(new Joiner($element->getAttributes()))
+                                ->mapAndJoin(function (ExpressionElement $attribute) {
+                                    return $attribute->getValue();
+                                }, ', ').
+                            ')'
                         );
                     }
                 },
