@@ -248,9 +248,9 @@ class XmlFormat extends AbstractFormat
     /**
      * @param AssignmentElement $element
      *
-     * @return \Generator
-     *
      * @throws \Phug\FormatterException
+     *
+     * @return \Generator
      */
     protected function yieldAssignmentElement(AssignmentElement $element)
     {
@@ -302,9 +302,9 @@ class XmlFormat extends AbstractFormat
     /**
      * @param AssignmentElement $element
      *
-     * @return string
-     *
      * @throws \Phug\FormatterException
+     *
+     * @return string
      */
     protected function formatAssignmentElement(AssignmentElement $element)
     {
