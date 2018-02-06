@@ -262,6 +262,12 @@ class FormatterTest extends TestCase
 
         self::assertSame('A', $return);
 
+        $code = '(($b = "B") && $a = function () use ($b) { return $b; }) ? call_user_func($a) : null';
+        $exp = new ExpressionElement($code);
+        $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
+
+        self::assertSame('B', $return);
+
         $exp = new ExpressionElement('($a = function ($a, $b) { return $c; }) ? call_user_func($a, "A", "B") : null');
         $return = eval(str_replace(['<?=', '?>'], ['return', ';'], $formatter->format($exp)));
 

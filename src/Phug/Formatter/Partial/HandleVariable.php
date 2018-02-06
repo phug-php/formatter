@@ -31,7 +31,10 @@ trait HandleVariable
                 $afterOpen = true;
                 continue;
             }
-            if ($afterOpen && is_array($tokens[$i]) && $tokens[$i][0] === T_FUNCTION) {
+            if ($afterOpen && is_array($tokens[$i]) && in_array($tokens[$i][0], [
+                T_FUNCTION,
+                T_USE,
+            ])) {
                 return true;
             }
         }
