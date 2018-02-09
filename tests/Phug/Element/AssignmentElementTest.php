@@ -173,7 +173,6 @@ class AssignmentElementTest extends TestCase
     }
 
     /**
-     * @group i
      * @covers \Phug\Formatter\Format\XmlFormat::formatAssignmentElement
      * @covers \Phug\Formatter\Format\XmlFormat::yieldAssignmentElement
      * @covers \Phug\Formatter\Element\ExpressionElement::<public>
