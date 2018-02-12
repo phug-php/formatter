@@ -765,14 +765,18 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         if ($mixin->hasParent()) {
             $saveVariable = '$__pug_save_'.mt_rand(0, 9999999);
             $mixinCode = $this->handleCode(
-                "$saveVariable = isset(\$__pug_mixins, $variable) ? $variable : null"
+                "if (isset(\$__pug_mixins, $variable)) {\n    $saveVariable = $variable;\n}\n"
             ).$mixinCode;
             $parent = $mixin->getParent();
             $destructors = $this->formatter->getDestructors();
             $parentDestructors = $destructors->offsetExists($parent)
                 ? $destructors->offsetGet($parent)
                 : [];
-            $parentDestructors[] = new CodeElement($variable.'='.$saveVariable);
+            $restoreMixin = new CodeElement(
+                "if (isset($saveVariable)) {\n    $variable = $saveVariable;\n}\n"
+            );
+            $restoreMixin->preventFromTransformation();
+            $parentDestructors[] = $restoreMixin;
             $destructors->offsetSet($parent, $parentDestructors);
         }
 
