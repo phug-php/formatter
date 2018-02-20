@@ -32,7 +32,7 @@ matrix:
         - php: hhvm-3.24
           dist: trusty
           sudo: required
-  fast_finish: true
+    fast_finish: true
 
 install:
     - composer self-update
