@@ -41,12 +41,24 @@ class FormatterTest extends TestCase
         self::assertSame('bar', $formatter->getOption('foo'));
     }
 
+    protected function expectMessageToBeThrown($type, $message)
+    {
+        if (method_exists($this, 'expectExceptionMessage')) {
+            $this->expectException($type);
+            $this->expectExceptionMessage($message);
+
+            return;
+        }
+
+        $this->setExpectedException($type, $message, null);
+    }
+
     /**
      * @covers ::__construct
      */
     public function testConstructorException()
     {
-        $this->setExpectedException(
+        $this->expectMessageToBeThrown(
             InvalidArgumentException::class,
             'Passed format class'.
             ' Phug\Formatter\Element\CodeElement'.
@@ -76,7 +88,7 @@ class FormatterTest extends TestCase
      */
     public function testSetFormatHandlerException()
     {
-        $this->setExpectedException(
+        $this->expectMessageToBeThrown(
             InvalidArgumentException::class,
             'Passed format class'.
             ' Phug\Formatter\Element\CodeElement'.
@@ -92,7 +104,7 @@ class FormatterTest extends TestCase
      */
     public function testDefaultFormatException()
     {
-        $this->setExpectedException(
+        $this->expectMessageToBeThrown(
             RuntimeException::class,
             'Passed default format class'.
             ' Phug\Formatter\Element\CodeElement'.
