@@ -684,11 +684,17 @@ class XmlFormatTest extends TestCase
      */
     public function testMissingHelper()
     {
-        self::setExpectedException(
-            \Exception::class,
-            '\'non_existing_helper\' dependency not found in the namespace: '.
-            '\'Phug\\\\Test\\\\Format\\\\FakeFormat::\''
-        );
+        method_exists($this, 'setExpectedException')
+            ? self::setExpectedException(
+                \Exception::class,
+                '\'non_existing_helper\' dependency not found in the namespace: '.
+                '\'Phug\\\\Test\\\\Format\\\\FakeFormat::\''
+            )
+            : self::expectExceptionMessage(
+                '\'non_existing_helper\' dependency not found in the namespace: '.
+                '\'Phug\\\\Test\\\\Format\\\\FakeFormat::\''
+            );
+
         include_once __DIR__.'/FakeFormat.php';
 
         $format = new FakeFormat();
