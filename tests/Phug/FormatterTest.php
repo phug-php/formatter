@@ -808,7 +808,7 @@ class FormatterTest extends TestCase
         $error = $formatter->getDebugError($exception, 1);
 
         self::assertSame($error, $exception);
-//
+
         $formatter = new Formatter([
             'debug' => true,
         ]);
