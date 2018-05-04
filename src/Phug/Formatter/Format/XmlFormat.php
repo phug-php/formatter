@@ -140,7 +140,7 @@ class XmlFormat extends AbstractFormat
     {
         if ($element instanceof MarkupElement || $element instanceof MixinCallElement) {
             foreach ($element->getAttributes() as $attribute) {
-                if ($attribute->hasStaticMember('value')) {
+                if ($attribute->hasStaticMember('value') || $attribute->getValue() instanceof TextElement) {
                     continue;
                 }
                 if ($attribute->getValue() instanceof ExpressionElement &&
