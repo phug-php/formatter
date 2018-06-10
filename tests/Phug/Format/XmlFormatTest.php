@@ -701,4 +701,29 @@ class XmlFormatTest extends TestCase
 
         $format(new MarkupElement('non_existing_helper'));
     }
+
+    /**
+     * @covers \Phug\Formatter\Partial\HandleVariable::handleVariable
+     */
+    public function testCheckedVariableExceptionsOption()
+    {
+        $formatter = new Formatter([
+            'default_format'              => XmlFormat::class,
+            'checked_variable_exceptions' => [
+                'js-phpize' => function ($variable, $index, $tokens) {
+                    return $index > 2 &&
+                        $tokens[$index - 1] === '(' &&
+                        $tokens[$index - 2] === ']' &&
+                        is_array($tokens[$index - 3]) &&
+                        $tokens[$index - 3][0] === T_CONSTANT_ENCAPSED_STRING &&
+                        preg_match('/_with_ref\'$/', $tokens[$index - 3][1]);
+                },
+            ],
+        ]);
+
+        self::assertSame(
+            '$a[\'foo_with_ref\']($b) + $a[\'foo_without_ref\']((isset($b) ? $b : null))',
+            $formatter->formatCode('$a[\'foo_with_ref\']($b) + $a[\'foo_without_ref\']($b)', true)
+        );
+    }
 }
