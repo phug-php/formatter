@@ -391,6 +391,7 @@ class FormatterTest extends TestCase
      * @covers \Phug\Formatter\AbstractFormat::formatCode
      * @covers \Phug\Formatter\AbstractFormat::formatExpressionElement
      * @covers \Phug\Formatter\AbstractFormat::formatAttributeValueAccordingToName
+     * @covers \Phug\Formatter\AbstractFormat::handleTokens
      */
     public function testTransformExpression()
     {
@@ -469,6 +470,30 @@ class FormatterTest extends TestCase
             '? var_export($_pug_temp, true) : $_pug_temp) ?>',
             $formatter->format($expression, HtmlFormat::class)
         );
+
+        $checks = [];
+        $formatter = new Formatter([
+            'php_token_handlers' => [
+                T_VARIABLE => function ($expression, $index, $tokens, $checked) use (&$checks) {
+                    $checks[] = $checked;
+
+                    return $expression;
+                },
+            ],
+        ]);
+        $code = 'concat($foo, isset($foo), $foo)';
+        $expression = new ExpressionElement($code);
+        $expression->check();
+        $php = $formatter->format($expression, HtmlFormat::class);
+
+        self::assertSame([true, false, true], $checks);
+        self::assertSame('<?= (is_bool($_pug_temp = concat($foo, isset($foo), $foo)) ? var_export($_pug_temp, true) : $_pug_temp) ?>', $php);
+
+        $checks = [];
+        $php = $formatter->formatCode($code, true);
+
+        self::assertSame([true, false, true], $checks);
+        self::assertSame('concat($foo, isset($foo), $foo)', $php);
     }
 
     /**
