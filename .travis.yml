@@ -40,7 +40,7 @@ install:
     - composer install
 
 script:
-    - vendor/bin/phug-dev check --report --coverage-php-version=7.3
+    - vendor/bin/phug-dev check --report --coverage-php-version=7.2
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z
