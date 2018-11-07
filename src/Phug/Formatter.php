@@ -11,6 +11,7 @@ use Phug\Formatter\ElementInterface;
 use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
 use Phug\Formatter\Event\NewFormatEvent;
+use Phug\Formatter\Event\StringifyEvent;
 use Phug\Formatter\Format\BasicFormat;
 use Phug\Formatter\Format\FramesetFormat;
 use Phug\Formatter\Format\HtmlFormat;
@@ -104,6 +105,7 @@ class Formatter implements ModuleContainerInterface
             'formatter_modules'            => [],
 
             'on_format'             => null,
+            'on_stringify'          => null,
             'on_new_format'         => null,
             'on_dependency_storage' => null,
         ]);
@@ -126,6 +128,10 @@ class Formatter implements ModuleContainerInterface
 
         if ($onFormat = $this->getOption('on_format')) {
             $this->attach(FormatterEvent::FORMAT, $onFormat);
+        }
+
+        if ($onStringify = $this->getOption('on_stringify')) {
+            $this->attach(FormatterEvent::STRINGIFY, $onStringify);
         }
 
         if ($onNewFormat = $this->getOption('on_new_format')) {
@@ -524,17 +530,16 @@ class Formatter implements ModuleContainerInterface
         $format = $this->getFormatInstance($format);
         $format->setFormatter($this);
 
-        $event = new FormatEvent($element, $format);
-        $this->trigger($event);
+        $formatEvent = new FormatEvent($element, $format);
+        $this->trigger($formatEvent);
 
-        $element = $event->getElement();
-        $format = $event->getFormat();
+        $element = $formatEvent->getElement();
+        $format = $formatEvent->getFormat();
 
-        if (!$element) {
-            return '';
-        }
+        $stringifyEvent = new StringifyEvent($formatEvent, $element ? $format($element) : '');
+        $this->trigger($stringifyEvent);
 
-        return $format($element);
+        return $stringifyEvent->getOutput();
     }
 
     public function getModuleBaseClassName()

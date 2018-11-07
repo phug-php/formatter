@@ -9,9 +9,11 @@ use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Element\TextElement;
 use Phug\Formatter\Event\DependencyStorageEvent;
 use Phug\Formatter\Event\FormatEvent;
 use Phug\Formatter\Event\NewFormatEvent;
+use Phug\Formatter\Event\StringifyEvent;
 use Phug\Formatter\Format\HtmlFormat;
 use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterEvent;
@@ -99,6 +101,42 @@ class FormatterModuleTest extends TestCase
         self::assertSame(
             '',
             $formatter->format(new MarkupElement('input'), $format)
+        );
+    }
+
+    /**
+     * @covers ::<public>
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter::format
+     * @covers \Phug\Formatter\Event\StringifyEvent::__construct
+     * @covers \Phug\Formatter\Event\StringifyEvent::getFormatEvent
+     * @covers \Phug\Formatter\Event\StringifyEvent::getOutput
+     * @covers \Phug\Formatter\Event\StringifyEvent::setOutput
+     */
+    public function testStringifyEvent()
+    {
+        $formatter = new Formatter([
+            'on_stringify' => function (StringifyEvent $event) {
+                $element = $event->getFormatEvent()->getElement();
+                if ($element instanceof MarkupElement && $element->getName() === 'em') {
+                    $event->setOutput('*'.$event->getOutput().'*');
+                }
+            },
+        ]);
+
+        $el = new MarkupElement('div', false, null, null, null, [
+            new MarkupElement('span', false, null, null, null, [
+                new TextElement('foo'),
+            ]),
+            new MarkupElement('em', false, null, null, null, [
+                new TextElement('bar'),
+            ]),
+            new TextElement('biz'),
+        ]);
+
+        self::assertSame(
+            '<div><span>foo</span>*<em>bar</em>*biz</div>',
+            $formatter->format($el, HtmlFormat::class)
         );
     }
 
