@@ -487,7 +487,11 @@ class FormatterTest extends TestCase
         $php = $formatter->format($expression, HtmlFormat::class);
 
         self::assertSame([true, false, true], $checks);
-        self::assertSame('<?= (is_bool($_pug_temp = concat($foo, isset($foo), $foo)) ? var_export($_pug_temp, true) : $_pug_temp) ?>', $php);
+        self::assertSame(
+            '<?= (is_bool($_pug_temp = concat($foo, isset($foo), $foo)) ? '.
+            'var_export($_pug_temp, true) : $_pug_temp) ?>',
+            $php
+        );
 
         $checks = [];
         $php = $formatter->formatCode($code, true);
