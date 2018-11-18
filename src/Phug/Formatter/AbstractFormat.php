@@ -826,11 +826,10 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             }
         }
         if (count($mergeAttributes)) {
-            $attributesExpression->setValue(sprintf(
-                'array_merge(%s, %s)',
+            $attributesExpression = $this->attributesAssignmentsFromPairs([
                 $attributesExpression->getValue(),
-                implode(', ', $mergeAttributes)
-            ));
+                implode(', ', $mergeAttributes),
+            ], 'merge_attributes');
         }
         $variable = '$__pug_mixins[$__pug_mixin_name]';
         $debug = $this->getOption('debug');
