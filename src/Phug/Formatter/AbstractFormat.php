@@ -241,8 +241,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $elementCode = $handler($element);
                 $debugCode = $debug ? $this->getDebugInfo($element) : '';
                 $glue = mb_strlen($debugCode) && in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"])
-                        ? "\n"
-                        : '';
+                    ? "\n"
+                    : '';
 
                 return $debugCode.$glue.$elementCode;
             }
@@ -335,14 +335,16 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         $phpTokenHandler = $this->getOption('php_token_handlers');
         $untouched = false;
         if (!$checked) {
+            // @codeCoverageIgnoreStart
             try {
                 $reflector = new \ReflectionMethod($this, 'handleVariable');
                 $untouched = (empty($phpTokenHandler) || $phpTokenHandler === [
-                            T_VARIABLE => [$this, 'handleVariable'],
-                        ]) && $reflector->getDeclaringClass()->getName() === self::class;
+                    T_VARIABLE => [$this, 'handleVariable'],
+                ]) && $reflector->getDeclaringClass()->getName() === self::class;
             } catch (\ReflectionException $exp) {
                 $untouched = false;
             }
+            // @codeCoverageIgnoreEnd
         }
 
         if ($untouched) {

@@ -20,6 +20,7 @@ use Phug\Formatter\Format\XmlFormat;
 use Phug\FormatterModuleInterface;
 use Phug\Lexer\Token\TextToken;
 use Phug\Parser\Node\CodeNode;
+use Phug\Parser\Node\ConditionalNode;
 use Phug\Parser\Node\ExpressionNode;
 use Phug\Parser\Node\TextNode;
 use Phug\Util\Exception\LocatedException;
@@ -1216,6 +1217,130 @@ class FormatterTest extends TestCase
         self::assertSame(7, $error->getLocation()->getLine());
         self::assertSame(9, $error->getLocation()->getOffset());
         self::assertNull($error->getLocation()->getPath());
+    }
+
+    /**
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::fileContains
+     * @covers \Phug\Formatter::getSourceLine
+     * @covers \Phug\Formatter::debugIdExists
+     * @covers \Phug\Formatter::getNodeFromDebugId
+     * @covers \Phug\Formatter::getDebugError
+     * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter\AbstractFormat::getDebugComment
+     * @covers \Phug\Formatter\AbstractFormat::getDebugInfo
+     * @covers \Phug\Formatter\AbstractElement::getOriginNode
+     */
+    public function testDebugElseError()
+    {
+        if (version_compare(PHP_VERSION, '7.0.0-dev', '<')) {
+            self::markTestSkipped('Need PHP 7 to handle ParseError as Throwable');
+        }
+
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $node = new ExpressionNode(null, new SourceLocation('source.pug', 3, 15));
+        $document = new DocumentElement();
+        $document->appendChild($htmlEl = new MarkupElement('html'));
+        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+        $bodyEl->appendChild(new ExpressionElement(
+            'else',
+            $node
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        $error = null;
+        ob_start();
+
+        try {
+            eval('?>'.$php);
+        } catch (\Exception $exception) {
+            /** @var LocatedException $error */
+            $error = $formatter->getDebugError($exception, $php);
+        } catch (\Throwable $exception) {
+            /** @var LocatedException $error */
+            $error = $formatter->getDebugError($exception, $php);
+        }
+        ob_end_clean();
+
+        self::assertInstanceOf(LocatedException::class, $error);
+        self::assertSame(3, $error->getLocation()->getLine());
+        self::assertSame(15, $error->getLocation()->getOffset());
+        self::assertSame('source.pug', $error->getLocation()->getPath());
+
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $node = new ConditionalNode(null, new SourceLocation('source.pug', 3, 15));
+        $node->setName('else');
+        $document = new DocumentElement();
+        $document->appendChild($htmlEl = new MarkupElement('html'));
+        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+        $bodyEl->appendChild(new CodeElement(
+            'else',
+            $node
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        // Debug comment is ignored for else to avoid if-else block breaking
+        self::assertSame('<html><body><?php else {} ?></body></html>', $php);
+    }
+
+    /**
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::fileContains
+     * @covers \Phug\Formatter::getSourceLine
+     * @covers \Phug\Formatter::debugIdExists
+     * @covers \Phug\Formatter::getNodeFromDebugId
+     * @covers \Phug\Formatter::getDebugError
+     * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter\AbstractFormat::getDebugComment
+     * @covers \Phug\Formatter\AbstractFormat::getDebugInfo
+     * @covers \Phug\Formatter\AbstractElement::getOriginNode
+     */
+    public function testDebugErrorOnRemovedFile()
+    {
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $node = new ExpressionNode(null, new SourceLocation('source.pug', 3, 15));
+        $document = new DocumentElement();
+        $document->appendChild($htmlEl = new MarkupElement('html'));
+        $htmlEl->appendChild($bodyEl = new MarkupElement('body'));
+        $bodyEl->appendChild(new ExpressionElement(
+            '12 / 0',
+            $node
+        ));
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+        $file = sys_get_temp_dir().'/tmp'.mt_rand(0, 999999999).'.php';
+        file_put_contents($file, $php);
+
+        $error = null;
+        ob_start();
+
+        try {
+            include $file;
+        } catch (\Exception $exception) {
+            $error = $exception;
+        }
+        ob_end_clean();
+
+        unlink($file);
+        clearstatcache();
+
+        /** @var LocatedException $error */
+        $error = $formatter->getDebugError($error, $php);
+
+        self::assertInstanceOf(LocatedException::class, $error);
+        self::assertSame(3, $error->getLocation()->getLine());
+        self::assertSame(15, $error->getLocation()->getOffset());
+        self::assertSame('source.pug', $error->getLocation()->getPath());
     }
 
     /**
