@@ -1217,6 +1217,26 @@ class FormatterTest extends TestCase
         self::assertSame(7, $error->getLocation()->getLine());
         self::assertSame(9, $error->getLocation()->getOffset());
         self::assertNull($error->getLocation()->getPath());
+    }
+
+    /**
+     * @covers \Phug\Formatter::__construct
+     * @covers \Phug\Formatter::storeDebugNode
+     * @covers \Phug\Formatter::fileContains
+     * @covers \Phug\Formatter::getSourceLine
+     * @covers \Phug\Formatter::debugIdExists
+     * @covers \Phug\Formatter::getNodeFromDebugId
+     * @covers \Phug\Formatter::getDebugError
+     * @covers \Phug\Formatter\AbstractFormat::__construct
+     * @covers \Phug\Formatter\AbstractFormat::getDebugComment
+     * @covers \Phug\Formatter\AbstractFormat::getDebugInfo
+     * @covers \Phug\Formatter\AbstractElement::getOriginNode
+     */
+    public function testDebugElseError()
+    {
+        if (version_compare(PHP_VERSION, '7.0.0-dev', '<')) {
+            self::markTestSkipped('Need PHP 7 to handle ParseError as Throwable');
+        }
 
         $formatter = new Formatter([
             'debug' => true,
