@@ -217,6 +217,34 @@ class HtmlFormatTest extends TestCase
         $input = new MarkupElement('input');
         $input->appendChild(new MarkupElement('i'));
         $htmlFormat = new HtmlFormat(new Formatter());
+
+        self::assertSame('expected', $htmlFormat($input));
+    }
+
+    /**
+     * @covers \Phug\Formatter\Format\XmlFormat::isSelfClosingTag
+     */
+    public function testEmptyTextInSelfClosingTag()
+    {
+        $input = new MarkupElement('input');
+        $input->appendChild(new TextElement(''));
+        $htmlFormat = new HtmlFormat(new Formatter());
+        $htmlFormat($input);
+
+        self::assertSame('<input>', $htmlFormat($input));
+    }
+
+    /**
+     * @covers                   \Phug\Formatter\AbstractFormat::throwException
+     * @covers                   \Phug\Formatter\Format\XmlFormat::isSelfClosingTag
+     * @expectedException        \Phug\FormatterException
+     * @expectedExceptionMessage input is a self closing element: <input/> but contains nested content.
+     */
+    public function testTextInSelfClosingTag()
+    {
+        $input = new MarkupElement('input');
+        $input->appendChild(new TextElement('foo'));
+        $htmlFormat = new HtmlFormat(new Formatter());
         $htmlFormat($input);
     }
 

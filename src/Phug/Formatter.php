@@ -190,6 +190,7 @@ class Formatter implements ModuleContainerInterface
     {
         $previous = null;
         $line = null;
+
         /** @var \Throwable $error */
         foreach (array_merge([[
             'file' => $error->getFile(),
@@ -222,7 +223,10 @@ class Formatter implements ModuleContainerInterface
                     }
                 }
             }
-            if (isset($step['file'], $step['line']) && $this->fileContains($step['file'], 'PUG_DEBUG:')) {
+            if (isset($step['file'], $step['line']) && (
+                strpos($step['file'], "eval()'d code") !== false ||
+                $this->fileContains($step['file'], 'PUG_DEBUG:')
+            )) {
                 return $step['line'];
             }
         }
