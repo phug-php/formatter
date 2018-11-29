@@ -648,7 +648,6 @@ class XmlFormatTest extends TestCase
             ],
         ]);
         $link = new MarkupElement('a');
-        $data = new SplObjectStorage();
         $attributes = new AttributeElement('data-user', new ExpressionElement('"{\"name\":{\"first\":\"Linus\"}}"'));
         $link->getAttributes()->attach($attributes);
         $data = new SplObjectStorage();
