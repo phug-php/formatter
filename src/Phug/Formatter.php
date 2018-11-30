@@ -91,6 +91,7 @@ class Formatter implements ModuleContainerInterface
             'dependencies_storage'         => 'pugModule',
             'default_format'               => BasicFormat::class,
             'doctype'                      => null,
+            'pug_variables_variable_name'  => null,
             'formats'                      => [
                 'basic'        => BasicFormat::class,
                 'frameset'     => FramesetFormat::class,
@@ -469,14 +470,23 @@ class Formatter implements ModuleContainerInterface
      */
     public function formatDependencies()
     {
-        $dependencies = '';
+        $variablesVariable = $this->getOption('pug_variables_variable_name');
+
+        $dependencies = $variablesVariable ? implode("\n", [
+            '<?php',
+            '$'.$variablesVariable.' = [];',
+            'foreach (array_keys(get_defined_vars()) as $__pug_key) {',
+            '    $'.$variablesVariable.'[$__pug_key] = &$$__pug_key;',
+            '}',
+            '?>',
+        ]) : '';
 
         if ($this->dependencies->countRequiredDependencies() > 0) {
             $dependenciesExport = $this->dependencies->export(
                 $this->getOption('dependencies_storage')
             );
 
-            $dependencies = $this->format(new CodeElement(trim($dependenciesExport)));
+            $dependencies .= $this->format(new CodeElement(trim($dependenciesExport)));
         }
 
         foreach ($this->mixins->getRequirementsStates() as $key => $value) {

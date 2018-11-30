@@ -431,7 +431,7 @@ class MixinCallElementTest extends TestCase
         $paragraph = new MarkupElement('p');
         $paragraph->appendChild(new ExpressionElement('$num'));
         $mixin->appendChild($paragraph);
-        $mixin->appendChild(new ExpressionElement('$__pug_children(get_defined_vars())'));
+        $mixin->appendChild(new CodeElement('$__pug_children(get_defined_vars())'));
         $document->appendChild($mixin);
         $mixinCall = new MixinCallElement();
         $mixinCall->setName('foo');
@@ -450,11 +450,15 @@ class MixinCallElementTest extends TestCase
         $php = $formatter->format($document);
         $php = $formatter->formatDependencies().$php;
 
-        ob_start();
-        $num = 2;
-        eval('?>'.$php);
-        $html = ob_get_contents();
-        ob_get_clean();
+        $html = call_user_func(function () use ($php) {
+            ob_start();
+            $num = 2;
+            eval('?>'.$php);
+            $html = ob_get_contents();
+            ob_get_clean();
+
+            return $html;
+        });
 
         self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
     }

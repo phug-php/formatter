@@ -835,6 +835,11 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         }
         $variable = '$__pug_mixins[$__pug_mixin_name]';
         $debug = $this->getOption('debug');
+        $variablesVariable = $this->formatter->getOption('pug_variables_variable_name');
+        if (!$variablesVariable) {
+            $variablesVariable = FormatInterface::DEFAULT_VARIABLES_VARIABLE_NAME;
+            $this->formatter->setOption('pug_variables_variable_name', $variablesVariable);
+        }
 
         return $this->handleCode(implode("\n", [
             'if (!isset($__pug_mixins)) {',
@@ -883,12 +888,20 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 'function ($__pug_children_vars) use ('.
                     '&$__pug_mixins, '.
                     '$__pug_children, '.
+                    ($variablesVariable ? '$'.$variablesVariable.', ' : '').
                     '&$'.$this->getOption('dependencies_storage').
                 ') {'."\n".
                 '    foreach (array_keys($__pug_children_vars) as $key) {'."\n".
                 '        if (mb_substr($key, 0, 6) === \'__pug_\') {'."\n".
                 '            continue;'."\n".
                 '        }'."\n".
+                ($variablesVariable
+                    ? '        if(isset($'.$variablesVariable.'[$key])){'."\n".
+                    '            $$key = &$'.$variablesVariable.'[$key];'."\n".
+                    '            continue;'."\n".
+                    '        }'."\n"
+                    : ''
+                ).
                 '        $ref = &$GLOBALS[$key];'."\n".
                 '        $value = &$__pug_children_vars[$key];'."\n".
                 '        if($ref !== $value){'."\n".
