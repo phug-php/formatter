@@ -462,4 +462,48 @@ class MixinCallElementTest extends TestCase
 
         self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
     }
+
+    /**
+     * @covers ::<public>
+     */
+    public function testNestedScopeWithLocalInitialization()
+    {
+        $document = new DocumentElement();
+        $document->appendChild(new CodeElement('$num = "2"'));
+        $mixin = new MixinElement();
+        $mixin->getAttributes()->attach(new AttributeElement('$num', null));
+        $mixin->setName('foo');
+        $paragraph = new MarkupElement('p');
+        $paragraph->appendChild(new ExpressionElement('$num'));
+        $mixin->appendChild($paragraph);
+        $mixin->appendChild(new CodeElement('$__pug_children(get_defined_vars())'));
+        $document->appendChild($mixin);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $mixinCall->getAttributes()->attach(new AttributeElement(null, new ExpressionElement('1')));
+        $insideMixinCall = new MixinCallElement();
+        $insideMixinCall->setName('foo');
+        $insideMixinCall->getAttributes()->attach(new AttributeElement(null, new ExpressionElement('$num')));
+        $mixinCall->appendChild($insideMixinCall);
+        $document->appendChild($mixinCall);
+        $mixinCall = new MixinCallElement();
+        $mixinCall->setName('foo');
+        $mixinCall->getAttributes()->attach(new AttributeElement(null, new ExpressionElement('$num')));
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter();
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+
+        $html = call_user_func(function () use ($php) {
+            ob_start();
+            eval('?>'.$php);
+            $html = ob_get_contents();
+            ob_get_clean();
+
+            return $html;
+        });
+
+        self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
+    }
 }

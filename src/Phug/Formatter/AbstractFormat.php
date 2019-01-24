@@ -847,6 +847,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '}',
             '$__pug_mixin_vars = [];',
             'foreach (array_keys(get_defined_vars()) as $key) {',
+            '    $'.$variablesVariable.'[$key] = &$$key;',
             '    if (mb_substr($key, 0, 6) === \'__pug_\' || in_array($key, [\'attributes\', \'block\'])) {',
             '        continue;',
             '    }',
