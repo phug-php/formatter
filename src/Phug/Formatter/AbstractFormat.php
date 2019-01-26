@@ -846,25 +846,26 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             '    $__pug_mixins = [];',
             '}',
             '$__pug_mixin_vars = [];',
-            'foreach (array_keys(get_defined_vars()) as $key) {',
-            '    if (mb_substr($key, 0, 6) === \'__pug_\' || in_array($key, [\'attributes\', \'block\'])) {',
+            '$__pug_defined_keys = array_keys(get_defined_vars());',
+            'foreach ($__pug_defined_keys as $__local_pug_key) {',
+            '    if (mb_substr($__local_pug_key, 0, 6) === \'__pug_\' || in_array($__local_pug_key, [\'attributes\', \'block\', \''.$variablesVariable.'\'])) {',
             '        continue;',
             '    }',
-            '    $'.$variablesVariable.'[$key] = &$$key;',
-            '    $ref = &$GLOBALS[$key];',
-            '    $value = &$$key;',
-            '    if($ref !== $value){',
-            '        $__pug_mixin_vars[$key] = &$value;',
+            '    $'.$variablesVariable.'[$__local_pug_key] = &$$__local_pug_key;',
+            '    $__local_pug_ref = &$GLOBALS[$__local_pug_key];',
+            '    $__local_pug_value = &$$__local_pug_key;',
+            '    if($__local_pug_ref !== $__local_pug_value){',
+            '        $__pug_mixin_vars[$__local_pug_key] = &$__local_pug_value;',
 
             '        continue;',
             '    }',
-            '    $savedValue = $value;',
-            '    $value = ($value === true) ? false : true;',
-            '    $isGlobalReference = ($value === $ref);',
-            '    $value = $savedValue;',
+            '    $__local_pug_savedValue = $__local_pug_value;',
+            '    $__local_pug_value = ($__local_pug_value === true) ? false : true;',
+            '    $__local_pug_isGlobalReference = ($__local_pug_value === $__local_pug_ref);',
+            '    $__local_pug_value = $__local_pug_savedValue;',
 
-            '    if (!$isGlobalReference) {',
-            '        $__pug_mixin_vars[$key] = &$value;',
+            '    if (!$__local_pug_isGlobalReference) {',
+            '        $__pug_mixin_vars[$__local_pug_key] = &$__local_pug_value;',
             '    }',
             '}',
             'if (!isset($__pug_children)) {',
@@ -874,8 +875,8 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             $debug
                 ? 'if (!isset('.$variable.')) {'."\n".
                 '    throw new \InvalidArgumentException('.
-                        '"Unknown $__pug_mixin_name mixin called."'.
-                    ');'."\n".
+                '"Unknown $__pug_mixin_name mixin called."'.
+                ');'."\n".
                 '}'."\n"
                 : 'isset('.$variable.') && ',
             $variable.'('.var_export($hasBlock, true).', '.implode(', ', [
@@ -887,26 +888,26 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 '$__pug_mixin_vars',
                 // $__pug_children
                 'function ($__pug_children_vars) use ('.
-                    '&$__pug_mixins, '.
-                    '$__pug_children, '.
-                    ($variablesVariable ? '$'.$variablesVariable.', ' : '').
-                    '&$'.$this->getOption('dependencies_storage').
+                '&$__pug_mixins, '.
+                '$__pug_children, '.
+                ($variablesVariable ? '$'.$variablesVariable.', ' : '').
+                '&$'.$this->getOption('dependencies_storage').
                 ') {'."\n".
-                '    foreach (array_keys($__pug_children_vars) as $key) {'."\n".
-                '        if (mb_substr($key, 0, 6) === \'__pug_\') {'."\n".
+                '    foreach (array_keys($__pug_children_vars) as $__local_pug_key) {'."\n".
+                '        if (mb_substr($__local_pug_key, 0, 6) === \'__pug_\') {'."\n".
                 '            continue;'."\n".
                 '        }'."\n".
                 ($variablesVariable
-                    ? '        if(isset($'.$variablesVariable.'[$key])){'."\n".
-                    '            $$key = &$'.$variablesVariable.'[$key];'."\n".
+                    ? '        if(isset($'.$variablesVariable.'[$__local_pug_key])){'."\n".
+                    '            $$__local_pug_key = &$'.$variablesVariable.'[$__local_pug_key];'."\n".
                     '            continue;'."\n".
                     '        }'."\n"
                     : ''
                 ).
-                '        $ref = &$GLOBALS[$key];'."\n".
-                '        $value = &$__pug_children_vars[$key];'."\n".
-                '        if($ref !== $value){'."\n".
-                '            $$key = &$value;'."\n".
+                '        $__local_pug_ref = &$GLOBALS[$__local_pug_key];'."\n".
+                '        $__local_pug_value = &$__pug_children_vars[$__local_pug_key];'."\n".
+                '        if($__local_pug_ref !== $__local_pug_value){'."\n".
+                '            $$__local_pug_key = &$__local_pug_value;'."\n".
                 '            continue;'."\n".
                 '        }'."\n".
                 '    }'."\n".
