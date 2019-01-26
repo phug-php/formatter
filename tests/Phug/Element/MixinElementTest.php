@@ -4,10 +4,10 @@ namespace Phug\Test\Element;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
+use Phug\Formatter\Element\AnonymousBlockElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
 use Phug\Formatter\Element\DocumentElement;
-use Phug\Formatter\Element\ExpressionElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinElement;
 use Phug\Formatter\Element\TextElement;
@@ -35,10 +35,7 @@ class MixinElementTest extends TestCase
         $tabs->setIsVariadic(true);
         $mixin->getAttributes()->attach($tabs);
         $div = new MarkupElement('div');
-        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
-        $expression->uncheck();
-        $expression->preventFromTransformation();
-        $div->appendChild($expression);
+        $div->appendChild(new AnonymousBlockElement());
         $mixin->appendChild($div);
 
         $formatter = new Formatter();
@@ -77,10 +74,7 @@ class MixinElementTest extends TestCase
         $tabs->setIsVariadic(true);
         $mixin->getAttributes()->attach($tabs);
         $div = new MarkupElement('div');
-        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
-        $expression->uncheck();
-        $expression->preventFromTransformation();
-        $div->appendChild($expression);
+        $div->appendChild(new AnonymousBlockElement());
         $mixin->appendChild($div);
 
         $formatter = new Formatter();
@@ -98,6 +92,7 @@ class MixinElementTest extends TestCase
      * @covers \Phug\Formatter\AbstractFormat::formatMixinAttributeValue
      * @covers \Phug\Formatter\AbstractFormat::getMixinAttributes
      * @covers \Phug\Formatter\AbstractFormat::formatMixinElement
+     * @covers \Phug\Formatter\Element\AnonymousBlockElement::<public>
      * @covers ::<public>
      */
     public function testRequireAllMixins()
@@ -108,10 +103,7 @@ class MixinElementTest extends TestCase
         $tabs->setIsVariadic(true);
         $mixin->getAttributes()->attach($tabs);
         $div = new MarkupElement('div');
-        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
-        $expression->uncheck();
-        $expression->preventFromTransformation();
-        $div->appendChild($expression);
+        $div->appendChild(new AnonymousBlockElement());
         $mixin->appendChild($div);
 
         $formatter = new Formatter();

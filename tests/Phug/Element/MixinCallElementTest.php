@@ -4,6 +4,7 @@ namespace Phug\Test\Element;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Formatter;
+use Phug\Formatter\Element\AnonymousBlockElement;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\AttributeElement;
 use Phug\Formatter\Element\CodeElement;
@@ -45,10 +46,7 @@ class MixinCallElementTest extends TestCase
         $data->attach(new ExpressionElement('$attributes'));
         $assignment = new AssignmentElement('attributes', $data, $div);
         $div->getAssignments()->attach($assignment);
-        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
-        $expression->uncheck();
-        $expression->preventFromTransformation();
-        $div->appendChild($expression);
+        $div->appendChild(new AnonymousBlockElement());
         $mixin->appendChild($div);
         $document->appendChild($mixin);
 
@@ -113,10 +111,7 @@ class MixinCallElementTest extends TestCase
         $data->attach(new ExpressionElement('$attributes'));
         $assignment = new AssignmentElement('attributes', $data, $div);
         $div->getAssignments()->attach($assignment);
-        $expression = new ExpressionElement('$__pug_children(get_defined_vars())');
-        $expression->uncheck();
-        $expression->preventFromTransformation();
-        $div->appendChild($expression);
+        $div->appendChild(new AnonymousBlockElement());
         $mixin->appendChild($div);
         $document->appendChild($mixin);
 
@@ -431,7 +426,7 @@ class MixinCallElementTest extends TestCase
         $paragraph = new MarkupElement('p');
         $paragraph->appendChild(new ExpressionElement('$num'));
         $mixin->appendChild($paragraph);
-        $mixin->appendChild(new CodeElement('$__pug_children(get_defined_vars())'));
+        $mixin->appendChild(new AnonymousBlockElement());
         $document->appendChild($mixin);
         $mixinCall = new MixinCallElement();
         $mixinCall->setName('foo');
@@ -476,7 +471,7 @@ class MixinCallElementTest extends TestCase
         $paragraph = new MarkupElement('p');
         $paragraph->appendChild(new ExpressionElement('$num'));
         $mixin->appendChild($paragraph);
-        $mixin->appendChild(new CodeElement('$__pug_children(get_defined_vars())'));
+        $mixin->appendChild(new AnonymousBlockElement());
         $document->appendChild($mixin);
         $mixinCall = new MixinCallElement();
         $mixinCall->setName('foo');
