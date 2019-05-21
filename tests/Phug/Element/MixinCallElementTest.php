@@ -14,6 +14,9 @@ use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Element\MixinCallElement;
 use Phug\Formatter\Element\MixinElement;
 use Phug\Formatter\Element\TextElement;
+use Phug\Lexer\Token\MixinCallToken;
+use Phug\Parser\Node\MixinCallNode;
+use Phug\Util\SourceLocation;
 use SplObjectStorage;
 
 /**
@@ -500,5 +503,44 @@ class MixinCallElementTest extends TestCase
         });
 
         self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
+    }
+
+    public function testMissingMixin()
+    {
+        $document = new DocumentElement();
+        $mixinCall = new MixinCallElement(new MixinCallNode(new MixinCallToken(), new SourceLocation('dir/file.pug', 32, 10, 4)));
+        $mixinCall->setName('tabs');
+        $document->appendChild($mixinCall);
+
+        $formatter = new Formatter([
+            'debug' => true,
+        ]);
+        $php = $formatter->format($document);
+        $php = $formatter->formatDependencies().$php;
+        $exception = null;
+
+        ob_start();
+
+        try {
+            call_user_func(function ($__php) {
+                eval('?>'.$__php);
+            }, $php);
+        } catch (\InvalidArgumentException $e) {
+            $exception = $e;
+        } catch (\Exception $e) {
+            $exception = $e;
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        ob_end_clean();
+
+        $outputException = $formatter->getDebugError($exception, $php);
+        $outputLocation = $outputException->getLocation();
+
+        self::assertSame('dir/file.pug', $outputLocation->getPath());
+        self::assertSame(32, $outputLocation->getLine());
+        self::assertSame(10, $outputLocation->getOffset());
+        self::assertSame(4, $outputLocation->getOffsetLength());
     }
 }

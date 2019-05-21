@@ -203,16 +203,12 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
     protected function getDebugInfo($element)
     {
         /* @var NodeInterface $node */
-        $node = null;
+        $node = $element instanceof ElementInterface ? $element->getOriginNode() : null;
 
-        if (!(
-            $element instanceof ElementInterface &&
-            ($node = $element->getOriginNode())
-        ) ||
-        $node instanceof WhenNode || (
-            $node instanceof ConditionalNode &&
-            $node->getName() === 'else'
-        )) {
+        if (!$node ||
+            $node instanceof WhenNode ||
+            ($node instanceof ConditionalNode && $node->getName() === 'else')
+        ) {
             return '';
         }
 
