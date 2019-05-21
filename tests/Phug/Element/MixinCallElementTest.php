@@ -508,7 +508,10 @@ class MixinCallElementTest extends TestCase
     public function testMissingMixin()
     {
         $document = new DocumentElement();
-        $mixinCall = new MixinCallElement(new MixinCallNode(new MixinCallToken(), new SourceLocation('dir/file.pug', 32, 10, 4)));
+        $mixinCall = new MixinCallElement(new MixinCallNode(
+            new MixinCallToken(),
+            new SourceLocation('dir/file.pug', 32, 10, 4)
+        ));
         $mixinCall->setName('tabs');
         $document->appendChild($mixinCall);
 
