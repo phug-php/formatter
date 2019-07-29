@@ -128,18 +128,54 @@ class CodeElement extends AbstractValueElement
     }
 
     /**
+     * Set the code hooked before the inner element code.
+     *
      * @param string $preHook
+     *
+     * @return $this
      */
     public function setPreHook($preHook)
     {
         $this->preHook = $preHook;
+
+        return $this;
     }
 
     /**
+     * Set the code hooked after the inner element code.
+     *
      * @param string $postHook
+     *
+     * @return $this
      */
     public function setPostHook($postHook)
     {
         $this->postHook = $postHook;
+
+        return $this;
+    }
+
+    /**
+     * Prepend code before the inner code and the already pre-hooked codes.
+     *
+     * @param string $code
+     *
+     * @return $this
+     */
+    public function prependCode($code)
+    {
+        return $this->setPreHook($code.$this->getPreHook());
+    }
+
+    /**
+     * Append code after the inner code and the already post-hooked codes.
+     *
+     * @param string $code
+     *
+     * @return $this
+     */
+    public function appendCode($code)
+    {
+        return $this->setPostHook($this->getPostHook().$code);
     }
 }
