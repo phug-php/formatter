@@ -13,6 +13,16 @@ class CodeElement extends AbstractValueElement
     use TransformableTrait;
 
     /**
+     * @var string
+     */
+    protected $preHook = '';
+
+    /**
+     * @var string
+     */
+    protected $postHook = '';
+
+    /**
      * CodeElement constructor.
      *
      * @param string|ExpressionElement $value
@@ -99,5 +109,37 @@ class CodeElement extends AbstractValueElement
                 !$this->hasBlockContent()
             )
         ) && !in_array(end($tokens), [';', '{']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPreHook()
+    {
+        return $this->preHook;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPostHook()
+    {
+        return $this->postHook;
+    }
+
+    /**
+     * @param string $preHook
+     */
+    public function setPreHook($preHook)
+    {
+        $this->preHook = $preHook;
+    }
+
+    /**
+     * @param string $postHook
+     */
+    public function setPostHook($postHook)
+    {
+        $this->postHook = $postHook;
     }
 }

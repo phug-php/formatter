@@ -563,7 +563,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
                 $this->pattern('php_nested_html', $this->formatElementChildren($code, 0));
         }
 
-        return $this->handleCode($php);
+        return $this->handleCode($code->getPreHook().$php.$code->getPostHook());
     }
 
     protected function formatCommentElement(CommentElement $element)
