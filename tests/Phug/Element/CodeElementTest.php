@@ -21,6 +21,9 @@ class CodeElementTest extends TestCase
         self::assertSame('$foo', $foo->getValue());
     }
 
+    /**
+     * @covers ::<public>
+     */
     public function testHooks()
     {
         $code = new CodeElement('$foo = 9;');
