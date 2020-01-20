@@ -5,9 +5,8 @@ namespace Phug\Formatter\Element;
 use Phug\Util\Partial\CheckTrait;
 use Phug\Util\Partial\EscapeTrait;
 use Phug\Util\Partial\TransformableTrait;
-use Phug\Util\TransformableInterface;
 
-class ExpressionElement extends AbstractValueElement implements TransformableInterface
+class ExpressionElement extends AbstractValueElement
 {
     use CheckTrait;
     use EscapeTrait;
