@@ -82,7 +82,7 @@ class CodeElement extends AbstractValueElement implements TransformableInterface
                 T_TRAIT,
                 T_TRY,
                 T_WHILE,
-            ]);
+            ], true);
     }
 
     public function hasBlockContent()
@@ -106,7 +106,7 @@ class CodeElement extends AbstractValueElement implements TransformableInterface
                 $this->isCodeBlockOpening() &&
                 !$this->hasBlockContent()
             )
-        ) && !in_array(end($tokens), [';', '{', true]);
+        ) && !in_array(end($tokens), [';', '{']);
     }
 
     /**
