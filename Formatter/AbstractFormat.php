@@ -248,7 +248,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
             if (is_a($element, $className)) {
                 $elementCode = $handler($element);
                 $debugCode = $debug ? $this->getDebugInfo($element) : '';
-                $glue = mb_strlen($debugCode) && in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"])
+                $glue = mb_strlen($debugCode) && in_array(mb_substr($elementCode, 0, 1), ["\n", "\r"], true)
                     ? "\n"
                     : '';
 
@@ -463,7 +463,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         if ($value instanceof ExpressionElement) {
             $code = strtolower($value->getValue());
 
-            if (in_array($code, ['true', 'false', 'null', 'undefined'])) {
+            if (in_array($code, ['true', 'false', 'null', 'undefined'], true)) {
                 return $code;
             }
         }
