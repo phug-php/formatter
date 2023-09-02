@@ -14,7 +14,7 @@ trait AssignmentHelpersTrait
             'get_helper',
             function ($availableAssignments, $getHelper) {
                 return function (&$attributes, $name, $value) use ($availableAssignments, $getHelper) {
-                    if (!in_array($name, $availableAssignments, true)) {
+                    if (!in_array($name, $availableAssignments)) {
                         return $value;
                     }
 
@@ -143,7 +143,7 @@ trait AssignmentHelpersTrait
                 'pattern.html_text_escape',
                 function ($arrayEscape, $escape) {
                     return function ($name, $input) use ($arrayEscape, $escape) {
-                        if (is_array($input) && in_array(strtolower($name), ['class', 'style'], true)) {
+                        if (is_array($input) && in_array(strtolower($name), ['class', 'style'])) {
                             $result = [];
                             foreach ($input as $key => $value) {
                                 $result[$escape($key)] = $arrayEscape($name, $value);
@@ -183,7 +183,7 @@ trait AssignmentHelpersTrait
                     $input = $key;
                 }
                 foreach ($split($input) as $class) {
-                    if (!in_array($class, $classes, true)) {
+                    if (!in_array($class, $classes)) {
                         $classes[] = $class;
                     }
                 }
