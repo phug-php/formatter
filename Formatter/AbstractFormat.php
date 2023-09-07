@@ -463,7 +463,7 @@ abstract class AbstractFormat implements FormatInterface, OptionInterface
         if ($value instanceof ExpressionElement) {
             $code = strtolower($value->getValue());
 
-            if (in_array($code, ['true', 'false', 'null', 'undefined'])) {
+            if (in_array($code, ['true', 'false', 'null', 'undefined'], true)) {
                 return $code;
             }
         }
